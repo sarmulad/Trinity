@@ -3,8 +3,6 @@
 import * as React from "react";
 import { ProductionRecord, ProductionStats, TIME_RANGES } from "./types";
 
-// ─── SVG Line Chart ───────────────────────────────────────────────────────────
-
 function SvgProductionChart({ data }: { data: ProductionRecord[] }) {
   if (!data.length) return null;
 
@@ -117,9 +115,6 @@ export function ProductionChart({
   isLoading = false,
 }: ProductionChartProps) {
   const [activeRange, setActiveRange] = React.useState("Y");
-
-  // TODO: when activeRange changes, re-fetch from Tago.io with the new date range
-  // e.g. fetch(`/api/tago/production?leaseId=${leaseId}&range=${activeRange}`)
 
   const LEGEND = [
     { color: "#3b82f6", label: "H2O" },
