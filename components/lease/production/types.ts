@@ -1,8 +1,14 @@
+// ─── Types ────────────────────────────────────────────────────────────────────
+
 export interface ProductionRecord {
   date: string;
   h2o: number;
   oil: number;
   gas: number;
+  // Event markers
+  hasMessage?: boolean;
+  hasAlarm?: boolean;
+  alarmText?: string;
 }
 
 export interface ProductionStats {
@@ -65,11 +71,18 @@ export interface ProductionTabProps {
 // TODO: replace with: GET https://api.tago.io/data?variable=<var>&device=<id>
 
 export const EXAMPLE_PRODUCTION: ProductionRecord[] = [
-  { date: "1/2/24", h2o: 422, oil: 100, gas: 100 },
+  { date: "1/2/24", h2o: 422, oil: 100, gas: 100, hasMessage: true },
   { date: "1/3/24", h2o: 520, oil: 100, gas: 100 },
-  { date: "1/4/24", h2o: 312, oil: 100, gas: 100 },
+  {
+    date: "1/4/24",
+    h2o: 312,
+    oil: 100,
+    gas: 100,
+    hasAlarm: true,
+    alarmText: "Pressure Threshold Exceeded\nSensor ID: T-102",
+  },
   { date: "1/5/24", h2o: 378, oil: 100, gas: 100 },
-  { date: "1/6/24", h2o: 350, oil: 100, gas: 100 },
+  { date: "1/6/24", h2o: 350, oil: 100, gas: 100, hasMessage: true },
   { date: "1/7/24", h2o: 366, oil: 100, gas: 100 },
   { date: "1/8/24", h2o: 306, oil: 100, gas: 100 },
 ];

@@ -1,32 +1,25 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export interface BaseChartProps {
-  title?: string
-  description?: string
-  children: React.ReactNode
-  className?: string
-  loading?: boolean
-  error?: string
-  actions?: React.ReactNode
+  title?: string;
+  description?: string;
+  children: React.ReactNode;
+  className?: string;
+  loading?: boolean;
+  error?: string;
+  actions?: React.ReactNode;
 }
 
-/**
- * BaseChart wrapper component for consistent chart styling
- * Ready for AG Charts React integration
- * 
- * @example
- * ```tsx
- * import { AgCharts } from 'ag-charts-react'
- * 
- * <BaseChart title="Production Overview" description="Last 30 days">
- *   <AgCharts options={chartOptions} />
- * </BaseChart>
- * ```
- */
 export function BaseChart({
   title,
   description,
@@ -52,7 +45,7 @@ export function BaseChart({
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (loading) {
@@ -76,7 +69,7 @@ export function BaseChart({
           <div className="h-80 animate-pulse rounded-lg bg-muted" />
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -88,41 +81,37 @@ export function BaseChart({
               {title && <CardTitle>{title}</CardTitle>}
               {description && <CardDescription>{description}</CardDescription>}
             </div>
-            {actions && <div className="flex items-center gap-2">{actions}</div>}
+            {actions && (
+              <div className="flex items-center gap-2">{actions}</div>
+            )}
           </div>
         </CardHeader>
       )}
       <CardContent>
-        <div className={cn('h-80 w-full', !title && !description && 'pt-6')}>
+        <div className={cn("h-80 w-full", !title && !description && "pt-6")}>
           {children}
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
 
-/**
- * ChartContainer for responsive chart sizing
- */
 export function ChartContainer({
   children,
   className,
 }: {
-  children: React.ReactNode
-  className?: string
+  children: React.ReactNode;
+  className?: string;
 }) {
   return (
-    <div className={cn('relative h-full w-full', className)}>
-      {children}
-    </div>
-  )
+    <div className={cn("relative h-full w-full", className)}>{children}</div>
+  );
 }
 
-/**
- * ChartSkeleton for loading states
- */
 export function ChartSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn('h-80 w-full animate-pulse rounded-lg bg-muted', className)} />
-  )
+    <div
+      className={cn("h-80 w-full animate-pulse rounded-lg bg-muted", className)}
+    />
+  );
 }

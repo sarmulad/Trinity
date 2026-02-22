@@ -1,64 +1,52 @@
 "use client";
 
-import * as React from "react";
+import { useState, useEffect, use } from "react";
 import {
   ArrowLeft,
   BarChart3,
   LayoutDashboard,
-  MessageSquare,
+  MessageCircleMore,
   Bell,
-  Cpu,
+  MonitorSpeaker,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { ErrorBoundary } from "@/components/error-boundary";
 import { ProductionTab } from "@/components/lease/production/production-tab";
 import { DashboardTab } from "@/components/lease/dashboard/dashboard-tab";
+import { AlarmsTab } from "@/components/alarms/alarms-tab";
+import { MessagesTab } from "@/components/lease/messages/messages-tab";
 
 const TABS = [
   { id: "production", label: "Production", icon: BarChart3 },
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "messages", label: "Messages", icon: MessageSquare },
+  { id: "messages", label: "Messages", icon: MessageCircleMore },
   { id: "alarms", label: "Alarms", icon: Bell },
-  { id: "device-info", label: "Device Info", icon: Cpu },
+  { id: "device-info", label: "Device Info", icon: MonitorSpeaker },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
-function useProductionData(leaseId: string, enabled: boolean) {
-  const [data, setData] = React.useState<any>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+function useProductionData(id: string, enabled: boolean) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) return;
-    // setIsLoading(true);
-    // setError(null);
-    // fetch(`/api/tago/production?leaseId=${leaseId}`)
-    //   .then((r) => r.json())
-    //   .then((json) => setData(json))
-    //   .catch((e) => setError(e.message))
-    //   .finally(() => setIsLoading(false));
-  }, [leaseId, enabled]);
+  }, [id, enabled]);
 
   return { data, isLoading, error };
 }
 
-function useDashboardData(leaseId: string, enabled: boolean) {
-  const [data, setData] = React.useState<any>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+function useDashboardData(id: string, enabled: boolean) {
+  const [data, setData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!enabled) return;
-    // setIsLoading(true);
-    // setError(null);
-    // fetch(`/api/tago/dashboard?leaseId=${leaseId}`)
-    //   .then((r) => r.json())
-    //   .then((json) => setData(json))
-    //   .catch((e) => setError(e.message))
-    //   .finally(() => setIsLoading(false));
-  }, [leaseId, enabled]);
+  }, [id, enabled]);
 
   return { data, isLoading, error };
 }
@@ -72,17 +60,16 @@ function ComingSoon({ label }: { label: string }) {
 }
 
 interface LeasePageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function LeasePage({ params }: LeasePageProps) {
   const router = useRouter();
-  const leaseId = params.id;
+  const { id: id } = use(params);
 
-  const [activeTab, setActiveTab] = React.useState<TabId>("production");
-
-  const [visitedTabs, setVisitedTabs] = React.useState<Set<TabId>>(
-    new Set(["production"])
+  const [activeTab, setActiveTab] = useState<TabId>("production");
+  const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(
+    new Set(["production"]),
   );
 
   function handleTabChange(id: TabId) {
@@ -91,19 +78,18 @@ export default function LeasePage({ params }: LeasePageProps) {
   }
 
   const { data: prodData, isLoading: prodLoading } = useProductionData(
-    leaseId,
-    visitedTabs.has("production")
+    id,
+    visitedTabs.has("production"),
   );
 
   const { data: dashData, isLoading: dashLoading } = useDashboardData(
-    leaseId,
-    visitedTabs.has("dashboard")
+    id,
+    visitedTabs.has("dashboard"),
   );
 
   return (
     <ErrorBoundary>
       <div className="space-y-4 lg:space-y-5">
-        {/* ── Page header ── */}
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -117,8 +103,7 @@ export default function LeasePage({ params }: LeasePageProps) {
           </h1>
         </div>
 
-        {/* ── Tab bar ── */}
-        <div className="flex items-center gap-1 overflow-x-auto pb-0.5">
+        <div className="flex items-center w-fit gap-1 rounded-[12px] p-2 bg-[#191C22]">
           {TABS.map(({ id, label, icon: Icon }) => {
             const isActive = activeTab === id;
             return (
@@ -138,7 +123,6 @@ export default function LeasePage({ params }: LeasePageProps) {
           })}
         </div>
 
-        {/* ── Tab content ── */}
         <div>
           {activeTab === "production" && (
             <ProductionTab
@@ -155,15 +139,15 @@ export default function LeasePage({ params }: LeasePageProps) {
           {activeTab === "dashboard" && (
             <DashboardTab
               oilTanks={dashData?.oilTanks}
-              compressor={dashData?.compressor}
+              compressors={dashData?.compressor}
               wells={dashData?.wells}
               teamMembers={dashData?.teamMembers}
               isLoading={dashLoading}
             />
           )}
 
-          {activeTab === "messages" && <ComingSoon label="Messages" />}
-          {activeTab === "alarms" && <ComingSoon label="Alarms" />}
+          {activeTab === "messages" && <MessagesTab />}
+          {activeTab === "alarms" && <AlarmsTab title="Alarm" />}
           {activeTab === "device-info" && <ComingSoon label="Device Info" />}
         </div>
       </div>

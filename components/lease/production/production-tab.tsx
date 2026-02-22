@@ -36,9 +36,7 @@ export function ProductionTab({
     <div className="space-y-4">
       <p className="text-sm font-semibold text-white">Production</p>
 
-      {/* ── Chart / Table card ── */}
-      <div className="rounded-xl border border-white/10 bg-[#1e2025]">
-        {/* Toggle */}
+      <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md">
         <div className="flex items-center gap-6 border-b border-white/10 px-6 pt-4">
           {(["chart", "table"] as const).map((v) => (
             <button
@@ -57,20 +55,17 @@ export function ProductionTab({
 
         <div className="p-6">
           {isChart ? (
-            // Chart view: time ranges + SVG chart + side stats
             <ProductionChart
               data={productionData}
               stats={stats}
               isLoading={isLoading}
             />
           ) : (
-            // Table view: full-width AG Grid, no side stats
             <ProductionTable data={productionData} isLoading={isLoading} />
           )}
         </div>
       </div>
 
-      {/* ── Allocated Production + Stats (title changes per view) ── */}
       <div className="grid gap-4 lg:grid-cols-2">
         <AllocatedProductionChart wells={allocatedWells} />
         <StatsPanel
@@ -79,7 +74,6 @@ export function ProductionTab({
         />
       </div>
 
-      {/* ── Lease Score + Return/Risk (title changes per view) ── */}
       <div className="grid gap-4 lg:grid-cols-2">
         <LeaseScoreCard leaseScore={leaseScore} />
         <ReturnRiskPanel
@@ -88,7 +82,6 @@ export function ProductionTab({
         />
       </div>
 
-      {/* ── More Information ── */}
       <MoreInformation info={moreInfo} />
     </div>
   );

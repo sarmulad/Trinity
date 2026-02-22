@@ -1,6 +1,6 @@
 import React from "react";
+import "@/lib/ag-grid-config";
 import type { Metadata, Viewport } from "next";
-
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "@/components/ui/sonner";
