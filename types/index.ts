@@ -159,6 +159,15 @@ export interface ProductionReport {
   generatedBy: string;
 }
 
+/** List view item for reports table (date, name, author, status) */
+export interface ReportListItem {
+  id: string;
+  date: string;
+  reportName: string;
+  author: string;
+  status: "Ready" | "Generating" | "Failed";
+}
+
 export interface DashboardMetrics {
   totalProduction: {
     oil: number;

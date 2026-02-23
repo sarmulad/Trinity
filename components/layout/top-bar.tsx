@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Bell,
   Settings,
@@ -39,6 +39,23 @@ const tickerData: Ticker[] = [
   { id: "6", icon: "WT1", label: "WT1", value: "$75/BBL" },
 ];
 
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Daily Summary",
+  "/dashboard/reports": "Report",
+  "/dashboard/wells": "Wells",
+  "/dashboard/routes": "Routes",
+  "/dashboard/alarms": "Alarms",
+  "/dashboard/teams": "Teams",
+};
+
+function getPageTitle(pathname: string | null): string {
+  if (!pathname) return "Daily Summary";
+  const matched = Object.keys(PAGE_TITLES)
+    .filter((path) => pathname === path || pathname.startsWith(path + "/"))
+    .sort((a, b) => b.length - a.length)[0];
+  return matched ? PAGE_TITLES[matched] : "Daily Summary";
+}
+
 export function TopBar() {
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
@@ -47,6 +64,8 @@ export function TopBar() {
     year: "numeric",
   });
   const router = useRouter();
+  const pathname = usePathname();
+  const displayTitle = getPageTitle(pathname ?? null);
 
   const handleSignOut = () => {
     localStorage.removeItem("auth_token");
@@ -61,7 +80,7 @@ export function TopBar() {
         {/* Left Section - Title */}
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white">Daily Summary</h1>
+            <h1 className="text-3xl font-bold text-white">{displayTitle}</h1>
           </div>
           <Button
             variant="ghost"

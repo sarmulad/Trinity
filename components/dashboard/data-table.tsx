@@ -11,6 +11,7 @@ import {
   type ColumnDef,
   type SortingState,
   type ColumnFiltersState,
+  type RowSelectionState,
 } from '@tanstack/react-table'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
@@ -31,6 +32,11 @@ interface DataTableProps<TData, TValue> {
   searchable?: boolean
   searchPlaceholder?: string
   loading?: boolean
+  /** Enable row selection; use with a select column */
+  rowSelection?: RowSelectionState
+  onRowSelectionChange?: (updater: (prev: RowSelectionState) => RowSelectionState) => void
+  /** Row id accessor for selection (default: row.original.id) */
+  getRowId?: (row: TData) => string
 }
 
 /**
@@ -43,6 +49,9 @@ export function DataTable<TData, TValue>({
   searchable = false,
   searchPlaceholder = 'Search...',
   loading = false,
+  rowSelection,
+  onRowSelectionChange,
+  getRowId,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -58,10 +67,16 @@ export function DataTable<TData, TValue>({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onRowSelectionChange: onRowSelectionChange ?? (() => {}),
+    getRowId: getRowId as any,
+    enableRowSelection: !!onRowSelectionChange,
     state: {
       sorting,
       columnFilters,
       globalFilter,
+      ...(onRowSelectionChange && rowSelection !== undefined
+        ? { rowSelection }
+        : {}),
     },
   })
 
@@ -159,21 +174,25 @@ export function DataTable<TData, TValue>({
 
 /**
  * Helper function to create sortable column header
+ * @param title - Column header text
+ * @param iconClassName - Optional class for the sort icon (e.g. "text-[#34C759]")
  */
-export function createSortableHeader(title: string) {
+export function createSortableHeader(title: string, iconClassName?: string) {
+  const iconClass = iconClassName ? `ml-2 h-4 w-4 ${iconClassName}` : 'ml-2 h-4 w-4'
   return ({ column }: { column: any }) => {
+    const sorted = column.getIsSorted()
     return (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        onClick={() => column.toggleSorting(sorted === 'asc')}
         className="-ml-4 h-8"
       >
         {title}
-        {column.getIsSorted() === 'asc' ? (
-          <ChevronUp className="ml-2 h-4 w-4" />
-        ) : column.getIsSorted() === 'desc' ? (
-          <ChevronDown className="ml-2 h-4 w-4" />
-        ) : null}
+        {sorted === 'asc' ? (
+          <ChevronUp className={iconClass} />
+        ) : (
+          <ChevronDown className={iconClass} />
+        )}
       </Button>
     )
   }
