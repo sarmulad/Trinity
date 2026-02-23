@@ -77,7 +77,8 @@ export function Sidebar({ collapsed = false, onCollapse }: SidebarProps) {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive =
-              pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              pathname === item.href ||
+              (item.href !== "/dashboard" && pathname?.startsWith(`${item.href}/`));
 
             return (
               <Link

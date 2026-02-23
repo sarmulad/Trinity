@@ -7,7 +7,6 @@ import {
   Plus,
   ChevronDown,
   Download,
-  HelpCircle,
   Calendar as CalendarIcon,
   AlertCircle,
   Info,
@@ -42,7 +41,9 @@ import type { ReportListItem } from "@/types";
 export default function ReportsPage() {
   const [fromDate, setFromDate] = React.useState<Date | undefined>();
   const [toDate, setToDate] = React.useState<Date | undefined>();
-  const [rowSelection, setRowSelection] = React.useState<Record<string, boolean>>({});
+  const [rowSelection, setRowSelection] = React.useState<
+    Record<string, boolean>
+  >({});
 
   const params = React.useMemo(() => {
     const p: { from?: string; to?: string } = {};
@@ -52,13 +53,10 @@ export default function ReportsPage() {
   }, [fromDate, toDate]);
 
   const { data, isLoading, error, mutate } = useReports(
-    Object.keys(params).length ? params : undefined
+    Object.keys(params).length ? params : undefined,
   );
 
-  const reports = React.useMemo(
-    () => data?.reports ?? [],
-    [data]
-  );
+  const reports = React.useMemo(() => data?.reports ?? [], [data]);
 
   const formatDateTime = (d: Date, time: "10a" | "12p") => {
     const base = format(d, "M/d/yy");
@@ -66,7 +64,9 @@ export default function ReportsPage() {
   };
 
   const handleDownloadSelected = () => {
-    const selectedIds = Object.keys(rowSelection).filter((id) => rowSelection[id]);
+    const selectedIds = Object.keys(rowSelection).filter(
+      (id) => rowSelection[id],
+    );
     if (selectedIds.length) {
       // TODO: trigger download for selected report IDs
       console.log("Download reports:", selectedIds);
@@ -107,9 +107,7 @@ export default function ReportsPage() {
         accessorKey: "date",
         header: createSortableHeader("Date", "text-[#34C759]"),
         cell: ({ row }) => (
-          <div className="text-sm text-foreground">
-            {row.getValue("date")}
-          </div>
+          <div className="text-sm text-foreground">{row.getValue("date")}</div>
         ),
       },
       {
@@ -147,7 +145,7 @@ export default function ReportsPage() {
         ),
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -178,12 +176,14 @@ export default function ReportsPage() {
               {/* Left: Actions label, ? icon, Download dropdown */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-white">Actions</span>
+                  <span className="text-sm font-medium text-white">
+                    Actions
+                  </span>
                   <span
-                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#34C759] text-white"
+                    className="flex h-4 w-4 shrink-0 items-center font-bold justify-center rounded-full bg-[#34C759] text-[#000000]  text-base "
                     title="Actions help"
                   >
-                    <HelpCircle className="h-3.5 w-3.5" />
+                    ?
                   </span>
                 </div>
                 <DropdownMenu>
@@ -221,7 +221,9 @@ export default function ReportsPage() {
               <div className="flex flex-wrap items-end gap-4">
                 <div className="flex flex-col gap-1.5">
                   <div className="flex items-center gap-1.5">
-                    <label className="text-sm font-medium text-white">From</label>
+                    <label className="text-sm font-medium text-white">
+                      From
+                    </label>
                     <Info className="h-3.5 w-3.5 text-white/60" aria-hidden />
                   </div>
                   <Popover>
@@ -235,7 +237,7 @@ export default function ReportsPage() {
                             ? formatDateTime(fromDate, "10a")
                             : "1/5/24 @ 10a"}
                         </span>
-                        <CalendarIcon className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                        <CalendarIcon className="ml-2 h-4 w-4 shrink-0 text-[#34C759]" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
@@ -267,7 +269,7 @@ export default function ReportsPage() {
                             ? formatDateTime(toDate, "12p")
                             : "1/5/24 @ 12p"}
                         </span>
-                        <CalendarIcon className="ml-2 h-4 w-4 shrink-0 text-muted-foreground" />
+                        <CalendarIcon className="ml-2 h-4 w-4 shrink-0 text-[#34C759]" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
