@@ -92,15 +92,18 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <div>
             <h1 className="text-3xl font-bold text-white">{displayTitle}</h1>
           </div>
+          
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hidden bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
-          >
-            <ArrowLeftRight />
-            Compare
-          </Button>
+          {pathname === "/dashboard" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
+            >
+              <ArrowLeftRight />
+              Compare
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center gap-1 lg:gap-3">
