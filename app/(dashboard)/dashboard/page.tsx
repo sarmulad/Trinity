@@ -194,13 +194,13 @@ function SortIcon({ direction }: { direction?: "asc" | "desc" }) {
       <span
         className={cn(
           "block h-0 w-0 border-x-[3.5px] border-x-transparent border-b-[4px]",
-          direction === "asc" ? "border-b-[#34C759]" : "border-b-white/25"
+          direction === "asc" ? "border-b-[#34C759]" : "border-b-white/25",
         )}
       />
       <span
         className={cn(
           "block h-0 w-0 border-x-[3.5px] border-x-transparent border-t-[4px]",
-          direction === "desc" ? "border-t-[#34C759]" : "border-t-white/25"
+          direction === "desc" ? "border-t-[#34C759]" : "border-t-white/25",
         )}
       />
     </span>
@@ -217,8 +217,8 @@ function HierarchicalTable() {
   const toggleRow = (id: string) => {
     setData((prev) =>
       prev.map((row) =>
-        row.id === id ? { ...row, expanded: !row.expanded } : row
-      )
+        row.id === id ? { ...row, expanded: !row.expanded } : row,
+      ),
     );
   };
 
@@ -226,17 +226,14 @@ function HierarchicalTable() {
     setSort((prev) =>
       prev?.col === col
         ? { col, dir: prev.dir === "asc" ? "desc" : "asc" }
-        : { col, dir: "asc" }
+        : { col, dir: "asc" },
     );
   };
 
   return (
     <div className="rounded-lg p-4 bg-[#21252A] overflow-hidden">
-      {/* Table header */}
       <div className="hidden lg:grid grid-cols-[2fr_2fr_1fr_1fr]  px-6 py-3">
-        {/* Col 1: empty — lines up with the name column */}
         <div className="px-4" />
-        {/* Col 2: Location */}
         <button
           onClick={() => handleSort("location")}
           className="flex items-center px-4 text-xs font-medium text-white/50 hover:text-white/80 transition-colors"
@@ -295,7 +292,7 @@ function HierarchicalTable() {
                 href={`/dashboard/lease/${childRow.id}`}
                 className={cn(
                   "block hover:bg-white/5 transition-colors",
-                  idx % 2 === 1 ? "bg-[#1E2126]" : "bg-[#21252A]"
+                  idx % 2 === 1 ? "bg-[#1E2126]" : "bg-[#21252A]",
                 )}
               >
                 {/* Mobile */}

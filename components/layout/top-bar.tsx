@@ -10,6 +10,7 @@ import {
   Calendar,
   HelpCircle,
   ArrowLeftRight,
+  Menu,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,11 @@ function getPageTitle(pathname: string | null): string {
   return matched ? PAGE_TITLES[matched] : "Daily Summary";
 }
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuClick?: () => void; // ← add this
+}
+
+export function TopBar({ onMenuClick }: TopBarProps) {
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
     month: "short",
@@ -75,26 +80,30 @@ export function TopBar() {
 
   return (
     <>
-      {/* Main Header */}
-      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-white/10 bg-transparent px-8">
-        {/* Left Section - Title */}
-        <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-30 flex h-20 items-center justify-between border-b border-white/10 bg-transparent px-4 lg:px-8">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={onMenuClick}
+            className="text-white/60 hover:text-white lg:hidden"
+          >
+            <Menu className="h-6 w-6" />
+          </button>
+
           <div>
             <h1 className="text-3xl font-bold text-white">{displayTitle}</h1>
           </div>
+
           <Button
             variant="ghost"
             size="sm"
-            className="bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+            className="hidden bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
           >
             <ArrowLeftRight />
             Compare
           </Button>
         </div>
 
-        {/* Right Section - Actions & User */}
-        <div className="flex items-center gap-3">
-          {/* Settings */}
+        <div className="flex items-center gap-1 lg:gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -103,7 +112,6 @@ export function TopBar() {
             <Settings className="h-5 w-5" />
           </Button>
 
-          {/* Notifications */}
           <Button
             variant="ghost"
             size="icon"
@@ -116,17 +124,15 @@ export function TopBar() {
             </span>
           </Button>
 
-          {/* Date */}
           <Button
             variant="outline"
             size="sm"
-            className="gap-2 border-white/0 bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+            className="hidden gap-2 border-white/0 bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
           >
             <Calendar className="h-4 w-4" />
-            <span className="text-sm text-[#FFFFFF]">{formattedDate}</span>
+            <span className="text-sm text-white">{formattedDate}</span>
           </Button>
 
-          {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -195,7 +201,7 @@ export function TopBar() {
         </div>
       </header>
 
-      {/* Scrolling Ticker */}
+      {/* Ticker */}
       <div className="relative h-12 overflow-hidden border-b border-white/10 bg-[#0a0e14]">
         <div className="flex h-full animate-marquee items-center gap-8 whitespace-nowrap">
           {[...tickerData, ...tickerData].map((item, idx) => (
@@ -256,7 +262,6 @@ export function TopBar() {
             transform: translateX(-50%);
           }
         }
-
         .animate-marquee {
           animation: marquee 30s linear infinite;
         }

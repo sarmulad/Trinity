@@ -1,58 +1,28 @@
 "use client";
-
 import * as React from "react";
 import { AgGridReact } from "ag-grid-react";
 import { ColDef } from "ag-grid-community";
-import "ag-grid-community/styles/ag-grid.css";
-import "ag-grid-community/styles/ag-theme-alpine.css";
+import {
+  ModuleRegistry,
+  AllCommunityModule,
+  themeQuartz,
+} from "ag-grid-community";
 import { ProductionRecord } from "./types";
 
-// ─── Column definitions ───────────────────────────────────────────────────────
+ModuleRegistry.registerModules([AllCommunityModule]);
 
-const COLUMNS: ColDef<ProductionRecord>[] = [
-  {
-    field: "date",
-    headerName: "Date",
-    sortable: true,
-    flex: 1,
-  },
-  {
-    field: "h2o",
-    headerName: "H20 BBLs",
-    sortable: true,
-    flex: 1,
-    headerClass: "!text-[#34C759]",
-  },
-  {
-    field: "oil",
-    headerName: "Oil BBLs",
-    sortable: true,
-    flex: 1,
-  },
-  {
-    field: "gas",
-    headerName: "Gas MCF",
-    sortable: true,
-    flex: 1,
-  },
-];
-
-// ─── AG Grid dark theme tokens ────────────────────────────────────────────────
-
-const AG_STYLES: React.CSSProperties = {
-  height: 300,
-  "--ag-background-color": "#252930",
-  "--ag-header-background-color": "#1e2025",
-  "--ag-row-hover-color": "#2d3440",
-  "--ag-border-color": "rgba(255,255,255,0.08)",
-  "--ag-foreground-color": "rgba(255,255,255,0.8)",
-  "--ag-header-foreground-color": "rgba(255,255,255,0.45)",
-  "--ag-font-size": "12px",
-  "--ag-row-border-color": "rgba(255,255,255,0.05)",
-  "--ag-selected-row-background-color": "rgba(52,199,89,0.08)",
-} as React.CSSProperties;
-
-// ─── Component ────────────────────────────────────────────────────────────────
+const darkTheme = themeQuartz.withParams({
+  backgroundColor: "#252930",
+  headerBackgroundColor: "#1e2025",
+  oddRowBackgroundColor: "#252930",
+  rowHoverColor: "#2d3440",
+  borderColor: "rgba(255,255,255,0.08)",
+  foregroundColor: "rgba(255,255,255,0.8)",
+  headerTextColor: "rgba(255,255,255,0.45)",
+  fontSize: 13,
+  // rowBorderColor: "rgba(255,255,255,0.05)",
+  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+});
 
 interface ProductionTableProps {
   data: ProductionRecord[];
@@ -63,6 +33,42 @@ export function ProductionTable({
   data,
   isLoading = false,
 }: ProductionTableProps) {
+  const gridRef = React.useRef<AgGridReact>(null);
+
+  const columnDefs: ColDef<ProductionRecord>[] = React.useMemo(
+    () => [
+      {
+        field: "date",
+        headerName: "Date",
+        sortable: true,
+        flex: 1,
+        minWidth: 100,
+      },
+      {
+        field: "h2o",
+        headerName: "H20 BBLs",
+        sortable: true,
+        flex: 1,
+        minWidth: 120,
+      },
+      {
+        field: "oil",
+        headerName: "Oil BBLs",
+        sortable: true,
+        flex: 1,
+        minWidth: 120,
+      },
+      {
+        field: "gas",
+        headerName: "Gas MCF",
+        sortable: true,
+        flex: 1,
+        minWidth: 120,
+      },
+    ],
+    [],
+  );
+
   if (isLoading) {
     return (
       <div className="flex h-[300px] items-center justify-center rounded-lg bg-[#252930] text-sm text-white/20">
@@ -71,17 +77,32 @@ export function ProductionTable({
     );
   }
 
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] items-center justify-center rounded-lg bg-[#252930] text-sm text-white/20">
+        No data available
+      </div>
+    );
+  }
+
   return (
-    <div
-      className="ag-theme-alpine-dark w-full overflow-hidden rounded-lg"
-      style={AG_STYLES}
-    >
-      <AgGridReact
-        rowData={data}
-        columnDefs={COLUMNS}
-        suppressMovableColumns
-        rowHeight={38}
-      />
+    <div className="w-full">
+      <div style={{ height: "300px", width: "100%" }}>
+        <AgGridReact
+          ref={gridRef}
+          theme={darkTheme}
+          rowData={data}
+          columnDefs={columnDefs}
+          defaultColDef={{
+            resizable: true,
+            sortable: true,
+          }}
+          suppressMovableColumns={true}
+          rowHeight={40}
+          headerHeight={45}
+          animateRows={true}
+        />
+      </div>
     </div>
   );
 }
