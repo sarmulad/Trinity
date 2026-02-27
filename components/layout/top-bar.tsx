@@ -49,6 +49,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/alarms": "Alarms",
   "/dashboard/teams": "Teams",
   "/dashboard/settings": "Settings",
+  "/dashboard/profile": "Profile",
 };
 
 function getPageTitle(pathname: string | null): string {
@@ -178,9 +179,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem className="text-white hover:bg-white/5">
-                <User className="mr-2 h-4 w-4" />
-                <span>My Account</span>
+              <DropdownMenuItem className="text-white hover:bg-white/5" asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>My Account</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-white hover:bg-white/5">
                 <HelpCircle className="mr-2 h-4 w-4" />
