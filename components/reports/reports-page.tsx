@@ -145,9 +145,14 @@ export function ReportsPage() {
         <PageHeader
           title="Reports"
           actions={
-            <Button className="bg-[#34C759] text-black hover:bg-[#34C759]/90">
-              <Plus className="mr-2 h-4 w-4" />
-              New Report
+            <Button
+              className="bg-[#34C759] text-black hover:bg-[#34C759]/90"
+              asChild
+            >
+              <Link href="/dashboard/reports/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New Report
+              </Link>
             </Button>
           }
         />

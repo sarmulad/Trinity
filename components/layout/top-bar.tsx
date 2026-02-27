@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import {
   Bell,
@@ -47,6 +48,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/routes": "Routes",
   "/dashboard/alarms": "Alarms",
   "/dashboard/teams": "Teams",
+  "/dashboard/settings": "Settings",
 };
 
 function getPageTitle(pathname: string | null): string {
@@ -111,8 +113,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             variant="ghost"
             size="icon"
             className="bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+            asChild
           >
-            <Settings className="h-5 w-5" />
+            <Link href="/dashboard/settings">
+              <Settings className="h-5 w-5" />
+            </Link>
           </Button>
 
           <Button
