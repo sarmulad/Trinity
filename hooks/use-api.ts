@@ -6,7 +6,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import type { Well, DashboardMetrics, Alert } from "@/types";
+import type { Well, DashboardMetrics, Alert, ReportListItem } from "@/types";
 
 interface UseAPIOptions {
   refreshInterval?: number;
@@ -171,4 +171,29 @@ export function useProductionHistory(
     if (!response.ok) throw new Error("Failed to fetch production history");
     return response.json();
   }, options);
+}
+
+/**
+ * Hook for fetching reports list (dashboard reports page)
+ */
+export function useReports(
+  params?: { from?: string; to?: string },
+  options?: UseAPIOptions
+) {
+  const from = params?.from;
+  const to = params?.to;
+  const fetcher = useCallback(async () => {
+    const searchParams = new URLSearchParams();
+    if (from) searchParams.set("from", from);
+    if (to) searchParams.set("to", to);
+    const query = searchParams.toString();
+    const url = query ? `/api/reports?${query}` : "/api/reports";
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch reports");
+    return response.json();
+  }, [from, to]);
+  return useAPI<{ reports: ReportListItem[]; total: number }>(fetcher, {
+    refreshInterval: 60000,
+    ...options,
+  });
 }

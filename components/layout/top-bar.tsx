@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Bell,
   Settings,
@@ -40,6 +41,25 @@ const tickerData: Ticker[] = [
   { id: "6", icon: "WT1", label: "WT1", value: "$75/BBL" },
 ];
 
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Daily Summary",
+  "/dashboard/reports": "Report",
+  "/dashboard/wells": "Wells",
+  "/dashboard/routes": "Routes",
+  "/dashboard/alarms": "Alarms",
+  "/dashboard/teams": "Teams",
+  "/dashboard/settings": "Settings",
+  "/dashboard/profile": "Profile",
+};
+
+function getPageTitle(pathname: string | null): string {
+  if (!pathname) return "Daily Summary";
+  const matched = Object.keys(PAGE_TITLES)
+    .filter((path) => pathname === path || pathname.startsWith(path + "/"))
+    .sort((a, b) => b.length - a.length)[0];
+  return matched ? PAGE_TITLES[matched] : "Daily Summary";
+}
+
 interface TopBarProps {
   onMenuClick?: () => void; // ← add this
 }
@@ -52,6 +72,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
     year: "numeric",
   });
   const router = useRouter();
+  const pathname = usePathname();
+  const displayTitle = getPageTitle(pathname ?? null);
 
   const handleSignOut = () => {
     localStorage.removeItem("auth_token");
@@ -71,19 +93,20 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </button>
 
           <div>
-            <h1 className="text-xl font-bold text-white lg:text-3xl">
-              Daily Summary
-            </h1>
+            <h1 className="text-3xl font-bold text-white">{displayTitle}</h1>
           </div>
+          
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="hidden bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
-          >
-            <ArrowLeftRight />
-            Compare
-          </Button>
+          {pathname === "/dashboard" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="hidden bg-transparent text-white/60 hover:bg-white/5 hover:text-white sm:flex"
+            >
+              <ArrowLeftRight />
+              Compare
+            </Button>
+          )}
         </div>
 
         <div className="flex items-center gap-1 lg:gap-3">
@@ -91,8 +114,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             variant="ghost"
             size="icon"
             className="bg-transparent text-white/60 hover:bg-white/5 hover:text-white"
+            asChild
           >
-            <Settings className="h-5 w-5" />
+            <Link href="/dashboard/settings">
+              <Settings className="h-5 w-5" />
+            </Link>
           </Button>
 
           <Button
@@ -153,9 +179,11 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator className="bg-white/10" />
-              <DropdownMenuItem className="text-white hover:bg-white/5">
-                <User className="mr-2 h-4 w-4" />
-                <span>My Account</span>
+              <DropdownMenuItem className="text-white hover:bg-white/5" asChild>
+                <Link href="/dashboard/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>My Account</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-white hover:bg-white/5">
                 <HelpCircle className="mr-2 h-4 w-4" />
