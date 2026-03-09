@@ -9,6 +9,7 @@ import {
   type ColDef,
   type ICellRendererParams,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import { Search, MoreVertical, Users, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TeamInfoModal } from "./team-info-modal";
@@ -20,7 +21,18 @@ import {
 } from "./example-data";
 import type { TeamMember } from "./types";
 import { PermissionsTab } from "./permissions/permissions-tab";
-ModuleRegistry.registerModules([AllCommunityModule]);
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
+
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#16181d",
@@ -76,6 +88,8 @@ interface TeamsPageProps {
 }
 
 export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<TeamMember>();
   const [activeTab, setActiveTab] = React.useState<TabId>("team");
   const [search, setSearch] = React.useState("");
   const [selectedMember, setSelectedMember] = React.useState<TeamMember | null>(
@@ -199,12 +213,16 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
                   suppressMovableColumns
                   rowHeight={48}
                   headerHeight={44}
+                  rowSelection={AG_GRID_MULTI_ROW_SELECTION}
                   pagination
                   paginationPageSize={14}
                   context={{ onMemberClick: setSelectedMember }}
+                  onSelectionChanged={onSelectionChanged}
+                  {...AG_GRID_CLIPBOARD_OPTIONS}
                 />
               </div>
             </div>
+            <AgGridSelectionStatsBar stats={selectionStats} />
           </>
         )}
 

@@ -1,7 +1,15 @@
 import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
-import { LicenseManager } from "ag-grid-enterprise";
+import {
+  CellSelectionModule,
+  ClipboardModule,
+  LicenseManager,
+} from "ag-grid-enterprise";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const licenseKey = process.env.AG_GRID_LICENSE_KEY;
 
