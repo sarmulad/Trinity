@@ -7,10 +7,21 @@ import {
   AllCommunityModule,
   themeQuartz,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import type { ColDef } from "ag-grid-community";
 import type { TankDataRow } from "./types";
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#1a1d23",
@@ -36,6 +47,9 @@ export function DataTable({
   totalEntries,
   lastUpdated = "15 minutes ago",
 }: DataTableProps) {
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<TankDataRow>();
+
   const columnDefs: ColDef<TankDataRow>[] = React.useMemo(
     () => [
       {
@@ -77,11 +91,16 @@ export function DataTable({
           suppressMovableColumns
           rowHeight={38}
           headerHeight={40}
+          rowSelection={AG_GRID_MULTI_ROW_SELECTION}
           pagination
           paginationPageSize={7}
           suppressPaginationPanel={false}
+          onSelectionChanged={onSelectionChanged}
+          {...AG_GRID_CLIPBOARD_OPTIONS}
         />
       </div>
+
+      <AgGridSelectionStatsBar stats={selectionStats} />
 
       <p className="text-xs text-white/30 mt-2 text-right">
         {totalEntries} daily entries

@@ -10,6 +10,7 @@ import {
   type ColDef,
   type ICellRendererParams,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import {
   Plus,
   ChevronDown,
@@ -38,9 +39,19 @@ import { Calendar } from "@/components/ui/calendar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useReports } from "@/hooks/use-api";
 import { ErrorBoundary } from "@/components/error-boundary";
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION_WITH_COPY,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
 import type { ReportListItem } from "@/types";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#1A1C1E",
@@ -68,6 +79,8 @@ function ReportNameCell({ data }: ICellRendererParams<ReportListItem>) {
 
 export function ReportsPage() {
   const gridRef = React.useRef<AgGridReact<ReportListItem>>(null);
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<ReportListItem>();
   const [fromDate, setFromDate] = React.useState<Date | undefined>();
   const [toDate, setToDate] = React.useState<Date | undefined>();
 
@@ -297,25 +310,30 @@ export function ReportsPage() {
                 </p>
               </div>
             ) : (
-              <div className="rounded-md border border-white/10 overflow-hidden">
-                <div style={{ height: 400 }}>
-                  <AgGridReact<ReportListItem>
-                    ref={gridRef}
-                    theme={darkTheme}
-                    rowData={reports}
-                    columnDefs={columnDefs}
-                    defaultColDef={{ resizable: true, sortable: true }}
-                    suppressMovableColumns
-                    rowHeight={48}
-                    headerHeight={44}
-                    rowSelection="multiple"
-                    getRowId={(params) => params.data.id}
-                    pagination
-                    paginationPageSize={10}
-                    loading={isLoading}
-                  />
+              <>
+                <div className="rounded-md border border-white/10 overflow-hidden">
+                  <div style={{ height: 400 }}>
+                    <AgGridReact<ReportListItem>
+                      ref={gridRef}
+                      theme={darkTheme}
+                      rowData={reports}
+                      columnDefs={columnDefs}
+                      defaultColDef={{ resizable: true, sortable: true }}
+                      suppressMovableColumns
+                      rowHeight={48}
+                      headerHeight={44}
+                      rowSelection={AG_GRID_MULTI_ROW_SELECTION_WITH_COPY}
+                      getRowId={(params) => params.data.id}
+                      pagination
+                      paginationPageSize={10}
+                      loading={isLoading}
+                      onSelectionChanged={onSelectionChanged}
+                      {...AG_GRID_CLIPBOARD_OPTIONS}
+                    />
+                  </div>
                 </div>
-              </div>
+                <AgGridSelectionStatsBar stats={selectionStats} />
+              </>
             )}
           </CardContent>
         </Card>

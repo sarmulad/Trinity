@@ -9,6 +9,7 @@ import {
   type ColDef,
   type ICellRendererParams,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import {
   Check,
   MoreVertical,
@@ -20,8 +21,18 @@ import { EXAMPLE_ALARMS } from "./example-data";
 import { AddSetpointModal } from "./add-setpoint-modal";
 import { FilterModal, type AlarmFilters } from "./filter-modal";
 import type { AlarmRow } from "./types";
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#1a1d23",
@@ -79,6 +90,8 @@ export function AlarmsTab({
   isLoading = false,
   title,
 }: AlarmsTabProps) {
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<AlarmRow>();
   const [search, setSearch] = React.useState("");
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
@@ -206,12 +219,16 @@ export function AlarmsTab({
               suppressMovableColumns
               rowHeight={44}
               headerHeight={44}
+              rowSelection={AG_GRID_MULTI_ROW_SELECTION}
               pagination
               paginationPageSize={14}
               loading={isLoading}
+              onSelectionChanged={onSelectionChanged}
+              {...AG_GRID_CLIPBOARD_OPTIONS}
             />
           </div>
         </div>
+        <AgGridSelectionStatsBar stats={selectionStats} />
       </div>
 
       <AddSetpointModal

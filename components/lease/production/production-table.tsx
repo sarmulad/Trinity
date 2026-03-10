@@ -7,9 +7,20 @@ import {
   AllCommunityModule,
   themeQuartz,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import { ProductionRecord } from "./types";
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#252930",
@@ -34,6 +45,8 @@ export function ProductionTable({
   isLoading = false,
 }: ProductionTableProps) {
   const gridRef = React.useRef<AgGridReact>(null);
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<ProductionRecord>();
 
   const columnDefs: ColDef<ProductionRecord>[] = React.useMemo(
     () => [
@@ -101,8 +114,12 @@ export function ProductionTable({
           rowHeight={40}
           headerHeight={45}
           animateRows={true}
+          rowSelection={AG_GRID_MULTI_ROW_SELECTION}
+          onSelectionChanged={onSelectionChanged}
+          {...AG_GRID_CLIPBOARD_OPTIONS}
         />
       </div>
+      <AgGridSelectionStatsBar stats={selectionStats} />
     </div>
   );
 }

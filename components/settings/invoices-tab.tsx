@@ -8,6 +8,7 @@ import {
   themeQuartz,
   type ColDef,
 } from "ag-grid-community";
+import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import { Search, ChevronDown, CheckSquare, Info } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import {
+  AG_GRID_CLIPBOARD_OPTIONS,
+  AG_GRID_MULTI_ROW_SELECTION_WITH_COPY,
+} from "@/lib/ag-grid-clipboard";
+import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
+import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
 
-ModuleRegistry.registerModules([AllCommunityModule]);
+ModuleRegistry.registerModules([
+  AllCommunityModule,
+  ClipboardModule,
+  CellSelectionModule,
+]);
 
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#1A1C1E",
@@ -49,6 +60,8 @@ const MOCK_INVOICES: InvoiceRow[] = [
 ];
 
 export function InvoicesTab() {
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<InvoiceRow>();
   const [search, setSearch] = React.useState("");
   const [invoices] = React.useState<InvoiceRow[]>(MOCK_INVOICES);
 
@@ -177,13 +190,16 @@ export function InvoicesTab() {
             suppressMovableColumns
             rowHeight={48}
             headerHeight={44}
-            rowSelection="multiple"
+            rowSelection={AG_GRID_MULTI_ROW_SELECTION_WITH_COPY}
             getRowId={(params) => params.data.id}
             pagination
             paginationPageSize={10}
+            onSelectionChanged={onSelectionChanged}
+            {...AG_GRID_CLIPBOARD_OPTIONS}
           />
         </div>
       </div>
+      <AgGridSelectionStatsBar stats={selectionStats} />
     </div>
   );
 }
