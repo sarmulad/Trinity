@@ -34,10 +34,13 @@ export function ProductionTab({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-semibold text-white">Production</p>
+      <p className="text-sm font-semibold text-black dark:text-white">
+        Production
+      </p>
 
-      <div className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md">
-        <div className="flex items-center gap-6 border-b border-white/10 px-6 pt-4">
+      {/* Chart / Table card */}
+      <div className="rounded-xl border border-black/10 bg-black/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+        <div className="flex items-center gap-6 border-b border-black/10 px-6 pt-4 dark:border-white/10">
           {(["chart", "table"] as const).map((v) => (
             <button
               key={v}
@@ -45,7 +48,7 @@ export function ProductionTab({
               className={`pb-3 text-sm font-medium capitalize transition-colors ${
                 view === v
                   ? "border-b-2 border-[#34C759] text-[#34C759]"
-                  : "text-white/40 hover:text-white/70"
+                  : "text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white/70"
               }`}
             >
               {v.charAt(0).toUpperCase() + v.slice(1)}
@@ -66,6 +69,7 @@ export function ProductionTab({
         </div>
       </div>
 
+      {/* Row 1 */}
       <div className="grid gap-4 lg:grid-cols-2">
         <AllocatedProductionChart wells={allocatedWells} />
         <StatsPanel
@@ -74,6 +78,7 @@ export function ProductionTab({
         />
       </div>
 
+      {/* Row 2 */}
       <div className="grid gap-4 lg:grid-cols-2">
         <LeaseScoreCard leaseScore={leaseScore} />
         <ReturnRiskPanel

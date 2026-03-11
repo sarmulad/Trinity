@@ -124,13 +124,12 @@ const BASE_ROWS: Omit<SubmissionRow, "id">[] = [
   },
 ];
 
-const MOCK_SUBMISSIONS: SubmissionRow[] = Array.from({ length: 36 }).map((_, idx) => {
-  const base = BASE_ROWS[idx % BASE_ROWS.length];
-  return {
+const MOCK_SUBMISSIONS: SubmissionRow[] = Array.from({ length: 36 }).map(
+  (_, idx) => ({
     id: `${idx + 1}`,
-    ...base,
-  };
-});
+    ...BASE_ROWS[idx % BASE_ROWS.length],
+  }),
+);
 
 const PAGE_SIZE = 14;
 
@@ -139,6 +138,16 @@ const STATUS_CLASS: Record<SubmissionStatus, string> = {
   Skipped: "text-[#FF383C]",
   Partial: "text-[#FFB020]",
 };
+
+const TABLE_HEADERS = [
+  "Route",
+  "Service Date",
+  "Submitted by",
+  "Stops",
+  "Submission Date",
+  "Status",
+  "Action",
+];
 
 interface RouteSubmissionsPageProps {
   routeId?: string;
@@ -155,14 +164,12 @@ export function RouteSubmissionsPage({
   const filteredRows = React.useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return MOCK_SUBMISSIONS;
-
-    return MOCK_SUBMISSIONS.filter((row) => {
-      return (
+    return MOCK_SUBMISSIONS.filter(
+      (row) =>
         row.route.toLowerCase().includes(q) ||
         row.submittedBy.toLowerCase().includes(q) ||
-        row.status.toLowerCase().includes(q)
-      );
-    });
+        row.status.toLowerCase().includes(q),
+    );
   }, [search]);
 
   const pageCount = Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE));
@@ -178,18 +185,17 @@ export function RouteSubmissionsPage({
   }, [filteredRows, currentPage]);
 
   const backHref = routeId
-    ? `/dashboard/routes/${encodeURIComponent(routeId)}${
-        routeName ? `?name=${encodeURIComponent(routeName)}` : ""
-      }`
+    ? `/dashboard/routes/${encodeURIComponent(routeId)}${routeName ? `?name=${encodeURIComponent(routeName)}` : ""}`
     : "/dashboard/routes";
 
   const visiblePageButtons = Array.from(
     { length: Math.min(5, pageCount) },
-    (_, idx) => idx + 1,
+    (_, i) => i + 1,
   );
 
   return (
     <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <Link
           href={backHref}
@@ -197,16 +203,17 @@ export function RouteSubmissionsPage({
         >
           <ArrowLeft className="h-3.5 w-3.5" />
         </Link>
-        <h2 className="text-4xl font-semibold tracking-tight text-white">
+        <h2 className="text-4xl font-semibold tracking-tight text-black dark:text-white">
           Route Submissions
         </h2>
       </div>
 
-      <section className="rounded-xl border border-white/10 bg-[#1A1D22]/80 p-4 backdrop-blur-sm">
+      <section className="rounded-xl border border-black/10 bg-white/80 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-[#1A1D22]/80">
+        {/* Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/45" />
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/45 dark:text-white/45" />
               <input
                 value={search}
                 onChange={(e) => {
@@ -214,7 +221,7 @@ export function RouteSubmissionsPage({
                   setPage(1);
                 }}
                 placeholder="Search Submissions"
-                className="h-10 w-[180px] rounded-md border border-white/25 bg-[#171B21] py-2 pl-8 pr-3 text-sm text-white placeholder:text-white/40 focus:border-[#34C759]/60 focus:outline-none"
+                className="h-10 w-[180px] rounded-md border border-black/25 bg-gray-100 py-2 pl-8 pr-3 text-sm text-black placeholder:text-black/40 focus:border-[#34C759]/60 focus:outline-none dark:border-white/25 dark:bg-[#171B21] dark:text-white dark:placeholder:text-white/40"
               />
             </div>
             <button
@@ -228,29 +235,22 @@ export function RouteSubmissionsPage({
 
           <button
             type="button"
-            className="flex h-8 w-8 items-center justify-center rounded-md bg-black text-white/80 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md bg-black/10 text-black/80 hover:text-black dark:bg-black dark:text-white/80 dark:hover:text-white"
             aria-label="More options"
           >
             <Menu className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="mt-4 overflow-x-auto rounded-md border border-white/10">
+        {/* Table */}
+        <div className="mt-4 overflow-x-auto rounded-md border border-black/10 dark:border-white/10">
           <table className="min-w-full text-sm">
-            <thead className="bg-[#1C222A] text-xs text-white/55">
+            <thead className="bg-gray-100 text-xs text-black/55 dark:bg-[#1C222A] dark:text-white/55">
               <tr>
-                {[
-                  "Route",
-                  "Service Date",
-                  "Submitted by",
-                  "Stops",
-                  "Submission Date",
-                  "Status",
-                  "Action",
-                ].map((header) => (
+                {TABLE_HEADERS.map((header) => (
                   <th
                     key={header}
-                    className="border-r border-white/10 px-3 py-2 text-left font-medium last:border-r-0"
+                    className="border-r border-black/10 px-3 py-2 text-left font-medium last:border-r-0 dark:border-white/10"
                   >
                     <span className="inline-flex items-center gap-1.5">
                       {header}
@@ -264,32 +264,36 @@ export function RouteSubmissionsPage({
               {paginatedRows.map((row, idx) => (
                 <tr
                   key={row.id}
-                  className={idx % 2 === 0 ? "bg-[#141A21]" : "bg-[#18202A]"}
+                  className={
+                    idx % 2 === 0
+                      ? "bg-white dark:bg-[#141A21]"
+                      : "bg-gray-50 dark:bg-[#18202A]"
+                  }
                 >
-                  <td className="border-r border-t border-white/5 px-3 py-2.5 text-white last:border-r-0">
+                  <td className="border-r border-t border-black/5 px-3 py-2.5 text-black last:border-r-0 dark:border-white/5 dark:text-white">
                     {row.route}
                   </td>
-                  <td className="border-r border-t border-white/5 px-3 py-2.5 text-white/70 last:border-r-0">
+                  <td className="border-r border-t border-black/5 px-3 py-2.5 text-black/70 last:border-r-0 dark:border-white/5 dark:text-white/70">
                     {row.serviceDate}
                   </td>
-                  <td className="border-r border-t border-white/5 px-3 py-2.5 text-white/85 last:border-r-0">
+                  <td className="border-r border-t border-black/5 px-3 py-2.5 text-black/85 last:border-r-0 dark:border-white/5 dark:text-white/85">
                     {row.submittedBy}
                   </td>
-                  <td className="border-r border-t border-white/5 px-3 py-2.5 text-white/70 last:border-r-0">
+                  <td className="border-r border-t border-black/5 px-3 py-2.5 text-black/70 last:border-r-0 dark:border-white/5 dark:text-white/70">
                     {row.stops}
                   </td>
-                  <td className="border-r border-t border-white/5 px-3 py-2.5 text-white/85 last:border-r-0">
+                  <td className="border-r border-t border-black/5 px-3 py-2.5 text-black/85 last:border-r-0 dark:border-white/5 dark:text-white/85">
                     {row.submissionDate}
                   </td>
                   <td
                     className={[
-                      "border-r border-t border-white/5 px-3 py-2.5 font-medium last:border-r-0",
+                      "border-r border-t border-black/5 px-3 py-2.5 font-medium last:border-r-0 dark:border-white/5",
                       STATUS_CLASS[row.status],
                     ].join(" ")}
                   >
                     {row.status}
                   </td>
-                  <td className="border-t border-white/5 px-3 py-2.5 text-[#34C759]">
+                  <td className="border-t border-black/5 px-3 py-2.5 text-[#34C759] dark:border-white/5">
                     <button type="button" className="hover:opacity-80">
                       <MoreVertical className="h-4 w-4" />
                     </button>
@@ -300,7 +304,8 @@ export function RouteSubmissionsPage({
           </table>
         </div>
 
-        <div className="mt-5 flex items-center justify-center gap-3 text-sm text-white/70">
+        {/* Pagination */}
+        <div className="mt-5 flex items-center justify-center gap-3 text-sm text-black/70 dark:text-white/70">
           <button
             type="button"
             onClick={() => setPage((prev) => Math.max(1, prev - 1))}
@@ -313,13 +318,13 @@ export function RouteSubmissionsPage({
 
           {visiblePageButtons.map((p) => (
             <button
-              type="button"
               key={p}
+              type="button"
               onClick={() => setPage(p)}
               className={
                 p === currentPage
                   ? "flex h-5 w-5 items-center justify-center rounded bg-[#34C759] text-xs font-medium text-white"
-                  : "text-xs hover:text-white"
+                  : "text-xs hover:text-black dark:hover:text-white"
               }
             >
               {p}

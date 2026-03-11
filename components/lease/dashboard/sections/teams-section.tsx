@@ -26,12 +26,12 @@ export function TeamsSection({
             <div className="flex items-center gap-4">
               <Avatar className="h-11 w-11 shrink-0">
                 <AvatarImage src={member.avatarUrl} />
-                <AvatarFallback className="bg-[#2d3440] text-sm text-white">
+                <AvatarFallback className="bg-black/10 text-sm text-black dark:bg-[#2d3440] dark:text-white">
                   {member.initials}
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-white">
+                <p className="text-sm font-semibold text-black dark:text-white">
                   {member.name}
                 </p>
                 <p
@@ -41,7 +41,7 @@ export function TeamsSection({
                   {member.role}
                 </p>
                 {member.currentlyOn && (
-                  <p className="text-xs text-white/40">
+                  <p className="text-xs text-black/40 dark:text-white/40">
                     Currently On: {member.currentlyOn}
                   </p>
                 )}
@@ -50,7 +50,7 @@ export function TeamsSection({
                 {[Phone, MessageCircle, Mail, MoreVertical].map((Icon, i) => (
                   <button
                     key={i}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 text-black/60 hover:bg-black/10 hover:text-black dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
                   >
                     <Icon className="h-3.5 w-3.5" />
                   </button>

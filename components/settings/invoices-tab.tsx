@@ -10,6 +10,7 @@ import {
 } from "ag-grid-community";
 import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import { Search, ChevronDown, CheckSquare, Info } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,18 @@ const darkTheme = themeQuartz.withParams({
   selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
 });
 
+const lightTheme = themeQuartz.withParams({
+  backgroundColor: "#ffffff",
+  headerBackgroundColor: "#f4f6f8",
+  oddRowBackgroundColor: "#f9fafb",
+  rowHoverColor: "#f0f2f4",
+  borderColor: "rgba(0,0,0,0.1)",
+  foregroundColor: "rgba(0,0,0,0.75)",
+  headerTextColor: "rgba(0,0,0,0.45)",
+  fontSize: 13,
+  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+});
+
 export interface InvoiceRow {
   id: string;
   invoiceNumber: string;
@@ -54,14 +67,33 @@ export interface InvoiceRow {
 }
 
 const MOCK_INVOICES: InvoiceRow[] = [
-  { id: "1", invoiceNumber: "187-P14", cost: "$254.33", status: "Paid", dateSent: "3/1/24" },
-  { id: "2", invoiceNumber: "222-J19", cost: "$254.33", status: "Paid", dateSent: "2/1/24" },
-  { id: "3", invoiceNumber: "909-L14", cost: "$254.33", status: "Paid", dateSent: "1/1/24" },
+  {
+    id: "1",
+    invoiceNumber: "187-P14",
+    cost: "$254.33",
+    status: "Paid",
+    dateSent: "3/1/24",
+  },
+  {
+    id: "2",
+    invoiceNumber: "222-J19",
+    cost: "$254.33",
+    status: "Paid",
+    dateSent: "2/1/24",
+  },
+  {
+    id: "3",
+    invoiceNumber: "909-L14",
+    cost: "$254.33",
+    status: "Paid",
+    dateSent: "1/1/24",
+  },
 ];
 
 export function InvoicesTab() {
-  const { stats: selectionStats, onSelectionChanged } =
-    useAgGridSelectionStats<InvoiceRow>();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const [search, setSearch] = React.useState("");
   const [invoices] = React.useState<InvoiceRow[]>(MOCK_INVOICES);
 
@@ -93,41 +125,28 @@ export function InvoicesTab() {
         flex: 1.2,
         minWidth: 140,
       },
-      {
-        field: "cost",
-        headerName: "Cost",
-        flex: 1,
-        minWidth: 100,
-      },
-      {
-        field: "status",
-        headerName: "Status",
-        flex: 1,
-        minWidth: 90,
-      },
-      {
-        field: "dateSent",
-        headerName: "Date Sent",
-        flex: 1,
-        minWidth: 100,
-      },
+      { field: "cost", headerName: "Cost", flex: 1, minWidth: 100 },
+      { field: "status", headerName: "Status", flex: 1, minWidth: 90 },
+      { field: "dateSent", headerName: "Date Sent", flex: 1, minWidth: 100 },
     ],
     [],
   );
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-white">Invoices</h2>
+      <h2 className="text-lg font-semibold text-black dark:text-white">
+        Invoices
+      </h2>
 
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-end gap-6">
+          {/* Bulk Edit */}
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-white">Bulk Edit</span>
-              <span
-                className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-white/60"
-                title="Bulk edit help"
-              >
+              <span className="text-sm font-medium text-black dark:text-white">
+                Bulk Edit
+              </span>
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/10 text-black/60 dark:bg-white/10 dark:text-white/60">
                 <Info className="h-2.5 w-2.5" />
               </span>
             </div>
@@ -135,7 +154,7 @@ export function InvoicesTab() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="outline"
-                  className="min-w-[180px] justify-between border-white/20 bg-[#252930] text-white hover:bg-white/10"
+                  className="min-w-[180px] justify-between border-black/20 bg-black/5 text-black hover:bg-black/10 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:hover:bg-white/10"
                 >
                   Select row/s to edit
                   <ChevronDown className="ml-2 h-4 w-4 shrink-0 text-[#34C759]" />
@@ -143,36 +162,36 @@ export function InvoicesTab() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 align="start"
-                className="border-white/10 bg-[#252930]"
+                className="border-black/10 bg-white dark:border-white/10 dark:bg-[#252930]"
               >
-                <DropdownMenuItem className="text-white hover:bg-white/10">
+                <DropdownMenuItem className="text-black hover:bg-black/5 dark:text-white dark:hover:bg-white/10">
                   <CheckSquare className="mr-2 h-4 w-4" />
                   Select all on page
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-white hover:bg-white/10">
+                <DropdownMenuItem className="text-black hover:bg-black/5 dark:text-white dark:hover:bg-white/10">
                   Clear selection
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-medium text-white">Search</span>
-              <span
-                className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-white/60"
-                title="Search help"
-              >
+              <span className="text-sm font-medium text-black dark:text-white">
+                Search
+              </span>
+              <span className="flex h-4 w-4 items-center justify-center rounded-full bg-black/10 text-black/60 dark:bg-white/10 dark:text-white/60">
                 <Info className="h-2.5 w-2.5" />
               </span>
             </div>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search invoices"
                 className={cn(
-                  "w-64 border-white/20 bg-[#252930] pl-9 text-white placeholder:text-white/40",
+                  "w-64 border-black/20 bg-black/5 pl-9 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40",
                 )}
               />
             </div>
@@ -180,10 +199,10 @@ export function InvoicesTab() {
         </div>
       </div>
 
-      <div className="rounded-md border border-white/10 overflow-hidden">
+      <div className="rounded-md border border-black/10 overflow-hidden dark:border-white/10">
         <div style={{ height: 320 }}>
           <AgGridReact<InvoiceRow>
-            theme={darkTheme}
+            theme={isDark ? darkTheme : lightTheme}
             rowData={filteredInvoices}
             columnDefs={columnDefs}
             defaultColDef={{ resizable: true, sortable: true }}

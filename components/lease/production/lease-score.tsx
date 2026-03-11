@@ -2,8 +2,6 @@
 
 import { LeaseScore } from "./types";
 
-// ─── Score bar ────────────────────────────────────────────────────────────────
-
 function ScoreBar({
   label,
   value,
@@ -17,10 +15,12 @@ function ScoreBar({
   return (
     <div className="space-y-1">
       <div className="flex items-center gap-2">
-        <span className="text-white/40">{icon}</span>
-        <span className="text-sm text-white/70">{label}</span>
+        <span className="text-black/40 dark:text-white/40">{icon}</span>
+        <span className="text-sm text-black/70 dark:text-white/70">
+          {label}
+        </span>
       </div>
-      <div className="relative h-1.5 w-full rounded-full bg-white/10">
+      <div className="relative h-1.5 w-full rounded-full bg-black/10 dark:bg-white/10">
         <div
           className="absolute left-0 top-0 h-1.5 rounded-full"
           style={{
@@ -31,12 +31,12 @@ function ScoreBar({
           }}
         />
       </div>
-      <div className="text-right text-xs text-white/40">{value}</div>
+      <div className="text-right text-xs text-black/40 dark:text-white/40">
+        {value}
+      </div>
     </div>
   );
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 interface LeaseScoreCardProps {
   leaseScore: LeaseScore;
@@ -44,8 +44,10 @@ interface LeaseScoreCardProps {
 
 export function LeaseScoreCard({ leaseScore }: LeaseScoreCardProps) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1e2025] p-5">
-      <p className="mb-4 text-sm font-bold text-white">Trinity Lease Score</p>
+    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1e2025]">
+      <p className="mb-4 text-sm font-bold text-black dark:text-white">
+        Trinity Lease Score
+      </p>
       <div className="space-y-4">
         <ScoreBar
           label="Production Performance"

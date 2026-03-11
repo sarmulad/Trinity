@@ -23,10 +23,10 @@ export function SettingsPage() {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <Card className="border-white/10 bg-[#1A1C1E]/95">
+        <Card className="border-black/10 bg-white dark:border-white/10 dark:bg-[#1A1C1E]/95">
           <CardContent className="p-0">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 px-6 py-4">
-              <div className="flex gap-1 rounded-lg border border-white/10 bg-[#252930]/80 p-1">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-black/10 px-6 py-4 dark:border-white/10">
+              <div className="flex gap-1 rounded-lg border border-black/10 bg-black/5 p-1 dark:border-white/10 dark:bg-[#252930]/80">
                 {TABS.map((tab) => (
                   <button
                     key={tab.id}
@@ -36,7 +36,7 @@ export function SettingsPage() {
                       "rounded-md px-4 py-2 text-sm font-medium transition-colors",
                       activeTab === tab.id
                         ? "bg-[#34C759] text-black"
-                        : "text-white/60 hover:bg-white/5 hover:text-white",
+                        : "text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white",
                     )}
                   >
                     {tab.label}

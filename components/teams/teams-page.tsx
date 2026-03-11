@@ -14,6 +14,7 @@ import { Search, MoreVertical, Users, ShieldCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TeamInfoModal } from "./team-info-modal";
 import { InviteTeamModal } from "./invite-team-modal";
+import { useTheme } from "next-themes";
 import {
   EXAMPLE_TEAM_MEMBERS,
   EXAMPLE_ROUTES,
@@ -34,6 +35,8 @@ ModuleRegistry.registerModules([
   CellSelectionModule,
 ]);
 
+ModuleRegistry.registerModules([AllCommunityModule]);
+
 const darkTheme = themeQuartz.withParams({
   backgroundColor: "#16181d",
   headerBackgroundColor: "#1a1d23",
@@ -46,17 +49,29 @@ const darkTheme = themeQuartz.withParams({
   selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
 });
 
+const lightTheme = themeQuartz.withParams({
+  backgroundColor: "#ffffff",
+  headerBackgroundColor: "#f4f6f8",
+  oddRowBackgroundColor: "#f9fafb",
+  rowHoverColor: "#f0f2f4",
+  borderColor: "rgba(0,0,0,0.07)",
+  foregroundColor: "rgba(0,0,0,0.75)",
+  headerTextColor: "rgba(0,0,0,0.45)",
+  fontSize: 13,
+  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+});
+
 function NameCell({ data }: ICellRendererParams<TeamMember>) {
   if (!data) return null;
   return (
     <div className="flex items-center gap-2.5 h-full">
       <Avatar className="h-7 w-7 shrink-0">
         <AvatarImage src={data.avatarUrl} />
-        <AvatarFallback className="bg-[#2d3440] text-[10px] text-white">
+        <AvatarFallback className="bg-black/10 text-[10px] text-black dark:bg-[#2d3440] dark:text-white">
           {data.initials}
         </AvatarFallback>
       </Avatar>
-      <span className="text-sm text-white">{data.name}</span>
+      <span className="text-sm text-black dark:text-white">{data.name}</span>
     </div>
   );
 }
@@ -74,7 +89,7 @@ function ActionCell({ data, context }: ICellRendererParams<TeamMember>) {
   return (
     <button
       onClick={() => context?.onMemberClick?.(data)}
-      className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+      className="flex h-7 w-7 items-center justify-center rounded-md text-black/40 hover:bg-black/10 hover:text-black dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
     >
       <MoreVertical className="h-4 w-4" />
     </button>
@@ -90,6 +105,9 @@ interface TeamsPageProps {
 export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
   const { stats: selectionStats, onSelectionChanged } =
     useAgGridSelectionStats<TeamMember>();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const [activeTab, setActiveTab] = React.useState<TabId>("team");
   const [search, setSearch] = React.useState("");
   const [selectedMember, setSelectedMember] = React.useState<TeamMember | null>(
@@ -126,24 +144,9 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
         minWidth: 130,
         cellRenderer: RoleCell,
       },
-      {
-        field: "routeArea",
-        headerName: "Route/Area",
-        flex: 1,
-        minWidth: 110,
-      },
-      {
-        field: "email",
-        headerName: "Email",
-        flex: 1.5,
-        minWidth: 200,
-      },
-      {
-        field: "phone",
-        headerName: "Phone Number",
-        flex: 1.2,
-        minWidth: 140,
-      },
+      { field: "routeArea", headerName: "Route/Area", flex: 1, minWidth: 110 },
+      { field: "email", headerName: "Email", flex: 1.5, minWidth: 200 },
+      { field: "phone", headerName: "Phone Number", flex: 1.2, minWidth: 140 },
       {
         field: "id",
         headerName: "Action",
@@ -165,7 +168,7 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
   return (
     <>
       <div className="space-y-5">
-        <div className="flex items-center gap-1 w-fit rounded-xl bg-[#1a1d23] border border-white/10 p-1">
+        <div className="flex items-center gap-1 w-fit rounded-xl border border-black/10 bg-black/5 p-1 dark:border-white/10 dark:bg-[#1a1d23]">
           {tabs.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
@@ -173,7 +176,7 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
               className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                 activeTab === id
                   ? "bg-[#34C759] text-black"
-                  : "text-white/50 hover:text-white hover:bg-white/5"
+                  : "text-black/50 hover:text-black hover:bg-black/5 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/5"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -186,13 +189,13 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
           <>
             <div className="flex items-center justify-between gap-3">
               <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30 pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/30 pointer-events-none dark:text-white/30" />
                 <input
                   type="text"
                   placeholder="Search Teams..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-[#1a1d23] py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:border-[#34C759]/50 focus:outline-none"
+                  className="w-full rounded-lg border border-black/10 bg-black/5 py-2 pl-9 pr-3 text-sm text-black placeholder:text-black/30 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#1a1d23] dark:text-white dark:placeholder:text-white/30"
                 />
               </div>
               <button
@@ -203,10 +206,10 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
               </button>
             </div>
 
-            <div className="rounded-xl border border-white/10 overflow-hidden">
+            <div className="rounded-xl border border-black/10 overflow-hidden dark:border-white/10">
               <div style={{ height: 580 }}>
                 <AgGridReact
-                  theme={darkTheme}
+                  theme={isDark ? darkTheme : lightTheme}
                   rowData={filtered}
                   columnDefs={columnDefs}
                   defaultColDef={{ resizable: true, sortable: true }}

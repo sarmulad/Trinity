@@ -1,13 +1,18 @@
 "use client";
+
 import * as React from "react";
 import { AgGridReact } from "ag-grid-react";
-import { ColDef } from "ag-grid-community";
 import {
+  ColDef,
   ModuleRegistry,
   AllCommunityModule,
   themeQuartz,
 } from "ag-grid-community";
+<<<<<<< HEAD
 import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
+=======
+import { useTheme } from "next-themes";
+>>>>>>> c24871c (WIP: local changes)
 import { ProductionRecord } from "./types";
 import {
   AG_GRID_CLIPBOARD_OPTIONS,
@@ -22,19 +27,6 @@ ModuleRegistry.registerModules([
   CellSelectionModule,
 ]);
 
-const darkTheme = themeQuartz.withParams({
-  backgroundColor: "#252930",
-  headerBackgroundColor: "#1e2025",
-  oddRowBackgroundColor: "#252930",
-  rowHoverColor: "#2d3440",
-  borderColor: "rgba(255,255,255,0.08)",
-  foregroundColor: "rgba(255,255,255,0.8)",
-  headerTextColor: "rgba(255,255,255,0.45)",
-  fontSize: 13,
-  // rowBorderColor: "rgba(255,255,255,0.05)",
-  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
-});
-
 interface ProductionTableProps {
   data: ProductionRecord[];
   isLoading?: boolean;
@@ -45,8 +37,29 @@ export function ProductionTable({
   isLoading = false,
 }: ProductionTableProps) {
   const gridRef = React.useRef<AgGridReact>(null);
+<<<<<<< HEAD
   const { stats: selectionStats, onSelectionChanged } =
     useAgGridSelectionStats<ProductionRecord>();
+=======
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
+  const gridTheme = React.useMemo(
+    () =>
+      themeQuartz.withParams({
+        backgroundColor: isDark ? "#252930" : "#ffffff",
+        headerBackgroundColor: isDark ? "#1e2025" : "#f4f6f8",
+        oddRowBackgroundColor: isDark ? "#252930" : "#f9fafb",
+        rowHoverColor: isDark ? "#2d3440" : "rgba(0,0,0,0.04)",
+        borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+        foregroundColor: isDark ? "rgba(255,255,255,0.8)" : "rgba(0,0,0,0.8)",
+        headerTextColor: isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.5)",
+        selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+        fontSize: 13,
+      }),
+    [isDark],
+  );
+>>>>>>> c24871c (WIP: local changes)
 
   const columnDefs: ColDef<ProductionRecord>[] = React.useMemo(
     () => [
@@ -84,7 +97,7 @@ export function ProductionTable({
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-lg bg-[#252930] text-sm text-white/20">
+      <div className="flex h-[300px] items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20">
         Loading…
       </div>
     );
@@ -92,34 +105,28 @@ export function ProductionTable({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-lg bg-[#252930] text-sm text-white/20">
+      <div className="flex h-[300px] items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20">
         No data available
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div style={{ height: "300px", width: "100%" }}>
-        <AgGridReact
-          ref={gridRef}
-          theme={darkTheme}
-          rowData={data}
-          columnDefs={columnDefs}
-          defaultColDef={{
-            resizable: true,
-            sortable: true,
-          }}
-          suppressMovableColumns={true}
-          rowHeight={40}
-          headerHeight={45}
-          animateRows={true}
-          rowSelection={AG_GRID_MULTI_ROW_SELECTION}
-          onSelectionChanged={onSelectionChanged}
-          {...AG_GRID_CLIPBOARD_OPTIONS}
-        />
-      </div>
-      <AgGridSelectionStatsBar stats={selectionStats} />
+    <div
+      className="w-full overflow-hidden rounded-lg border border-black/10 dark:border-white/10"
+      style={{ height: 300 }}
+    >
+      <AgGridReact
+        ref={gridRef}
+        theme={gridTheme}
+        rowData={data}
+        columnDefs={columnDefs}
+        defaultColDef={{ resizable: true, sortable: true }}
+        suppressMovableColumns
+        rowHeight={40}
+        headerHeight={45}
+        animateRows
+      />
     </div>
   );
 }

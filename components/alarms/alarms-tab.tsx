@@ -17,6 +17,7 @@ import {
   Search,
   SlidersHorizontal,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { EXAMPLE_ALARMS } from "./example-data";
 import { AddSetpointModal } from "./add-setpoint-modal";
 import { FilterModal, type AlarmFilters } from "./filter-modal";
@@ -43,7 +44,18 @@ const darkTheme = themeQuartz.withParams({
   foregroundColor: "rgba(255,255,255,0.75)",
   headerTextColor: "rgba(255,255,255,0.45)",
   fontSize: 13,
-  //   rowBorderColor: "rgba(255,255,255,0.05)",
+  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+});
+
+const lightTheme = themeQuartz.withParams({
+  backgroundColor: "#ffffff",
+  headerBackgroundColor: "#f4f6f8",
+  oddRowBackgroundColor: "#f9fafb",
+  rowHoverColor: "#f0f2f4",
+  borderColor: "rgba(0,0,0,0.07)",
+  foregroundColor: "rgba(0,0,0,0.75)",
+  headerTextColor: "rgba(0,0,0,0.45)",
+  fontSize: 13,
   selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
 });
 
@@ -54,7 +66,7 @@ function StatusCell({ value }: ICellRendererParams) {
       className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium ${
         isActive
           ? "bg-red-500/15 text-red-400 border border-red-500/30"
-          : "bg-white/8 text-white/50 border border-white/10"
+          : "bg-black/5 text-black/50 border border-black/10 dark:bg-white/8 dark:text-white/50 dark:border-white/10"
       }`}
     >
       {value}
@@ -66,13 +78,13 @@ function AckCell({ value }: ICellRendererParams) {
   return value ? (
     <Check className="h-4 w-4 text-[#34C759]" />
   ) : (
-    <span className="text-white/20">—</span>
+    <span className="text-black/20 dark:text-white/20">—</span>
   );
 }
 
 function ActionCell() {
   return (
-    <button className="flex h-7 w-7 items-center justify-center rounded-md text-white/40 hover:bg-white/10 hover:text-white transition-colors">
+    <button className="flex h-7 w-7 items-center justify-center rounded-md text-black/40 hover:bg-black/10 hover:text-black dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white transition-colors">
       <MoreVertical className="h-4 w-4" />
     </button>
   );
@@ -81,7 +93,6 @@ function ActionCell() {
 interface AlarmsTabProps {
   alarms?: AlarmRow[];
   isLoading?: boolean;
-  /** Pass title="Alarm" for lease view, omit for standalone page */
   title?: string;
 }
 
@@ -92,6 +103,9 @@ export function AlarmsTab({
 }: AlarmsTabProps) {
   const { stats: selectionStats, onSelectionChanged } =
     useAgGridSelectionStats<AlarmRow>();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const [search, setSearch] = React.useState("");
   const [showAddModal, setShowAddModal] = React.useState(false);
   const [showFilterModal, setShowFilterModal] = React.useState(false);
@@ -172,18 +186,22 @@ export function AlarmsTab({
   return (
     <>
       <div className="space-y-4">
-        {title && <h2 className="text-base font-bold text-white">{title}</h2>}
+        {title && (
+          <h2 className="text-base font-bold text-black dark:text-white">
+            {title}
+          </h2>
+        )}
 
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/30 dark:text-white/30" />
               <input
                 type="text"
                 placeholder="Search Alarms..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-[#1e2127] py-2 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:border-[#34C759]/50 focus:outline-none"
+                className="w-full rounded-lg border border-black/10 bg-black/5 py-2 pl-9 pr-3 text-sm text-black placeholder:text-black/30 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#1e2127] dark:text-white dark:placeholder:text-white/30"
               />
             </div>
 
@@ -209,10 +227,10 @@ export function AlarmsTab({
           </button>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-[#1a1d23] overflow-hidden">
+        <div className="rounded-xl border border-black/10 bg-white overflow-hidden dark:border-white/10 dark:bg-[#1a1d23]">
           <div style={{ height: 560 }}>
             <AgGridReact
-              theme={darkTheme}
+              theme={isDark ? darkTheme : lightTheme}
               rowData={filteredAlarms}
               columnDefs={columnDefs}
               defaultColDef={{ resizable: true, sortable: true }}

@@ -59,9 +59,13 @@ export function NewReportPage() {
     { id: "1", label: "Johnson Lease: Oil Tank #1" },
     { id: "3", label: "Laika: Oil Tank" },
   ]);
-  const [selectedDataPoints, setSelectedDataPoints] = React.useState<
-    string[]
-  >(["psi", "flow", "temp", "pressure", "production"]);
+  const [selectedDataPoints, setSelectedDataPoints] = React.useState<string[]>([
+    "psi",
+    "flow",
+    "temp",
+    "pressure",
+    "production",
+  ]);
   const [frequency, setFrequency] = React.useState<DateFrequency>("hour");
   const [fromDate, setFromDate] = React.useState<Date | undefined>(
     () => new Date(2024, 0, 5, 10, 0),
@@ -73,27 +77,25 @@ export function NewReportPage() {
   const filteredSubjects = React.useMemo(() => {
     const q = subjectSearch.toLowerCase();
     if (!q) return SUBJECT_OPTIONS;
-    return SUBJECT_OPTIONS.filter((s) =>
-      s.label.toLowerCase().includes(q),
-    );
+    return SUBJECT_OPTIONS.filter((s) => s.label.toLowerCase().includes(q));
   }, [subjectSearch]);
 
   const addSubject = (item: { id: string; label: string }) => {
     if (selectedSubjects.some((s) => s.id === item.id)) return;
     const shortLabel =
       item.label.replace(/^Trinity Energy:\s*/i, "") || item.label;
-    setSelectedSubjects((prev) => [...prev, { id: item.id, label: shortLabel }]);
+    setSelectedSubjects((prev) => [
+      ...prev,
+      { id: item.id, label: shortLabel },
+    ]);
   };
 
-  const removeSubject = (id: string) => {
+  const removeSubject = (id: string) =>
     setSelectedSubjects((prev) => prev.filter((s) => s.id !== id));
-  };
-
-  const toggleDataPoint = (id: string) => {
+  const toggleDataPoint = (id: string) =>
     setSelectedDataPoints((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-  };
 
   const formatDateTime = (d: Date, time: "10a" | "12p") => {
     const base = format(d, "M/d/yy");
@@ -104,7 +106,7 @@ export function NewReportPage() {
     console.log("Generate report", {
       reportName,
       subjects: selectedSubjects,
-      dataPoints: selectedDataPoints,
+      selectedDataPoints,
       frequency,
       fromDate,
       toDate,
@@ -114,9 +116,10 @@ export function NewReportPage() {
   return (
     <ErrorBoundary>
       <div className="space-y-6">
-        <Card className="border-white/10 bg-[#1A1C1E]/95 overflow-hidden">
+        <Card className="overflow-hidden border-black/10 bg-white dark:border-white/10 dark:bg-[#1A1C1E]/95">
           <CardContent className="p-0">
-            <div className="border-b border-white/10 bg-[#252930]/80 px-6 py-4">
+            {/* Header */}
+            <div className="border-b border-black/10 bg-gray-50 px-6 py-4 dark:border-white/10 dark:bg-[#252930]/80">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
@@ -128,7 +131,7 @@ export function NewReportPage() {
                     <ArrowLeft className="h-5 w-5" />
                   </Link>
                 </Button>
-                <h1 className="text-xl font-semibold text-white">
+                <h1 className="text-xl font-semibold text-black dark:text-white">
                   New Report
                 </h1>
               </div>
@@ -138,11 +141,11 @@ export function NewReportPage() {
               {/* Report Name */}
               <div className="space-y-2">
                 <div className="flex items-center gap-1.5">
-                  <Label className="text-sm font-medium text-white">
+                  <Label className="text-sm font-medium text-black dark:text-white">
                     Report Name
                   </Label>
                   <span
-                    className="flex h-4 w-4 items-center justify-center rounded-full bg-white/10 text-white/60"
+                    className="flex h-4 w-4 items-center justify-center rounded-full bg-black/10 text-black/60 dark:bg-white/10 dark:text-white/60"
                     title="Report name help"
                   >
                     <Info className="h-2.5 w-2.5" />
@@ -151,24 +154,24 @@ export function NewReportPage() {
                 <Input
                   value={reportName}
                   onChange={(e) => setReportName(e.target.value)}
-                  className="border-white/20 bg-[#252930] text-white placeholder:text-white/40"
+                  className="border-black/20 bg-gray-100 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40"
                   placeholder="Oil Tanks - 1/5/24 from 10 - 12pm"
                 />
               </div>
 
-              {/* Step 1: Choose your subjects */}
+              {/* Step 1 */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#34C759] text-black">
                     <Check className="h-3.5 w-3.5" />
                   </span>
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-black dark:text-white">
                     Step 1 — Choose your subjects
                   </span>
                 </div>
                 <div className="relative">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
                     <Input
                       value={subjectSearch}
                       onChange={(e) => {
@@ -177,7 +180,7 @@ export function NewReportPage() {
                       }}
                       onFocus={() => setSubjectDropdownOpen(true)}
                       placeholder="Search subjects..."
-                      className="border-white/20 bg-[#252930] pl-9 text-white placeholder:text-white/40"
+                      className="border-black/20 bg-gray-100 pl-9 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40"
                     />
                   </div>
                   {subjectDropdownOpen && (
@@ -187,7 +190,7 @@ export function NewReportPage() {
                         aria-hidden
                         onClick={() => setSubjectDropdownOpen(false)}
                       />
-                      <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-auto rounded-md border border-white/10 bg-[#252930] py-1 shadow-lg">
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-auto rounded-md border border-black/10 bg-white py-1 shadow-lg dark:border-white/10 dark:bg-[#252930]">
                         {filteredSubjects.map((item) => {
                           const isSelected = selectedSubjects.some(
                             (s) => s.id === item.id,
@@ -200,7 +203,7 @@ export function NewReportPage() {
                                 addSubject(item);
                                 setSubjectDropdownOpen(false);
                               }}
-                              className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm text-white hover:bg-white/10"
+                              className="flex w-full items-center justify-between px-3 py-2.5 text-left text-sm text-black hover:bg-black/5 dark:text-white dark:hover:bg-white/10"
                             >
                               <span>{item.label}</span>
                               {isSelected && (
@@ -212,7 +215,7 @@ export function NewReportPage() {
                           );
                         })}
                         {filteredSubjects.length === 0 && (
-                          <div className="px-3 py-4 text-center text-sm text-white/50">
+                          <div className="px-3 py-4 text-center text-sm text-black/50 dark:text-white/50">
                             No subjects found
                           </div>
                         )}
@@ -242,13 +245,13 @@ export function NewReportPage() {
                 )}
               </div>
 
-              {/* Step 2: Choose your data points */}
+              {/* Step 2 */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#34C759] text-black">
                     <Check className="h-3.5 w-3.5" />
                   </span>
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-black dark:text-white">
                     Step 2 — Choose your data points
                   </span>
                 </div>
@@ -264,7 +267,7 @@ export function NewReportPage() {
                           "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors",
                           isSelected
                             ? "border-[#34C759] bg-[#34C759] text-black"
-                            : "border-white/20 bg-[#252930] text-white hover:border-white/30",
+                            : "border-black/20 bg-gray-100 text-black hover:border-black/30 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:hover:border-white/30",
                         )}
                       >
                         {isSelected && <Check className="h-4 w-4" />}
@@ -275,13 +278,13 @@ export function NewReportPage() {
                 </div>
               </div>
 
-              {/* Step 3: Choose your date range */}
+              {/* Step 3 */}
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#34C759] text-black">
                     <Check className="h-3.5 w-3.5" />
                   </span>
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-black dark:text-white">
                     Step 3 — Choose your date range
                   </span>
                 </div>
@@ -290,36 +293,33 @@ export function NewReportPage() {
                   onValueChange={(v) => setFrequency(v as DateFrequency)}
                   className="flex gap-6"
                 >
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <RadioGroupItem
-                      value="hour"
-                      className="border-white/30 text-[#34C759 data-[state=checked]:bg-[#34C759] data-[state=checked]:border-[#34C759]"
-                    />
-                    <span className="text-sm text-white">By hour</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <RadioGroupItem
-                      value="day"
-                      className="border-white/30 text-[#34C759 data-[state=checked]:bg-[#34C759] data-[state=checked]:border-[#34C759]"
-                    />
-                    <span className="text-sm text-white">By day</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <RadioGroupItem
-                      value="week"
-                      className="border-white/30 text-[#34C759 data-[state=checked]:bg-[#34C759] data-[state=checked]:border-[#34C759]"
-                    />
-                    <span className="text-sm text-white">By week</span>
-                  </label>
+                  {(["hour", "day", "week"] as const).map((val) => (
+                    <label
+                      key={val}
+                      className="flex cursor-pointer items-center gap-2"
+                    >
+                      <RadioGroupItem
+                        value={val}
+                        className="border-black/30 data-[state=checked]:border-[#34C759] data-[state=checked]:bg-[#34C759] dark:border-white/30"
+                      />
+                      <span className="text-sm text-black dark:text-white capitalize">
+                        By {val}
+                      </span>
+                    </label>
+                  ))}
                 </RadioGroup>
+
                 <div className="flex flex-wrap items-end gap-4">
+                  {/* From */}
                   <div className="space-y-1.5">
-                    <Label className="text-sm text-white">From</Label>
+                    <Label className="text-sm text-black dark:text-white">
+                      From
+                    </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="min-w-[160px] justify-between border-white/20 bg-[#252930] text-left font-normal text-white"
+                          className="min-w-[160px] justify-between border-black/20 bg-gray-100 text-left font-normal text-black dark:border-white/20 dark:bg-[#252930] dark:text-white"
                         >
                           <span>
                             {fromDate
@@ -330,7 +330,7 @@ export function NewReportPage() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-auto border-white/10 bg-[#252930] p-0"
+                        className="w-auto border-black/10 bg-white p-0 dark:border-white/10 dark:bg-[#252930]"
                         align="start"
                       >
                         <Calendar
@@ -342,13 +342,17 @@ export function NewReportPage() {
                       </PopoverContent>
                     </Popover>
                   </div>
+
+                  {/* To */}
                   <div className="space-y-1.5">
-                    <Label className="text-sm text-white">To</Label>
+                    <Label className="text-sm text-black dark:text-white">
+                      To
+                    </Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
                           variant="outline"
-                          className="min-w-[160px] justify-between border-white/20 bg-[#252930] text-left font-normal text-white"
+                          className="min-w-[160px] justify-between border-black/20 bg-gray-100 text-left font-normal text-black dark:border-white/20 dark:bg-[#252930] dark:text-white"
                         >
                           <span>
                             {toDate
@@ -359,7 +363,7 @@ export function NewReportPage() {
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-auto border-white/10 bg-[#252930] p-0"
+                        className="w-auto border-black/10 bg-white p-0 dark:border-white/10 dark:bg-[#252930]"
                         align="start"
                       >
                         <Calendar

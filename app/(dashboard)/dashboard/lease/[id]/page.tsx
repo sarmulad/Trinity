@@ -31,11 +31,9 @@ function useProductionData(id: string, enabled: boolean) {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     if (!enabled) return;
   }, [id, enabled]);
-
   return { data, isLoading, error };
 }
 
@@ -43,17 +41,15 @@ function useDashboardData(id: string, enabled: boolean) {
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(() => {
     if (!enabled) return;
   }, [id, enabled]);
-
   return { data, isLoading, error };
 }
 
 function ComingSoon({ label }: { label: string }) {
   return (
-    <div className="flex h-48 items-center justify-center rounded-xl border border-white/10 bg-[#1e2025] text-sm text-white/30">
+    <div className="flex h-48 items-center justify-center rounded-xl border border-black/10 bg-gray-50 text-sm text-black/30 dark:border-white/10 dark:bg-[#1e2025] dark:text-white/30">
       {label} — coming soon
     </div>
   );
@@ -65,23 +61,22 @@ interface LeasePageProps {
 
 export default function LeasePage({ params }: LeasePageProps) {
   const router = useRouter();
-  const { id: id } = use(params);
+  const { id } = use(params);
 
   const [activeTab, setActiveTab] = useState<TabId>("production");
   const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(
     new Set(["production"]),
   );
 
-  function handleTabChange(id: TabId) {
-    setActiveTab(id);
-    setVisitedTabs((prev) => new Set([...prev, id]));
+  function handleTabChange(tabId: TabId) {
+    setActiveTab(tabId);
+    setVisitedTabs((prev) => new Set([...prev, tabId]));
   }
 
   const { data: prodData, isLoading: prodLoading } = useProductionData(
     id,
     visitedTabs.has("production"),
   );
-
   const { data: dashData, isLoading: dashLoading } = useDashboardData(
     id,
     visitedTabs.has("dashboard"),
@@ -90,30 +85,32 @@ export default function LeasePage({ params }: LeasePageProps) {
   return (
     <ErrorBoundary>
       <div className="space-y-4 lg:space-y-5">
+        {/* Header */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-[#252930] transition-colors hover:bg-white/10"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-gray-100 transition-colors hover:bg-black/10 dark:border-white/10 dark:bg-[#252930] dark:hover:bg-white/10"
           >
-            <ArrowLeft className="h-4 w-4 text-white" />
+            <ArrowLeft className="h-4 w-4 text-black dark:text-white" />
           </button>
-          <h1 className="text-2xl font-bold text-white lg:text-3xl">
+          <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
             Johnson Lease
           </h1>
         </div>
 
-        <div className="flex items-center w-fit gap-1 rounded-[12px] p-2 bg-[#191C22]">
-          {TABS.map(({ id, label, icon: Icon }) => {
-            const isActive = activeTab === id;
+        {/* Tab bar */}
+        <div className="flex w-fit items-center gap-1 rounded-[12px] bg-gray-100 p-2 dark:bg-[#191C22]">
+          {TABS.map(({ id: tabId, label, icon: Icon }) => {
+            const isActive = activeTab === tabId;
             return (
               <button
-                key={id}
-                onClick={() => handleTabChange(id)}
+                key={tabId}
+                onClick={() => handleTabChange(tabId)}
                 className={`flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   isActive
                     ? "bg-[#34C759] text-black"
-                    : "text-white/50 hover:bg-white/5 hover:text-white"
+                    : "text-black/50 hover:bg-black/5 hover:text-black dark:text-white/50 dark:hover:bg-white/5 dark:hover:text-white"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -123,6 +120,7 @@ export default function LeasePage({ params }: LeasePageProps) {
           })}
         </div>
 
+        {/* Tab content */}
         <div>
           {activeTab === "production" && (
             <ProductionTab
@@ -135,7 +133,6 @@ export default function LeasePage({ params }: LeasePageProps) {
               isLoading={prodLoading}
             />
           )}
-
           {activeTab === "dashboard" && (
             <DashboardTab
               oilTanks={dashData?.oilTanks}
@@ -145,7 +142,6 @@ export default function LeasePage({ params }: LeasePageProps) {
               isLoading={dashLoading}
             />
           )}
-
           {activeTab === "messages" && <MessagesTab />}
           {activeTab === "alarms" && <AlarmsTab title="Alarm" />}
           {activeTab === "device-info" && <ComingSoon label="Device Info" />}

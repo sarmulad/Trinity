@@ -19,19 +19,20 @@ export function ReportDetailPage({ reportId }: ReportDetailPageProps) {
           <Button variant="ghost" size="sm" asChild>
             <Link
               href="/dashboard/reports"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Reports
             </Link>
           </Button>
         </div>
-        <Card className="border-white/10 bg-[#1A1C1E]/95">
+
+        <Card className="border-black/10 bg-white dark:border-white/10 dark:bg-[#1A1C1E]/95">
           <CardContent className="p-8">
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-xl font-semibold text-black dark:text-white">
               Report {reportId ?? "—"}
             </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-black/50 dark:text-white/50">
               Report detail view. Content can be loaded dynamically by ID.
             </p>
           </CardContent>

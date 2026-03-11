@@ -7,8 +7,12 @@ export function CompressorCard({ compressor }: { compressor: Compressor }) {
   return (
     <Card>
       <div className="flex items-start justify-between mb-2">
-        <p className="text-sm font-semibold text-white">{compressor.name}</p>
-        <p className="text-xs text-white/40">{compressor.timestamp}</p>
+        <p className="text-sm font-semibold text-black dark:text-white">
+          {compressor.name}
+        </p>
+        <p className="text-xs text-black/40 dark:text-white/40">
+          {compressor.timestamp}
+        </p>
       </div>
       <div className="flex justify-between gap-4">
         <div className="space-y-1">
@@ -18,11 +22,13 @@ export function CompressorCard({ compressor }: { compressor: Compressor }) {
             value={
               <>
                 {compressor.oilPressure}{" "}
-                <Bell className=" inline h-4 w-4 text-red-500" />
+                <Bell className="inline h-4 w-4 text-red-500" />
               </>
             }
             valueClass={
-              compressor.oilPressureAlert ? "text-red-400" : "text-white"
+              compressor.oilPressureAlert
+                ? "text-red-400"
+                : "text-black dark:text-white"
             }
           />
           <StatRow label="Oil Temp" value={compressor.oilTemp} />

@@ -44,12 +44,10 @@ export function RoutesPage() {
     setEditingRoute(null);
     setNewModalOpen(true);
   };
-
   const handleEditRoute = (route: RouteListItem) => {
     setEditingRoute(route);
     setNewModalOpen(true);
   };
-
   const handleSaveRoute = (name: string, stops: RouteStop[]) => {
     if (editingRoute) {
       setRoutes((prev) =>
@@ -74,17 +72,15 @@ export function RoutesPage() {
     setNewModalOpen(false);
     setEditingRoute(null);
   };
-
   const handleDeleteClick = (route: RouteListItem) => {
     setRouteToDelete(route);
     setDeleteModalOpen(true);
   };
-
   const handleOpenRoute = (route: RouteListItem) => {
-    const name = encodeURIComponent(route.name);
-    router.push(`/dashboard/routes/${route.id}?name=${name}`);
+    router.push(
+      `/dashboard/routes/${route.id}?name=${encodeURIComponent(route.name)}`,
+    );
   };
-
   const handleConfirmDelete = () => {
     if (routeToDelete) {
       setRoutes((prev) => prev.filter((r) => r.id !== routeToDelete.id));
@@ -98,9 +94,9 @@ export function RoutesPage() {
     <ErrorBoundary>
       <div className="space-y-6">
         <div className={isEmpty ? "flex justify-center" : "space-y-4"}>
-          <h1 className="flex items-center gap-2 text-3xl font-bold text-white">
+          <h1 className="flex items-center gap-2 text-3xl font-bold text-black dark:text-white">
             Routes
-            <span className="flex items-center gap-1 text-xl font-normal text-white/60">
+            <span className="flex items-center gap-1 text-xl font-normal text-black/60 dark:text-white/60">
               <Cloud className="h-5 w-5" />
               48°
             </span>
@@ -108,17 +104,17 @@ export function RoutesPage() {
           {!isEmpty && (
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-white/45" />
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/45 dark:text-white/45" />
                 <input
                   type="text"
                   placeholder="Search Routes"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-12 w-[177px]  rounded-[5px] border border-white/35 bg-[#1A1D22]/85 py-2 pl-8 pr-3 text-sm text-white placeholder:text-white/40 focus:border-[#34C759]/60 focus:outline-none"
+                  className="h-12 w-[177px] rounded-[5px] border border-black/35 bg-black/5 py-2 pl-8 pr-3 text-sm text-black placeholder:text-black/40 focus:border-[#34C759]/60 focus:outline-none dark:border-white/35 dark:bg-[#1A1D22]/85 dark:text-white dark:placeholder:text-white/40"
                 />
               </div>
               <Button
-                className="h-12 rounded-[5px] bg-[#34C759] px-5 text-white hover:bg-[#34C759]/90"
+                className="h-12 rounded-[5px] bg-[#34C759] px-5 text-black hover:bg-[#34C759]/90"
                 onClick={handleCreateRoute}
               >
                 Add new Route
@@ -128,7 +124,7 @@ export function RoutesPage() {
         </div>
 
         {isEmpty ? (
-          <Card className="border-white/10 bg-[#1A1C1E]/95 overflow-hidden">
+          <Card className="border-black/10 bg-white overflow-hidden dark:border-white/10 dark:bg-[#1A1C1E]/95">
             <CardContent className="relative flex min-h-[420px] flex-col items-center justify-center p-8">
               <div
                 className="absolute inset-0 opacity-30"
@@ -140,15 +136,15 @@ export function RoutesPage() {
               />
               <div className="relative flex flex-col items-center gap-6">
                 <div className="flex items-center gap-8">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-white/30 bg-white/5">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-black/30 bg-black/5 dark:border-white/30 dark:bg-white/5">
                     <MapPin className="h-6 w-6 text-[#34C759]" />
                   </div>
-                  <div className="h-0.5 w-12 border-t-2 border-dashed border-white/30" />
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-white/30 bg-white/5">
+                  <div className="h-0.5 w-12 border-t-2 border-dashed border-black/30 dark:border-white/30" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-dashed border-black/30 bg-black/5 dark:border-white/30 dark:bg-white/5">
                     <MapPin className="h-6 w-6 text-[#34C759]" />
                   </div>
                 </div>
-                <p className="text-lg font-medium text-white">
+                <p className="text-lg font-medium text-black dark:text-white">
                   No Routes Exist
                 </p>
                 <Button
@@ -179,16 +175,10 @@ export function RoutesPage() {
           open={newModalOpen}
           onOpenChange={setNewModalOpen}
           initialRoute={
-            editingRoute
-              ? {
-                  name: editingRoute.name,
-                  stops: [], // could map from route if we had stops on RouteListItem
-                }
-              : null
+            editingRoute ? { name: editingRoute.name, stops: [] } : null
           }
           onSave={handleSaveRoute}
         />
-
         <DeleteRouteModal
           open={deleteModalOpen}
           onOpenChange={setDeleteModalOpen}

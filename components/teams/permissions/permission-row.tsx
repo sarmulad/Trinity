@@ -20,8 +20,8 @@ export function PermissionRow({
   return (
     <div className="flex items-center justify-between py-4">
       <div className="flex items-center gap-3">
-        <Icon className="h-4 w-4 text-white/50" />
-        <span className="text-sm text-white">{label}</span>
+        <Icon className="h-4 w-4 text-black/50 dark:text-white/50" />
+        <span className="text-sm text-black dark:text-white">{label}</span>
       </div>
       <div className="flex items-center gap-6">
         <PermissionToggle

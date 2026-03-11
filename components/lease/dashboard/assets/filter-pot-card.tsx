@@ -6,8 +6,12 @@ export function FilterPotCard({ filterPot }: { filterPot: FilterPot }) {
   return (
     <Card>
       <div className="flex items-start justify-between mb-3">
-        <p className="text-sm font-semibold text-white">Filter Pot</p>
-        <p className="text-xs text-white/40">{filterPot.timestamp}</p>
+        <p className="text-sm font-semibold text-black dark:text-white">
+          Filter Pot
+        </p>
+        <p className="text-xs text-black/40 dark:text-white/40">
+          {filterPot.timestamp}
+        </p>
       </div>
       <div className="flex justify-between gap-4">
         <div className="space-y-1">

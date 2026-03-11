@@ -21,7 +21,7 @@ export function RoleSidebar({
             className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
               selectedRoleId === role.id
                 ? "text-[#34C759] font-medium"
-                : "text-white/50 hover:text-white"
+                : "text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white"
             }`}
           >
             {role.label}

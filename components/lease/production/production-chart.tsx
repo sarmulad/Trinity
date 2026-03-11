@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AgCharts } from "ag-charts-react";
 import { AgChartOptions } from "ag-charts-community";
+import { useTheme } from "next-themes";
 import { ProductionRecord, ProductionStats, TIME_RANGES } from "./types";
 
 interface ProductionChartProps {
@@ -17,21 +18,17 @@ export function ProductionChart({
   isLoading = false,
 }: ProductionChartProps) {
   const [activeRange, setActiveRange] = React.useState("Y");
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const chartOptions: AgChartOptions = React.useMemo(() => {
     return {
-      data: data,
+      data,
       background: {
-        fill: "#252930",
+        fill: isDark ? "#252930" : "#f4f6f8",
       },
-      padding: {
-        top: 20,
-        right: 20,
-        bottom: 40,
-        left: 60,
-      },
+      padding: { top: 20, right: 20, bottom: 40, left: 60 },
       series: [
-        // H2O line - blue
         {
           type: "line",
           xKey: "date",
@@ -40,7 +37,6 @@ export function ProductionChart({
           stroke: "#3b82f6",
           strokeWidth: 2,
         },
-        // Oil line - gray
         {
           type: "line",
           xKey: "date",
@@ -49,7 +45,6 @@ export function ProductionChart({
           stroke: "#6b7280",
           strokeWidth: 2,
         },
-        // Gas line - gray
         {
           type: "line",
           xKey: "date",
@@ -64,14 +59,14 @@ export function ProductionChart({
           type: "category",
           position: "bottom",
           label: {
-            color: "rgba(255, 255, 255, 0.4)",
+            color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
             fontSize: 11,
           },
           gridLine: {
             enabled: true,
             style: [
               {
-                stroke: "rgba(255, 255, 255, 0.08)",
+                stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
                 lineDash: [3, 3],
               },
             ],
@@ -81,31 +76,29 @@ export function ProductionChart({
           type: "number",
           position: "left",
           label: {
-            color: "rgba(255, 255, 255, 0.4)",
+            color: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)",
             fontSize: 11,
           },
           title: {
             text: "BBLs",
             enabled: true,
-            color: "rgba(255, 255, 255, 0.5)",
+            color: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
             fontSize: 12,
           },
           gridLine: {
             enabled: true,
             style: [
               {
-                stroke: "rgba(255, 255, 255, 0.08)",
+                stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
                 lineDash: [4, 4],
               },
             ],
           },
         },
       ],
-      legend: {
-        enabled: false,
-      },
+      legend: { enabled: false },
     };
-  }, [data]);
+  }, [data, isDark]);
 
   const LEGEND = [
     { color: "#3b82f6", label: "H2O", shape: "line" },
@@ -126,7 +119,7 @@ export function ProductionChart({
             className={`h-8 min-w-[36px] rounded px-3 text-xs font-medium transition-colors ${
               activeRange === r
                 ? "bg-[#34C759] text-black"
-                : "border border-white/10 bg-transparent text-white/40 hover:bg-white/5"
+                : "border border-black/10 bg-transparent text-black/40 hover:bg-black/5 dark:border-white/10 dark:text-white/40 dark:hover:bg-white/5"
             }`}
           >
             {r}
@@ -137,9 +130,9 @@ export function ProductionChart({
       {/* Chart + side stats */}
       <div className="grid gap-4 lg:grid-cols-[1fr_200px]">
         {/* Chart area */}
-        <div className="min-h-[260px] rounded-lg bg-[#252930] p-4">
+        <div className="min-h-[260px] rounded-lg bg-gray-100 p-4 dark:bg-[#252930]">
           {isLoading ? (
-            <div className="flex h-[200px] items-center justify-center text-sm text-white/20">
+            <div className="flex h-[200px] items-center justify-center text-sm text-black/20 dark:text-white/20">
               Loading…
             </div>
           ) : (
@@ -147,7 +140,7 @@ export function ProductionChart({
               <div className="h-[220px] w-full">
                 <AgCharts options={chartOptions} />
               </div>
-              <div className="mt-3 flex flex-wrap gap-4 text-xs text-white/40">
+              <div className="mt-3 flex flex-wrap gap-4 text-xs text-black/40 dark:text-white/40">
                 {LEGEND.map(({ color, label, shape }) => (
                   <span key={label} className="flex items-center gap-1.5">
                     {shape === "line" && (
@@ -182,7 +175,7 @@ export function ProductionChart({
           )}
         </div>
 
-        {/* Side stats — only visible in chart view */}
+        {/* Side stats */}
         <div className="space-y-3">
           {[
             { label: "Oil Stock", value: stats.oilStock },
@@ -197,8 +190,12 @@ export function ProductionChart({
             { label: "Oil Tank #2 Prod", value: stats.oilTank2Prod },
           ].map((item) => (
             <div key={item.label}>
-              <p className="text-[10px] text-white/40">{item.label}</p>
-              <p className="text-sm font-semibold text-white">{item.value}</p>
+              <p className="text-[10px] text-black/40 dark:text-white/40">
+                {item.label}
+              </p>
+              <p className="text-sm font-semibold text-black dark:text-white">
+                {item.value}
+              </p>
             </div>
           ))}
         </div>

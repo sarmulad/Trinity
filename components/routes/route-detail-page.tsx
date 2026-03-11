@@ -86,13 +86,15 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
   );
 
   const selectedStop =
-    STOPS.find((stop) => stop.id === selectedStopId) ?? STOPS[0] ?? null;
-
+    STOPS.find((s) => s.id === selectedStopId) ?? STOPS[0] ?? null;
   const completedCount = STOPS.filter((s) => s.status === "complete").length;
-  const progressPercent = Math.round((completedCount / Math.max(STOPS.length, 1)) * 100);
+  const progressPercent = Math.round(
+    (completedCount / Math.max(STOPS.length, 1)) * 100,
+  );
 
   return (
     <div className="space-y-4">
+      {/* Top bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Link
@@ -101,11 +103,10 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </Link>
-          <h2 className="text-4xl font-semibold tracking-tight text-white">
+          <h2 className="text-4xl font-semibold tracking-tight text-black dark:text-white">
             {displayRouteName}
           </h2>
         </div>
-
         <Link
           href={`/dashboard/routes/submissions?routeId=${encodeURIComponent(routeId)}&name=${encodeURIComponent(displayRouteName)}`}
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[#34C759] hover:underline"
@@ -115,30 +116,36 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2 text-sm text-white/70">
-        <span className="text-white">Service Date</span>
+      {/* Service date */}
+      <div className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
+        <span className="text-black dark:text-white">Service Date</span>
         <button
           type="button"
-          className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-[#1F2328] px-2.5 py-1.5 text-sm text-white hover:bg-[#22272E]"
+          className="inline-flex items-center gap-2 rounded-md border border-black/20 bg-gray-100 px-2.5 py-1.5 text-sm text-black hover:bg-gray-200 dark:border-white/20 dark:bg-[#1F2328] dark:text-white dark:hover:bg-[#22272E]"
         >
-          <Calendar className="h-3.5 w-3.5 text-white/70" />
+          <Calendar className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
           January 05, 2026
-          <ChevronDown className="h-3.5 w-3.5 text-white/70" />
+          <ChevronDown className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
         </button>
       </div>
 
-      <section className="rounded-xl border border-white/10 bg-[#1A1C1E]/75 p-4 backdrop-blur-sm">
+      {/* Main section */}
+      <section className="rounded-xl border border-black/10 bg-gray-50/75 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-[#1A1C1E]/75">
         <div className="grid gap-4 xl:grid-cols-[350px_minmax(0,1fr)]">
-          <aside className="rounded-lg border border-white/10 bg-[#1A1F25] p-3">
+          {/* Stop list sidebar */}
+          <aside className="rounded-lg border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-[#1A1F25]">
             <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-white">
-                <ListChecks className="h-4 w-4 text-white/80" />
+              <div className="flex items-center gap-2 text-black dark:text-white">
+                <ListChecks className="h-4 w-4 text-black/80 dark:text-white/80" />
                 <span className="font-medium">Stop List</span>
               </div>
-              <span className="text-xs text-white/50">Service Date: 3/17/24</span>
+              <span className="text-xs text-black/50 dark:text-white/50">
+                Service Date: 3/17/24
+              </span>
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-xs text-white/70">
+            {/* Progress bar */}
+            <div className="mt-3 flex items-center justify-between text-xs text-black/70 dark:text-white/70">
               <span>Progress</span>
               <span>{progressPercent}% Complete</span>
             </div>
@@ -149,11 +156,11 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
               />
             </div>
 
+            {/* Stops */}
             <ul className="mt-3 space-y-2">
               {STOPS.map((stop) => {
                 const isActive = stop.id === selectedStopId;
                 const isComplete = stop.status === "complete";
-
                 return (
                   <li key={stop.id}>
                     <button
@@ -163,25 +170,43 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
                         "flex w-full items-center justify-between rounded-md border px-3 py-2 text-left transition-colors",
                         isActive
                           ? "border-[#34C759] bg-[#34C759] text-white"
-                          : "border-white/10 bg-[#161B20] text-white hover:bg-[#1D232B]",
+                          : "border-black/10 bg-gray-50 text-black hover:bg-gray-100 dark:border-white/10 dark:bg-[#161B20] dark:text-white dark:hover:bg-[#1D232B]",
                       ].join(" ")}
                     >
                       <div className="min-w-0">
                         <p className="truncate text-sm font-medium">
-                          {stop.name} <span className={isActive ? "text-white/85" : "text-white/55"}>({stop.distance})</span>
+                          {stop.name}{" "}
+                          <span
+                            className={
+                              isActive
+                                ? "text-white/85"
+                                : "text-black/55 dark:text-white/55"
+                            }
+                          >
+                            ({stop.distance})
+                          </span>
                         </p>
-                        <p className={["truncate text-xs", isActive ? "text-white/85" : "text-white/45"].join(" ")}>
+                        <p
+                          className={[
+                            "truncate text-xs",
+                            isActive
+                              ? "text-white/85"
+                              : "text-black/45 dark:text-white/45",
+                          ].join(" ")}
+                        >
                           {stop.coordinates}
                         </p>
                       </div>
-                      {isActive && <RefreshCcw className="h-3.5 w-3.5 shrink-0 text-white" />}
+                      {isActive && (
+                        <RefreshCcw className="h-3.5 w-3.5 shrink-0 text-white" />
+                      )}
                       {!isActive && isComplete && (
                         <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded border border-[#34C759] text-[#34C759]">
                           <Check className="h-2.5 w-2.5" />
                         </span>
                       )}
                       {!isActive && !isComplete && (
-                        <Square className="h-4 w-4 shrink-0 text-white/45" />
+                        <Square className="h-4 w-4 shrink-0 text-black/45 dark:text-white/45" />
                       )}
                     </button>
                   </li>
@@ -190,75 +215,89 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
             </ul>
           </aside>
 
+          {/* Right panel */}
           <div className="space-y-3">
-            <div className="rounded-lg border border-white/10 bg-[#111418] p-4">
-              <h3 className="text-3xl font-medium text-white">
+            <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-[#111418]">
+              <h3 className="text-3xl font-medium text-black dark:text-white">
                 {selectedStop?.name ?? "David Lease"}
               </h3>
 
-              <div className="mt-3 flex flex-wrap items-center gap-5 border-b border-white/20 pb-2 text-sm text-white/60">
+              {/* Asset tabs */}
+              <div className="mt-3 flex flex-wrap items-center gap-5 border-b border-black/20 pb-2 text-sm text-black/60 dark:border-white/20 dark:text-white/60">
                 <button type="button" className="font-medium text-[#34C759]">
                   Oil Tank #1
                 </button>
-                <button type="button" className="hover:text-white">
+                <button
+                  type="button"
+                  className="hover:text-black dark:hover:text-white"
+                >
                   Oil Tank #2
                 </button>
-                <button type="button" className="hover:text-white">
+                <button
+                  type="button"
+                  className="hover:text-black dark:hover:text-white"
+                >
                   Producing Well
                 </button>
-                <button type="button" className="hover:text-white">
+                <button
+                  type="button"
+                  className="hover:text-black dark:hover:text-white"
+                >
                   Injection Well
                 </button>
-                <button type="button" className="hover:text-white">
+                <button
+                  type="button"
+                  className="hover:text-black dark:hover:text-white"
+                >
                   Disposal Well
                 </button>
               </div>
 
-              <div className="mt-3 rounded-md border border-white/10 bg-black/85 p-3">
-                <p className="text-sm font-medium text-white">Oil Tank #1</p>
+              {/* Gauge form */}
+              <div className="mt-3 rounded-md border border-black/10 bg-gray-50 p-3 dark:border-white/10 dark:bg-black/85">
+                <p className="text-sm font-medium text-black dark:text-white">
+                  Oil Tank #1
+                </p>
 
-                <div className="mt-2 flex flex-col gap-1 text-xs text-white/70 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-2 flex flex-col gap-1 text-xs text-black/70 dark:text-white/70 sm:flex-row sm:items-center sm:justify-between">
                   <span className="inline-flex items-center gap-1">
-                    Last Gauge
-                    <CircleHelp className="h-3 w-3" />
+                    Last Gauge <CircleHelp className="h-3 w-3" />
                   </span>
                   <span>12/9/24 @ 6am -21FT 1.5 IN</span>
                 </div>
 
-                <p className="mt-3 text-sm font-medium text-white">New Gauge</p>
+                <p className="mt-3 text-sm font-medium text-black dark:text-white">
+                  New Gauge
+                </p>
 
                 <div className="mt-2 grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1">
-                    <label className="inline-flex items-center gap-1 text-xs text-white/70">
-                      Feet
-                      <CircleHelp className="h-3 w-3" />
+                    <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
+                      Feet <CircleHelp className="h-3 w-3" />
                     </label>
                     <Input
                       defaultValue="21"
-                      className="h-8 border-white/20 bg-[#151A21] text-sm text-white"
+                      className="h-8 border-black/20 bg-white text-sm text-black dark:border-white/20 dark:bg-[#151A21] dark:text-white"
                     />
                   </div>
-
                   <div className="space-y-1">
-                    <label className="inline-flex items-center gap-1 text-xs text-white/70">
-                      Inches
-                      <CircleHelp className="h-3 w-3" />
+                    <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
+                      Inches <CircleHelp className="h-3 w-3" />
                     </label>
                     <Input
                       defaultValue="2.00"
-                      className="h-8 border-white/20 bg-[#151A21] text-sm text-white"
+                      className="h-8 border-black/20 bg-white text-sm text-black dark:border-white/20 dark:bg-[#151A21] dark:text-white"
                     />
                   </div>
                 </div>
 
                 <div className="mt-3 space-y-1">
-                  <label className="inline-flex items-center gap-1 text-xs text-white/70">
-                    Notes
-                    <CircleHelp className="h-3 w-3" />
+                  <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
+                    Notes <CircleHelp className="h-3 w-3" />
                   </label>
                   <Textarea
                     placeholder="Enter Note"
-                    className="min-h-[56px] border-white/20 bg-[#151A21] text-sm text-white placeholder:text-white/35"
+                    className="min-h-[56px] border-black/20 bg-white text-sm text-black placeholder:text-black/35 dark:border-white/20 dark:bg-[#151A21] dark:text-white dark:placeholder:text-white/35"
                   />
                 </div>
 
@@ -269,14 +308,21 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
                 </div>
 
                 <div className="mt-3 flex items-center justify-between text-xs">
-                  <button type="button" className="inline-flex items-center gap-1 text-white/65 hover:text-white">
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
+                  >
                     <FileText className="h-3 w-3" />
                     Optional:
-                    <span className="text-[#34C759] hover:underline">Submit Ticket</span>
+                    <span className="text-[#34C759] hover:underline">
+                      Submit Ticket
+                    </span>
                   </button>
-                  <button type="button" className="inline-flex items-center gap-1 text-[#34C759] hover:underline">
-                    Next
-                    <ChevronRight className="h-3.5 w-3.5" />
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-[#34C759] hover:underline"
+                  >
+                    Next <ChevronRight className="h-3.5 w-3.5" />
                   </button>
                 </div>
               </div>

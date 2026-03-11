@@ -20,13 +20,17 @@ export function MoreInformation({ info }: MoreInformationProps) {
   ];
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1e2025] p-5">
-      <p className="mb-4 text-sm font-semibold text-white">More Information</p>
+    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1e2025]">
+      <p className="mb-4 text-sm font-semibold text-black dark:text-white">
+        More Information
+      </p>
       <div className="grid grid-cols-2 gap-x-8 gap-y-3 lg:grid-cols-4">
         {fields.map((item) => (
           <div key={item.label} className="space-y-0.5">
-            <p className="text-[10px] text-white/40">{item.label}</p>
-            <p className="text-sm text-white">{item.value}</p>
+            <p className="text-[10px] text-black/40 dark:text-white/40">
+              {item.label}
+            </p>
+            <p className="text-sm text-black dark:text-white">{item.value}</p>
           </div>
         ))}
       </div>

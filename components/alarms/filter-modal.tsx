@@ -33,7 +33,7 @@ export function FilterModal({
   if (!open) return null;
 
   const selectClass =
-    "w-full rounded-lg border border-white/10 bg-[#252930] px-3 py-2.5 text-sm text-white/60 focus:border-[#34C759]/50 focus:outline-none appearance-none cursor-pointer";
+    "w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-black/60 focus:border-[#34C759]/50 focus:outline-none appearance-none cursor-pointer dark:border-white/10 dark:bg-[#252930] dark:text-white/60";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -41,10 +41,12 @@ export function FilterModal({
       <div className="absolute inset-0 bg-black/60" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#1e2127] p-6 shadow-2xl">
+      <div className="relative w-full max-w-md rounded-2xl border border-black/10 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#1e2127]">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-base font-semibold text-white">Filter</h2>
+          <h2 className="text-base font-semibold text-black dark:text-white">
+            Filter
+          </h2>
           <button
             onClick={onClose}
             className="flex items-center gap-1 text-sm text-[#34C759] hover:text-[#28a745]"
@@ -56,7 +58,7 @@ export function FilterModal({
         <div className="space-y-4">
           {/* Lease */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs text-white/60 mb-1.5">
+            <label className="flex items-center gap-1.5 text-xs text-black/60 mb-1.5 dark:text-white/60">
               Lease <Info className="h-3 w-3" />
             </label>
             <div className="relative">
@@ -72,7 +74,7 @@ export function FilterModal({
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30">
                 ▾
               </span>
             </div>
@@ -80,7 +82,7 @@ export function FilterModal({
 
           {/* Status */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs text-white/60 mb-1.5">
+            <label className="flex items-center gap-1.5 text-xs text-black/60 mb-1.5 dark:text-white/60">
               Status <Info className="h-3 w-3" />
             </label>
             <div className="relative">
@@ -96,7 +98,7 @@ export function FilterModal({
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30">
                 ▾
               </span>
             </div>
@@ -104,7 +106,7 @@ export function FilterModal({
 
           {/* By Type */}
           <div>
-            <label className="flex items-center gap-1.5 text-xs text-white/60 mb-1.5">
+            <label className="flex items-center gap-1.5 text-xs text-black/60 mb-1.5 dark:text-white/60">
               By Type <Info className="h-3 w-3" />
             </label>
             <div className="relative">
@@ -120,7 +122,7 @@ export function FilterModal({
                   </option>
                 ))}
               </select>
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-white/30">
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-black/30 dark:text-white/30">
                 ▾
               </span>
             </div>

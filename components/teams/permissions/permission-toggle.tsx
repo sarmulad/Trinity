@@ -19,14 +19,14 @@ export function PermissionToggle({
     >
       <span
         className={`flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-          enabled ? "border-[#34C759]" : "border-white/20"
+          enabled ? "border-[#34C759]" : "border-black/20 dark:border-white/20"
         }`}
       >
         {enabled && <Check className="h-3 w-3 text-[#34C759]" />}
       </span>
       <span
         className={`text-sm font-medium transition-colors ${
-          enabled ? "text-[#34C759]" : "text-white/40"
+          enabled ? "text-[#34C759]" : "text-black/40 dark:text-white/40"
         }`}
       >
         {label}
