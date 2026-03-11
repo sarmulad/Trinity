@@ -93,6 +93,8 @@ const MOCK_INVOICES: InvoiceRow[] = [
 export function InvoicesTab() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const { stats: selectionStats, onSelectionChanged } =
+    useAgGridSelectionStats<InvoiceRow>();
 
   const [search, setSearch] = React.useState("");
   const [invoices] = React.useState<InvoiceRow[]>(MOCK_INVOICES);
