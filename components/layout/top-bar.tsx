@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Ticker } from "./ticker";
 
 interface Ticker {
   id: string;
@@ -32,15 +33,6 @@ interface Ticker {
   label: string;
   value: string;
 }
-
-const tickerData: Ticker[] = [
-  { id: "1", icon: "NG", label: "NG", value: "$4/MCF" },
-  { id: "2", icon: "BRENT", label: "BRENT", value: "$75/BBL" },
-  { id: "3", icon: "WT1", label: "WT1", value: "$75/BBL" },
-  { id: "4", icon: "NG", label: "NG", value: "$4/MCF" },
-  { id: "5", icon: "BRENT", label: "BRENT", value: "$75/BBL" },
-  { id: "6", icon: "WT1", label: "WT1", value: "$75/BBL" },
-];
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Daily Summary",
@@ -168,12 +160,6 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             >
               <DropdownMenuLabel className="pb-3">
                 <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src="/placeholder-user.jpg" alt="User" />
-                    <AvatarFallback className="bg-[#34C759] text-black">
-                      JD
-                    </AvatarFallback>
-                  </Avatar>
                   <div>
                     <p className="text-sm font-bold text-black dark:text-white">
                       TRINITY INTERNAL SUPER USER
@@ -194,6 +180,8 @@ export function TopBar({ onMenuClick }: TopBarProps) {
                   <span>My Account</span>
                 </Link>
               </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-black/10 dark:bg-white/10" />
+
               <DropdownMenuItem className="text-black hover:bg-black/5 dark:text-white dark:hover:bg-white/5">
                 <HelpCircle className="mr-2 h-4 w-4" />
                 <span>Learn More</span>
@@ -222,72 +210,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </DropdownMenu>
         </div>
       </header>
-
-      {/* Ticker — always dark regardless of theme */}
-      <div className="relative h-12 overflow-hidden border-b border-white/10 bg-[#0a0e14]">
-        <div className="flex h-full animate-marquee items-center gap-8 whitespace-nowrap">
-          {[...tickerData, ...tickerData].map((item, idx) => (
-            <div key={`${item.id}-${idx}`} className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
-                {item.icon === "NG" && (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-500/20">
-                    <svg
-                      className="h-3 w-3 text-blue-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <circle cx="10" cy="10" r="8" />
-                    </svg>
-                  </div>
-                )}
-                {item.icon === "BRENT" && (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-orange-500/20">
-                    <svg
-                      className="h-3 w-3 text-orange-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 2 L14 10 L10 18 L6 10 Z" />
-                    </svg>
-                  </div>
-                )}
-                {item.icon === "WT1" && (
-                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-500/20">
-                    <svg
-                      className="h-3 w-3 text-green-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 2 L14 10 L10 18 L6 10 Z" />
-                    </svg>
-                  </div>
-                )}
-                <span className="text-sm font-medium text-white/60">
-                  {item.label}:
-                </span>
-                <span className="text-sm font-bold text-white">
-                  {item.value}
-                </span>
-              </div>
-              <span className="text-white/20">•</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <style jsx>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0%);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-marquee {
-          animation: marquee 30s linear infinite;
-        }
-      `}</style>
+      <Ticker />
     </>
   );
 }

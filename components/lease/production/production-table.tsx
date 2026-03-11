@@ -8,11 +8,8 @@ import {
   AllCommunityModule,
   themeQuartz,
 } from "ag-grid-community";
-<<<<<<< HEAD
 import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
-=======
 import { useTheme } from "next-themes";
->>>>>>> c24871c (WIP: local changes)
 import { ProductionRecord } from "./types";
 import {
   AG_GRID_CLIPBOARD_OPTIONS,
@@ -37,10 +34,8 @@ export function ProductionTable({
   isLoading = false,
 }: ProductionTableProps) {
   const gridRef = React.useRef<AgGridReact>(null);
-<<<<<<< HEAD
   const { stats: selectionStats, onSelectionChanged } =
     useAgGridSelectionStats<ProductionRecord>();
-=======
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
@@ -59,7 +54,6 @@ export function ProductionTable({
       }),
     [isDark],
   );
->>>>>>> c24871c (WIP: local changes)
 
   const columnDefs: ColDef<ProductionRecord>[] = React.useMemo(
     () => [

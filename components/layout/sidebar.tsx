@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutGrid,
   GitBranch,
@@ -40,11 +40,24 @@ interface SidebarProps {
 
 export function Sidebar({ onClose }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [sortAsc, setSortAsc] = React.useState(true);
 
   function isActive(item: NavItem) {
     if (item.exact) return pathname === item.href;
     return pathname === item.href || pathname?.startsWith(`${item.href}/`);
   }
+
+  const filteredNavItems = React.useMemo(() => {
+    const items = searchQuery.trim()
+      ? navItems.filter((item) =>
+          item.title.toLowerCase().includes(searchQuery.toLowerCase()),
+        )
+      : navItems;
+    return sortAsc ? items : [...items].reverse();
+  }, [searchQuery, sortAsc]);
 
   return (
     <aside className="flex h-screen w-[280px] flex-col border-r border-black/10 bg-white dark:border-white/10 dark:bg-[#26282C]">
@@ -64,7 +77,7 @@ export function Sidebar({ onClose }: SidebarProps) {
       {/* Nav */}
       <div className="flex-1 overflow-y-auto px-6 py-6">
         <div className="grid grid-cols-2 gap-3">
-          {navItems.map((item) => {
+          {filteredNavItems.map((item) => {
             const Icon = item.icon;
             const active = isActive(item);
             return (
@@ -103,30 +116,58 @@ export function Sidebar({ onClose }: SidebarProps) {
         </div>
 
         {/* Dashboards section */}
-        <div className="mt-8">
-          <button
-            type="button"
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
-          >
-            <Menu className="h-4 w-4" />
-            <span>Dashboards</span>
-          </button>
-          <div className="mt-3 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
+        <div className="mt-8 space-y-2">
+          <div className="flex w-full items-center justify-between">
+            <button
+              type="button"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
             >
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
-            >
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
+              <Menu className="h-4 w-4" />
+              <span>Dashboards</span>
+            </button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSearchOpen((v) => !v)}
+                className={cn(
+                  "h-9 w-9 transition-colors",
+                  searchOpen
+                    ? "text-[#34C759]"
+                    : "text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white",
+                )}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setSortAsc((v) => !v)}
+                className={cn(
+                  "h-9 w-9 transition-colors",
+                  !sortAsc
+                    ? "text-[#34C759]"
+                    : "text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white",
+                )}
+              >
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
+
+          {searchOpen && (
+            <div className="relative px-1">
+              <Search className="absolute left-4 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/30 dark:text-white/30" />
+              <input
+                autoFocus
+                type="text"
+                placeholder="Search nav..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-lg border border-black/10 bg-black/5 py-2 pl-8 pr-3 text-sm text-black placeholder:text-black/30 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30"
+              />
+            </div>
+          )}
         </div>
       </div>
 
