@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from "react";
 import {
   ArrowLeft,
+  ArrowLeftRight,
   BarChart3,
   LayoutDashboard,
   MessageCircleMore,
@@ -17,6 +18,8 @@ import { DashboardTab } from "@/components/lease/dashboard/dashboard-tab";
 import { AlarmsTab } from "@/components/alarms/alarms-tab";
 import { MessagesTab } from "@/components/lease/messages/messages-tab";
 import { DeviceInfoTab } from "@/components/lease/device-info/device-info-tab";
+import { CompareToolModal } from "@/components/compare/compare-tool-modal";
+import { DASHBOARD_TREE } from "@/data/dashboard-tree";
 
 const TABS = [
   { id: "production", label: "Production", icon: BarChart3 },
@@ -55,6 +58,7 @@ interface LeasePageProps {
 export default function LeasePage({ params }: LeasePageProps) {
   const router = useRouter();
   const { id } = use(params);
+  const [leaseCompareOpen, setLeaseCompareOpen] = useState(false);
 
   const [activeTab, setActiveTab] = useState<TabId>("production");
   const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(
@@ -74,21 +78,36 @@ export default function LeasePage({ params }: LeasePageProps) {
     id,
     visitedTabs.has("dashboard"),
   );
+  const leaseMeta = DASHBOARD_TREE.flatMap((company) => company.routes ?? [])
+    .flatMap((route) => route.leases ?? [])
+    .find((lease) => lease.id === id);
+  const displayLeaseName = leaseMeta?.name ?? "Johnson Lease";
 
   return (
     <ErrorBoundary>
       <div className="space-y-4 lg:space-y-5">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-gray-100 transition-colors hover:bg-black/10 dark:border-white/10 dark:bg-[#252930] dark:hover:bg-white/10"
+            >
+              <ArrowLeft className="h-4 w-4 text-black dark:text-white" />
+            </button>
+            <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
+              {displayLeaseName}
+            </h1>
+          </div>
+
           <button
             type="button"
-            onClick={() => router.back()}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/10 bg-gray-100 transition-colors hover:bg-black/10 dark:border-white/10 dark:bg-[#252930] dark:hover:bg-white/10"
+            onClick={() => setLeaseCompareOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-md border border-black/10 bg-gray-100 px-3 py-1.5 text-xs font-medium text-black/70 transition-colors hover:border-[#34C759]/50 hover:text-black dark:border-white/10 dark:bg-[#252930] dark:text-white/70 dark:hover:text-white"
           >
-            <ArrowLeft className="h-4 w-4 text-black dark:text-white" />
+            <ArrowLeftRight className="h-3.5 w-3.5" />
+            Compare
           </button>
-          <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
-            Johnson Lease
-          </h1>
         </div>
 
         <div className="flex w-fit items-center gap-1 rounded-[12px] bg-gray-100 p-2 dark:bg-[#191C22]">
@@ -129,7 +148,6 @@ export default function LeasePage({ params }: LeasePageProps) {
               compressors={dashData?.compressor}
               wells={dashData?.wells}
               teamMembers={dashData?.teamMembers}
-              isLoading={dashLoading}
             />
           )}
           {activeTab === "messages" && <MessagesTab />}
@@ -137,6 +155,13 @@ export default function LeasePage({ params }: LeasePageProps) {
           {activeTab === "device-info" && <DeviceInfoTab />}
         </div>
       </div>
+      <CompareToolModal
+        open={leaseCompareOpen}
+        onOpenChange={setLeaseCompareOpen}
+        scope="lease"
+        leaseId={id}
+        leaseName={displayLeaseName}
+      />
     </ErrorBoundary>
   );
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import { useTheme } from "next-themes";
 
 interface LogoProps {
   width?: string | number;
@@ -12,16 +11,17 @@ const Logo: React.FC<LogoProps> = ({
   height = 32,
   className = "",
 }) => {
-  const { resolvedTheme } = useTheme();
-  const src =
-    resolvedTheme === "dark" ? "/images/logo.png" : "/images/logo_black.png";
-
   return (
     <div className="flex items-center justify-center" style={{ width, height }}>
       <img
-        src={src}
+        src="/images/logo_black.png"
         alt="Trinity Logo"
-        className={`h-full w-full ${className}`}
+        className={`h-full w-full dark:hidden ${className}`}
+      />
+      <img
+        src="/images/logo.png"
+        alt="Trinity Logo"
+        className={`hidden h-full w-full dark:block ${className}`}
       />
     </div>
   );

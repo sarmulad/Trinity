@@ -8,6 +8,7 @@ import {
   DollarSign,
   TrendingUp,
   ChevronDown,
+  ArrowLeftRight,
 } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +25,7 @@ import {
   EXAMPLE_PRODUCTION,
   EXAMPLE_STATS,
 } from "@/components/lease/production/types";
+import { CompareToolModal } from "@/components/compare/compare-tool-modal";
 
 type Benchmark = { label: string; price: number; unit: string };
 
@@ -161,6 +163,7 @@ const TABS: { id: Tab; label: string }[] = [
 export default function DailySummaryPage() {
   const [activeTab, setActiveTab] = React.useState<Tab>("company");
   const [isLoading, setIsLoading] = React.useState(false);
+  const [companyCompareOpen, setCompanyCompareOpen] = React.useState(false);
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
     month: "short",
@@ -170,13 +173,24 @@ export default function DailySummaryPage() {
     <ErrorBoundary>
       <div className="space-y-4 lg:space-y-6">
         <div className="flex flex-col gap-3">
-          <div>
-            <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
-              Trinity Energy
-            </h1>
-            <p className="text-sm text-black/40 dark:text-white/40">
-              {formattedDate}
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
+                Trinity Energy
+              </h1>
+              <p className="text-sm text-black/40 dark:text-white/40">
+                {formattedDate}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setCompanyCompareOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-black/10 bg-gray-100 px-3 py-1.5 text-xs font-medium text-black/70 transition-colors hover:border-[#34C759]/50 hover:text-black dark:border-white/10 dark:bg-[#252930] dark:text-white/70 dark:hover:text-white"
+            >
+              <ArrowLeftRight className="h-3.5 w-3.5" />
+              Compare
+            </button>
           </div>
 
           <div className="flex items-center gap-1 border-b border-black/10 dark:border-white/10">
@@ -215,6 +229,11 @@ export default function DailySummaryPage() {
           />
         )}
       </div>
+      <CompareToolModal
+        open={companyCompareOpen}
+        onOpenChange={setCompanyCompareOpen}
+        scope="company"
+      />
     </ErrorBoundary>
   );
 }

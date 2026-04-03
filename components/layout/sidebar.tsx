@@ -220,10 +220,7 @@ export function Sidebar({
       </div>
 
       <div className="border-t border-black/10 p-4 dark:border-white/10">
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-lg border border-transparent bg-gray-100 px-4 py-3 hover:border-[#34C759]/50 dark:bg-[#252930]"
-        >
+        <div className="flex w-full items-center gap-3 rounded-lg border border-transparent bg-gray-100 px-4 py-3 hover:border-[#34C759]/50 dark:bg-[#252930]">
           <div className="flex h-8 w-8 items-center justify-center rounded bg-black/10 dark:bg-white/10">
             <svg
               viewBox="0 0 100 100"
@@ -236,7 +233,7 @@ export function Sidebar({
             Trinity Energy
           </span>
           <ChevronDown className="h-4 w-4 text-black/60 dark:text-white/60" />
-        </button>
+        </div>
       </div>
     </aside>
   );

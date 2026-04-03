@@ -10,7 +10,6 @@ import {
   LogOut,
   Calendar,
   HelpCircle,
-  ArrowLeftRight,
   Menu,
 } from "lucide-react";
 
@@ -89,16 +88,6 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             {displayTitle}
           </h1>
 
-          {pathname === "/dashboard" && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="hidden bg-transparent text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white sm:flex"
-            >
-              <ArrowLeftRight className="mr-1 h-4 w-4" />
-              Compare
-            </Button>
-          )}
         </div>
 
         <div className="flex items-center gap-1 lg:gap-3">
