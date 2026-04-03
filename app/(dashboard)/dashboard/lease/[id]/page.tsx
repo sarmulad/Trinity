@@ -16,6 +16,7 @@ import { ProductionTab } from "@/components/lease/production/production-tab";
 import { DashboardTab } from "@/components/lease/dashboard/dashboard-tab";
 import { AlarmsTab } from "@/components/alarms/alarms-tab";
 import { MessagesTab } from "@/components/lease/messages/messages-tab";
+import { DeviceInfoTab } from "@/components/lease/device-info/device-info-tab";
 
 const TABS = [
   { id: "production", label: "Production", icon: BarChart3 },
@@ -45,14 +46,6 @@ function useDashboardData(id: string, enabled: boolean) {
     if (!enabled) return;
   }, [id, enabled]);
   return { data, isLoading, error };
-}
-
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="flex h-48 items-center justify-center rounded-xl border border-black/10 bg-gray-50 text-sm text-black/30 dark:border-white/10 dark:bg-[#1e2025] dark:text-white/30">
-      {label} — coming soon
-    </div>
-  );
 }
 
 interface LeasePageProps {
@@ -141,7 +134,7 @@ export default function LeasePage({ params }: LeasePageProps) {
           )}
           {activeTab === "messages" && <MessagesTab />}
           {activeTab === "alarms" && <AlarmsTab title="Alarm" />}
-          {activeTab === "device-info" && <ComingSoon label="Device Info" />}
+          {activeTab === "device-info" && <DeviceInfoTab />}
         </div>
       </div>
     </ErrorBoundary>

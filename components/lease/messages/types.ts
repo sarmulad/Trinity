@@ -6,4 +6,7 @@ export interface Message {
   asset: string;
   date: string;
   text: string;
+  dataPoint?: string;
+  dataPointValue?: string;
+  photoUrl?: string;
 }
