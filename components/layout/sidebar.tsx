@@ -154,7 +154,7 @@ export function Sidebar({
         </div>
       )}
 
-      <div className="flex flex-1 flex-col overflow-hidden px-4 pt-6">
+      <div className="mt-4 flex flex-1 flex-col overflow-hidden border-t border-black/10 px-4 pt-4 dark:border-white/10">
         <div className="mb-1 flex items-center justify-between">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
             Dashboards

@@ -231,28 +231,17 @@ export function ProductionChart({
     return { xStep, n };
   }, [data.length, overlayW]);
 
-  const handleMouseMove = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (draftFor) return;
-      const rect = overlayRef.current!.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-
+  const pickNearestPoint = React.useCallback(
+    (mx: number, my: number): SnappedPoint | null => {
       const relX = mx - PAD.left;
       const col = Math.round(relX / xIndex.xStep);
-      if (col < 0 || col >= xIndex.n) {
-        setSnapped(null);
-        return;
-      }
+      if (col < 0 || col >= xIndex.n) return null;
 
       const colPts = plotPoints.filter((p) => {
         const ptCol = Math.round((p.px - PAD.left) / xIndex.xStep);
         return ptCol === col;
       });
-      if (!colPts.length) {
-        setSnapped(null);
-        return;
-      }
+      if (!colPts.length) return null;
 
       let best = colPts[0];
       let bestDy = Math.abs(best.py - my);
@@ -263,27 +252,49 @@ export function ProductionChart({
           best = colPts[i];
         }
       }
+      if (bestDy > 40) return null;
 
-      if (bestDy > 40) {
-        setSnapped(null);
-        return;
-      }
-
-      setSnapped({
+      return {
         varKey: best.varKey,
         date: best.date,
         value: best.value,
         px: best.px,
         py: best.py,
-      });
+      };
     },
-    [draftFor, plotPoints, xIndex],
+    [plotPoints, xIndex],
+  );
+
+  const handleMouseMove = React.useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (draftFor) return;
+      const rect = overlayRef.current!.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+
+      setSnapped(pickNearestPoint(mx, my));
+    },
+    [draftFor, pickNearestPoint],
   );
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest("[data-popover]")) return;
-    if (snapped) {
-      setDraftFor({ ...snapped });
+    const target = e.target as HTMLElement;
+    // Ignore clicks inside existing annotation popovers/editors,
+    // but allow clicks on the snapped hint ("click to annotate").
+    if (
+      target.closest('[data-popover="draft"]') ||
+      target.closest('[data-popover="pin"]')
+    ) {
+      return;
+    }
+    const rect = overlayRef.current?.getBoundingClientRect();
+    const clickSnap =
+      rect && !snapped
+        ? pickNearestPoint(e.clientX - rect.left, e.clientY - rect.top)
+        : snapped;
+
+    if (clickSnap) {
+      setDraftFor({ ...clickSnap });
       setDraftNote("");
       setSnapped(null);
     } else {
@@ -421,6 +432,30 @@ export function ProductionChart({
   );
 
   const activeList = ALL_VARIABLES.filter((v) => activeVars.has(v.key));
+  const clamp = React.useCallback((value: number, min: number, max: number) => {
+    return Math.min(Math.max(value, min), max);
+  }, []);
+
+  const clampedSnappedX = React.useMemo(() => {
+    if (!snapped) return null;
+    if (!overlayW) return snapped.px;
+    const half = 140;
+    return clamp(snapped.px, half, Math.max(half, overlayW - half));
+  }, [snapped, overlayW, clamp]);
+
+  const draftPlacement = React.useMemo(() => {
+    if (!draftFor) return null;
+    if (!overlayW) return { x: draftFor.px, placeBelow: false };
+
+    const cardW = 240;
+    const margin = 12;
+    const min = cardW / 2 + margin;
+    const max = Math.max(min, overlayW - cardW / 2 - margin);
+    return {
+      x: clamp(draftFor.px, min, max),
+      placeBelow: draftFor.py < 110,
+    };
+  }, [draftFor, overlayW, clamp]);
 
   return (
     <>
@@ -616,7 +651,7 @@ export function ProductionChart({
       </div>
 
       <div
-        className="relative overflow-hidden rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#252930]"
+        className="relative overflow-visible rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#252930]"
         style={{ height: CHART_H }}
       >
         {isLoading ? (
@@ -625,7 +660,7 @@ export function ProductionChart({
           </div>
         ) : (
           <>
-            <div className="absolute inset-0">
+            <div className="absolute inset-0 overflow-hidden rounded-lg">
               <AgCharts
                 options={{
                   ...chartOptions,
@@ -662,14 +697,17 @@ export function ProductionChart({
                     className="h-4 w-4 rounded-full opacity-50 ring-2 ring-offset-0"
                     style={{
                       backgroundColor: `${VAR_MAP[snapped.varKey].color}33`,
-                      ringColor: VAR_MAP[snapped.varKey].color,
                       boxShadow: `0 0 0 2px ${VAR_MAP[snapped.varKey].color}`,
                     }}
                   />
                   <div
-                    className="pointer-events-auto absolute left-1/2 -translate-x-1/2 whitespace-nowrap"
-                    style={{ bottom: "calc(100% + 10px)" }}
-                    data-popover="true"
+                    className="pointer-events-auto absolute whitespace-nowrap"
+                    style={{
+                      bottom: "calc(100% + 10px)",
+                      left: `calc(50% + ${(clampedSnappedX ?? snapped.px) - snapped.px}px)`,
+                      transform: "translateX(-50%)",
+                    }}
+                    data-popover="snapped"
                   >
                     <div
                       className="flex items-center gap-1.5 rounded-full border border-white/10 px-2.5 py-1 text-[10px] font-semibold shadow-xl"
@@ -696,13 +734,15 @@ export function ProductionChart({
                 <div
                   className="absolute"
                   style={{
-                    left: draftFor.px,
+                    left: draftPlacement?.x ?? draftFor.px,
                     top: draftFor.py,
-                    transform: "translate(-50%, -100%)",
-                    marginTop: -14,
+                    transform: draftPlacement?.placeBelow
+                      ? "translate(-50%, 10px)"
+                      : "translate(-50%, -100%)",
+                    marginTop: draftPlacement?.placeBelow ? 0 : -14,
                     zIndex: 30,
                   }}
-                  data-popover="true"
+                  data-popover="draft"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="w-60 rounded-xl border border-white/10 bg-[#1a1d21] p-3 shadow-2xl">
@@ -752,7 +792,11 @@ export function ProductionChart({
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </div>
-                    <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a1d21]" />
+                    {draftPlacement?.placeBelow ? (
+                      <div className="absolute bottom-full left-1/2 h-0 w-0 -translate-x-1/2 border-b-[5px] border-l-[5px] border-r-[5px] border-l-transparent border-r-transparent border-b-[#1a1d21]" />
+                    ) : (
+                      <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a1d21]" />
+                    )}
                   </div>
                 </div>
               )}
@@ -769,7 +813,7 @@ export function ProductionChart({
                     zIndex: 20,
                     pointerEvents: "all",
                   }}
-                  data-popover="true"
+                  data-popover="pin"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex flex-col items-center">

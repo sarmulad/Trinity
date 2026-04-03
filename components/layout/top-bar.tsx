@@ -34,6 +34,7 @@ interface Ticker {
 
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Daily Summary",
+  "/dashboard/lease": "Lease Dashboard",
   "/dashboard/reports": "Report",
   "/dashboard/wells": "Wells",
   "/dashboard/routes/submissions": "Route",
