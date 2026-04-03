@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { AgGridReact } from "ag-grid-react";
+import { AgGridReact as AgGridReactBase } from "ag-grid-react";
 import {
   ModuleRegistry,
   AllCommunityModule,
@@ -41,6 +41,10 @@ interface DataTableProps {
   totalEntries: number;
   lastUpdated?: string;
 }
+
+const AgGridReact = AgGridReactBase as unknown as React.ComponentType<
+  Record<string, unknown>
+>;
 
 export function DataTable({
   rows,

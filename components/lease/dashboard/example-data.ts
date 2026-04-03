@@ -39,6 +39,18 @@ export const EXAMPLE_EFM: EFMChart[] = [
     yesterdayVolume: "100 MCF",
     timestamp: "3/17/24 8:15AM",
     mcfd: "500 MCF/D",
+    currentValues: [
+      { label: "Line Pressure", value: "182 PSI" },
+      { label: "Static Pressure", value: "174 PSI" },
+      { label: "Flow Temp", value: "74.2 F" },
+      { label: "Differential", value: "16.8 inH2O" },
+      { label: "Volume Rate", value: "21.4 MCFH" },
+      { label: "Energy Rate", value: "22.1 MMBtu" },
+      { label: "Battery", value: "13.7 V" },
+      { label: "RSSI", value: "-79 dBm" },
+      { label: "Run Hours", value: "7,322 h" },
+      { label: "Flow Today", value: "512 MCF" },
+    ],
   },
 ];
 
@@ -64,6 +76,7 @@ export const EXAMPLE_WATER_TANKS: WaterTank[] = [
 
 export const EXAMPLE_COMPRESSORS: Compressor[] = [
   {
+    id: "comp-1",
     name: "Compressor",
     runStatus: "Running",
     oilPressure: "21 PSI",
@@ -75,6 +88,7 @@ export const EXAMPLE_COMPRESSORS: Compressor[] = [
     dischargePressure: 19,
   },
   {
+    id: "pump-1",
     name: "Pump",
     runStatus: "Running",
     oilPressure: "21 PSI",
@@ -125,6 +139,8 @@ export const EXAMPLE_TEAM: TeamMember[] = [
     role: "Pumper",
     roleColor: "#34C759",
     currentlyOn: "Chico",
+    phone: "+1 (432) 555-0142",
+    email: "john.smith@trinityops.com",
     initials: "JS",
   },
   {
@@ -132,6 +148,8 @@ export const EXAMPLE_TEAM: TeamMember[] = [
     name: "Luis Marcus",
     role: "Admin",
     roleColor: "#A78BFA",
+    phone: "+1 (432) 555-0198",
+    email: "luis.marcus@trinityops.com",
     initials: "LM",
   },
 ];

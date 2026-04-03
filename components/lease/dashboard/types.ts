@@ -15,6 +15,7 @@ export interface EFMChart {
   yesterdayVolume: string;
   timestamp: string;
   mcfd: string;
+  currentValues?: { label: string; value: string }[];
 }
 
 export interface FilterPot {
@@ -36,6 +37,7 @@ export interface WaterTank {
 }
 
 export interface Compressor {
+  id: string;
   name: string;
   runStatus: string;
   oilPressure: string;
@@ -75,5 +77,7 @@ export interface TeamMember {
   roleColor?: string;
   currentlyOn?: string;
   avatarUrl?: string;
+  phone?: string;
+  email?: string;
   initials: string;
 }

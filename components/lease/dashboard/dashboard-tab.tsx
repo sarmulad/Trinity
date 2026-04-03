@@ -4,7 +4,17 @@ import * as React from "react";
 import { AssetsSection } from "./sections/assets-section";
 import { WellsSection } from "./sections/wells-section";
 import { TeamsSection } from "./sections/teams-section";
-import { TankDetailView } from "./tank-detail/tank-detail-view";
+import {
+  DetailView,
+  oilTankToDetail,
+  waterTankToDetail,
+  efmToDetail,
+  filterPotToDetail,
+  compressorToDetail,
+  separatorToDetail,
+  wellToDetail,
+  teamMemberToDetail,
+} from "./detail-view/detail-view";
 import {
   EXAMPLE_OIL_TANKS,
   EXAMPLE_EFM,
@@ -25,6 +35,7 @@ import type {
   Well,
   TeamMember,
 } from "./types";
+import type { DetailViewData } from "./detail-view/detail-view";
 
 interface DashboardTabProps {
   oilTanks?: OilTank[];
@@ -51,16 +62,7 @@ export function DashboardTab({
   onHistoryClick,
   onManageTeamClick,
 }: DashboardTabProps) {
-  const [selectedTankId, setSelectedTankId] = React.useState<string | null>(
-    null,
-  );
-
-  const selectedTank = React.useMemo(() => {
-    if (!selectedTankId) return null;
-    return (
-      [...oilTanks, ...waterTanks].find((t) => t.id === selectedTankId) ?? null
-    );
-  }, [selectedTankId, oilTanks, waterTanks]);
+  const [detail, setDetail] = React.useState<DetailViewData | null>(null);
 
   return (
     <>
@@ -73,26 +75,52 @@ export function DashboardTab({
           compressors={compressors}
           separator={separator}
           onHistoryClick={onHistoryClick}
-          onTankClick={(tankId) => setSelectedTankId(tankId)}
+          onTankClick={(id) => {
+            const t = [...oilTanks, ...waterTanks].find((t) => t.id === id);
+            if (t)
+              setDetail(
+                "prod" in t
+                  ? oilTankToDetail(t as OilTank)
+                  : waterTankToDetail(t as WaterTank),
+              );
+          }}
+          onEfmClick={(id) => {
+            const e = efmCharts.find((e) => e.id === id);
+            if (e) setDetail(efmToDetail(e));
+          }}
+          onFilterPotClick={() => setDetail(filterPotToDetail(filterPot))}
+          onCompressorClick={(id) => {
+            const c = compressors.find((c) => c.id === id || c.name === id);
+            if (c) setDetail(compressorToDetail(c));
+          }}
+          onSeparatorClick={() => setDetail(separatorToDetail(separator))}
         />
-        <WellsSection wells={wells} onHistoryClick={onHistoryClick} />
+        <WellsSection
+          wells={wells}
+          onHistoryClick={onHistoryClick}
+          onWellClick={(id) => {
+            const w = wells.find((w) => w.id === id);
+            if (w) setDetail(wellToDetail(w));
+          }}
+        />
         <TeamsSection
           teamMembers={teamMembers}
           onManageTeamClick={onManageTeamClick}
+          onTeamClick={(id) => {
+            const member = teamMembers.find((m) => m.id === id);
+            if (member) setDetail(teamMemberToDetail(member));
+          }}
         />
       </div>
 
-      {selectedTankId && (
+      {detail && (
         <>
           <div
             className="fixed inset-0 z-40 bg-black/50"
-            onClick={() => setSelectedTankId(null)}
+            onClick={() => setDetail(null)}
           />
           <div className="fixed inset-y-0 right-0 z-50 w-full max-w-2xl overflow-y-auto bg-[#16181d] shadow-2xl">
-            <TankDetailView
-              tankId={selectedTankId}
-              onClose={() => setSelectedTankId(null)}
-            />
+            <DetailView data={detail} onClose={() => setDetail(null)} />
           </div>
         </>
       )}

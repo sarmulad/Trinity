@@ -1,3 +1,4 @@
+import * as React from "react";
 import { SectionHeader } from "../ui/section-header";
 import { TankCard } from "../assets/tank-card";
 import { EFMCard } from "../assets/efm-card";
@@ -21,6 +22,10 @@ interface AssetsSectionProps {
   compressors: Compressor[];
   separator: Separator;
   onTankClick?: (tankId: string) => void;
+  onEfmClick?: (efmId: string) => void;
+  onFilterPotClick?: () => void;
+  onCompressorClick?: (compressorId: string) => void;
+  onSeparatorClick?: () => void;
   onHistoryClick?: () => void;
 }
 
@@ -32,17 +37,99 @@ export function AssetsSection({
   compressors,
   separator,
   onTankClick,
+  onEfmClick,
+  onFilterPotClick,
+  onCompressorClick,
+  onSeparatorClick,
   onHistoryClick,
 }: AssetsSectionProps) {
+  const [searchOpen, setSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const query = searchQuery.trim().toLowerCase();
+
+  const filteredOilTanks = React.useMemo(
+    () => (!query ? oilTanks : oilTanks.filter((tank) => tank.name.toLowerCase().includes(query))),
+    [oilTanks, query],
+  );
+  const filteredWaterTanks = React.useMemo(
+    () =>
+      !query
+        ? waterTanks
+        : waterTanks.filter((tank) => tank.name.toLowerCase().includes(query)),
+    [waterTanks, query],
+  );
+  const filteredEfmCharts = React.useMemo(
+    () =>
+      !query
+        ? efmCharts
+        : efmCharts.filter((efm) =>
+            `${efm.name} ${efm.mcfd} ${efm.yesterdayVolume}`
+              .toLowerCase()
+              .includes(query),
+          ),
+    [efmCharts, query],
+  );
+  const filteredCompressors = React.useMemo(
+    () =>
+      !query
+        ? compressors
+        : compressors.filter((item) =>
+            `${item.name} ${item.runStatus} ${item.oilPressure} ${item.batteryLevel}`
+              .toLowerCase()
+              .includes(query),
+          ),
+    [compressors, query],
+  );
+
+  const showFilterPot =
+    !query ||
+    `filter pot ${filterPot.inletPsi} ${filterPot.outletPsi} ${filterPot.filterType}`
+      .toLowerCase()
+      .includes(query);
+  const showSeparator =
+    !query ||
+    `separator ${separator.todayVolumeFt} ${separator.yesterdayVolume} ${separator.accumVolume} ${separator.flowRate}`
+      .toLowerCase()
+      .includes(query);
+
+  const hasResults =
+    filteredOilTanks.length > 0 ||
+    filteredWaterTanks.length > 0 ||
+    filteredEfmCharts.length > 0 ||
+    filteredCompressors.length > 0 ||
+    showFilterPot ||
+    showSeparator;
+
   return (
     <div>
       <SectionHeader
         title="Assets"
-        actionLabel="History"
-        onAction={onHistoryClick}
+        searchOpen={searchOpen}
+        onToggleSearch={() => {
+          setSearchOpen((v) => !v);
+          if (searchOpen) setSearchQuery("");
+        }}
       />
+      {searchOpen && (
+        <div className="mb-3">
+          <input
+            autoFocus
+            type="text"
+            placeholder="Search assets..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setSearchQuery("");
+                setSearchOpen(false);
+              }
+            }}
+            className="w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-sm text-black placeholder:text-black/35 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/35"
+          />
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
-        {oilTanks.map((tank) => (
+        {filteredOilTanks.map((tank) => (
           <TankCard
             key={tank.id}
             tank={tank}
@@ -50,15 +137,27 @@ export function AssetsSection({
           />
         ))}
 
-        {efmCharts.map((efm) => (
-          <EFMCard key={efm.id} efm={efm} />
+        {filteredEfmCharts.map((efm) => (
+          <EFMCard
+            key={efm.id}
+            efm={efm}
+            onClick={() => onEfmClick?.(efm.id)}
+          />
         ))}
-        <FilterPotCard filterPot={filterPot} />
 
-        {compressors.slice(0, 1).map((c) => (
-          <CompressorCard key={c.name} compressor={c} />
+        {showFilterPot && (
+          <FilterPotCard filterPot={filterPot} onClick={onFilterPotClick} />
+        )}
+
+        {filteredCompressors.slice(0, 1).map((c) => (
+          <CompressorCard
+            key={c.name}
+            compressor={c}
+            onClick={() => onCompressorClick?.(c.id ?? c.name)}
+          />
         ))}
-        {waterTanks.map((tank) => (
+
+        {filteredWaterTanks.map((tank) => (
           <TankCard
             key={tank.id}
             tank={tank}
@@ -66,11 +165,23 @@ export function AssetsSection({
           />
         ))}
 
-        {compressors.slice(1).map((c) => (
-          <CompressorCard key={c.name} compressor={c} />
+        {filteredCompressors.slice(1).map((c) => (
+          <CompressorCard
+            key={c.name}
+            compressor={c}
+            onClick={() => onCompressorClick?.(c.id ?? c.name)}
+          />
         ))}
-        <SeparatorCard separator={separator} />
+
+        {showSeparator && (
+          <SeparatorCard separator={separator} onClick={onSeparatorClick} />
+        )}
       </div>
+      {searchOpen && !hasResults && (
+        <p className="mt-3 text-sm text-black/45 dark:text-white/45">
+          No assets match your search.
+        </p>
+      )}
     </div>
   );
 }

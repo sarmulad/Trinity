@@ -40,18 +40,15 @@ export function AssetsSection({
         onAction={onHistoryClick}
       />
       <div className="grid gap-4 sm:grid-cols-2">
-        {/* Row 1 — Oil Tanks */}
         {oilTanks.map((tank) => (
           <TankCard key={tank.id} tank={tank} />
         ))}
 
-        {/* Row 2 — EFM + Filter Pot */}
         {efmCharts.map((efm) => (
           <EFMCard key={efm.id} efm={efm} />
         ))}
         <FilterPotCard filterPot={filterPot} />
 
-        {/* Row 3 — Compressor + Water Tank */}
         {compressors.slice(0, 1).map((c) => (
           <CompressorCard key={c.name} compressor={c} />
         ))}
@@ -59,7 +56,6 @@ export function AssetsSection({
           <TankCard key={tank.id} tank={tank} />
         ))}
 
-        {/* Row 4 — Pump + Separator */}
         {compressors.slice(1).map((c) => (
           <CompressorCard key={c.name} compressor={c} />
         ))}
