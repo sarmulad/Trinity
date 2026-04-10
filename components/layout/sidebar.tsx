@@ -195,7 +195,7 @@ export function Sidebar({
 
         {searchOpen && (
           <div className="relative mb-2">
-            <Search className="absolute left-3 top-1/2 h-3 w-3 -translate-y-1/2 text-black/30 dark:text-white/30" />
+            <Search className="app-search-icon h-3 w-3" />
             <input
               autoFocus
               type="text"
@@ -205,7 +205,7 @@ export function Sidebar({
                 setSearchQuery(e.target.value);
                 setSearchFocused(e.target.value.length > 0);
               }}
-              className="w-full rounded-lg border border-black/10 bg-black/5 py-1.5 pl-8 pr-3 text-xs text-black placeholder:text-black/30 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/30"
+              className="app-search-input w-full py-1.5 pl-8 text-xs"
             />
           </div>
         )}

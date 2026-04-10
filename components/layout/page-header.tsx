@@ -2,14 +2,12 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface PageHeaderProps {
-  title: string;
   description?: string;
   actions?: React.ReactNode;
   className?: string;
 }
 
 export function PageHeader({
-  title,
   description,
   actions,
   className,
@@ -17,9 +15,6 @@ export function PageHeader({
   return (
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="space-y-1">
-        <h1 className="text-balance text-3xl font-bold tracking-tight text-foreground">
-          {title}
-        </h1>
         {description && (
           <p className="text-pretty text-muted-foreground">{description}</p>
         )}

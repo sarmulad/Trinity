@@ -171,7 +171,7 @@ export function NewReportPage() {
                 </div>
                 <div className="relative">
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
+                    <Search className="app-search-icon h-4 w-4" />
                     <Input
                       value={subjectSearch}
                       onChange={(e) => {
@@ -180,7 +180,7 @@ export function NewReportPage() {
                       }}
                       onFocus={() => setSubjectDropdownOpen(true)}
                       placeholder="Search subjects..."
-                      className="border-black/20 bg-gray-100 pl-9 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40"
+                      className="app-search-input dark:bg-[#252930]"
                     />
                   </div>
                   {subjectDropdownOpen && (

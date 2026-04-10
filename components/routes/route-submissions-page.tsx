@@ -213,7 +213,7 @@ export function RouteSubmissionsPage({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/45 dark:text-white/45" />
+              <Search className="app-search-icon" />
               <input
                 value={search}
                 onChange={(e) => {
@@ -221,7 +221,7 @@ export function RouteSubmissionsPage({
                   setPage(1);
                 }}
                 placeholder="Search Submissions"
-                className="h-10 w-[180px] rounded-md border border-black/25 bg-gray-100 py-2 pl-8 pr-3 text-sm text-black placeholder:text-black/40 focus:border-[#34C759]/60 focus:outline-none dark:border-white/25 dark:bg-[#171B21] dark:text-white dark:placeholder:text-white/40"
+                className="app-search-input h-10 w-[180px]"
               />
             </div>
             <button

@@ -20,7 +20,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
 import {
   AG_GRID_CLIPBOARD_OPTIONS,
   AG_GRID_MULTI_ROW_SELECTION_WITH_COPY,
@@ -187,14 +186,12 @@ export function InvoicesTab() {
               </span>
             </div>
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
+              <Search className="app-search-icon h-4 w-4" />
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search invoices"
-                className={cn(
-                  "w-64 border-black/20 bg-black/5 pl-9 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40",
-                )}
+                className="app-search-input w-64 dark:bg-[#252930]"
               />
             </div>
           </div>
