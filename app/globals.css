@@ -14,6 +14,52 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .app-search-input {
+    border-radius: 0.5rem;
+    border: 1px solid rgb(0 0 0 / 0.1);
+    background: rgb(0 0 0 / 0.05);
+    padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: rgb(0 0 0);
+  }
+
+  .app-search-input::placeholder {
+    color: rgb(0 0 0 / 0.3);
+  }
+
+  .app-search-input:focus,
+  .app-search-input:focus-visible {
+    outline: none;
+    border-color: rgb(52 199 89 / 0.5);
+    box-shadow: none;
+  }
+
+  .dark .app-search-input {
+    border-color: rgb(255 255 255 / 0.1);
+    background: #1e2127;
+    color: rgb(255 255 255);
+  }
+
+  .dark .app-search-input::placeholder {
+    color: rgb(255 255 255 / 0.3);
+  }
+
+  .app-search-icon {
+    pointer-events: none;
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    height: 0.875rem;
+    width: 0.875rem;
+    transform: translateY(-50%);
+    color: rgb(0 0 0 / 0.3);
+  }
+
+  .dark .app-search-icon {
+    color: rgb(255 255 255 / 0.3);
+  }
 }
 
 @layer base {

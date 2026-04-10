@@ -95,7 +95,6 @@ export function RoutesPage() {
       <div className="space-y-6">
         <div className={isEmpty ? "flex justify-center" : "space-y-4"}>
           <h1 className="flex items-center gap-2 text-3xl font-bold text-black dark:text-white">
-            Routes
             <span className="flex items-center gap-1 text-xl font-normal text-black/60 dark:text-white/60">
               <Cloud className="h-5 w-5" />
               48°
@@ -104,13 +103,13 @@ export function RoutesPage() {
           {!isEmpty && (
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-black/45 dark:text-white/45" />
+                <Search className="app-search-icon" />
                 <input
                   type="text"
                   placeholder="Search Routes"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="h-12 w-[177px] rounded-[5px] border border-black/35 bg-black/5 py-2 pl-8 pr-3 text-sm text-black placeholder:text-black/40 focus:border-[#34C759]/60 focus:outline-none dark:border-white/35 dark:bg-[#1A1D22]/85 dark:text-white dark:placeholder:text-white/40"
+                  className="app-search-input w-[177px]"
                 />
               </div>
               <Button

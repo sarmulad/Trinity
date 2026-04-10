@@ -221,13 +221,13 @@ export function AlarmsTab({
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-black/30 dark:text-white/30" />
+              <Search className="app-search-icon" />
               <input
                 type="text"
                 placeholder="Search Alarms..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-black/10 bg-black/5 py-2 pl-9 pr-3 text-sm text-black placeholder:text-black/30 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#1e2127] dark:text-white dark:placeholder:text-white/30"
+                className="app-search-input w-full"
               />
             </div>
 

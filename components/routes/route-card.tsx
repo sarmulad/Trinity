@@ -21,6 +21,10 @@ import type { RouteListItem } from "./types";
 import { cn } from "@/lib/utils";
 
 const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+});
 
 interface RouteCardProps {
   route: RouteListItem;
@@ -34,6 +38,13 @@ export function RouteCard({ route, onEdit, onDelete, onOpen }: RouteCardProps) {
     () => [...route.completionGrid].sort((a, b) => a.date - b.date),
     [route.completionGrid],
   );
+  const monthYearLabel = React.useMemo(() => {
+    const parsedDate = new Date(route.lastCompleted);
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return MONTH_YEAR_FORMATTER.format(parsedDate);
+    }
+    return MONTH_YEAR_FORMATTER.format(new Date());
+  }, [route.lastCompleted]);
 
   return (
     <Card
@@ -70,6 +81,15 @@ export function RouteCard({ route, onEdit, onDelete, onOpen }: RouteCardProps) {
                 Last Completed:{" "}
                 <span className="font-semibold text-black dark:text-white">
                   {route.lastCompleted}
+                </span>
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5 text-sm text-black/70 dark:text-white/70">
+              <Calendar className="h-4 w-4 shrink-0 text-black/45 dark:text-white/45" />
+              <span>
+                Month &amp; Year:{" "}
+                <span className="font-semibold text-black dark:text-white">
+                  {monthYearLabel}
                 </span>
               </span>
             </div>

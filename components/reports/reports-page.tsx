@@ -145,7 +145,6 @@ export function ReportsPage() {
     <ErrorBoundary>
       <div className="space-y-6">
         <PageHeader
-          title="Reports"
           actions={
             <Button
               className="bg-[#34C759] text-black hover:bg-[#34C759]/90"

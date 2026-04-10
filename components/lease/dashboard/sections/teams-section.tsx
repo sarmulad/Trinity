@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Mail, MoreVertical } from "lucide-react";
+import { Phone, MessageCircle, Mail, MoreVertical, Search } from "lucide-react";
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SectionHeader } from "../ui/section-header";
@@ -44,7 +44,8 @@ export function TeamsSection({
         }}
       />
       {searchOpen && (
-        <div className="mb-3">
+        <div className="relative mb-3">
+          <Search className="app-search-icon" />
           <input
             autoFocus
             type="text"
@@ -57,7 +58,7 @@ export function TeamsSection({
                 setSearchOpen(false);
               }
             }}
-            className="w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-sm text-black placeholder:text-black/35 focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder:text-white/35"
+            className="app-search-input w-full"
           />
         </div>
       )}
