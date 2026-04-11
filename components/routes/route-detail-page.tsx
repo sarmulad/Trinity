@@ -10,6 +10,7 @@ import {
   Check,
   CircleHelp,
   FileText,
+  History,
   ListChecks,
   RefreshCcw,
   Square,
@@ -18,6 +19,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { RouteSubmissionsSection } from "./route-submissions-section";
 
 type StopStatus = "complete" | "active" | "pending";
 
@@ -78,59 +80,103 @@ interface RouteDetailPageProps {
   routeName?: string;
 }
 
+type TabId = "route" | "history";
+
 export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
   const displayRouteName = routeName?.trim() || prettifyRouteId(routeId);
 
+  const [activeTab, setActiveTab] = React.useState<TabId>("route");
+  const [stops, setStops] = React.useState<StopItem[]>(() =>
+    STOPS.map((s) => ({ ...s })),
+  );
   const [selectedStopId, setSelectedStopId] = React.useState(
     STOPS.find((s) => s.status === "active")?.id ?? STOPS[0]?.id ?? "",
   );
 
   const selectedStop =
-    STOPS.find((s) => s.id === selectedStopId) ?? STOPS[0] ?? null;
-  const completedCount = STOPS.filter((s) => s.status === "complete").length;
+    stops.find((s) => s.id === selectedStopId) ?? stops[0] ?? null;
+  const currentStopIndex = stops.findIndex((s) => s.id === selectedStopId);
+  const completedCount = stops.filter((s) => s.status === "complete").length;
   const progressPercent = Math.round(
-    (completedCount / Math.max(STOPS.length, 1)) * 100,
+    (completedCount / Math.max(stops.length, 1)) * 100,
   );
+
+  const handleGoToNextStop = () => {
+    if (currentStopIndex < 0 || currentStopIndex >= stops.length - 1) return;
+    setSelectedStopId(stops[currentStopIndex + 1].id);
+  };
+
+  const handleCompleteStop = () => {
+    let nextId: string | null = null;
+    setStops((prev) => {
+      const idx = prev.findIndex((s) => s.id === selectedStopId);
+      const updated = prev.map((s) =>
+        s.id === selectedStopId ? { ...s, status: "complete" as const } : s,
+      );
+      const nextAfter = updated.find(
+        (s, i) => i > idx && s.status !== "complete",
+      );
+      nextId = nextAfter?.id ?? null;
+      return updated;
+    });
+    if (nextId) setSelectedStopId(nextId);
+  };
+
+  const tabs = [
+    { id: "route" as TabId, label: "Route", icon: ListChecks },
+    { id: "history" as TabId, label: "Submission history", icon: History },
+  ];
 
   return (
     <div className="space-y-4">
       {/* Top bar */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/dashboard/routes"
-            className="flex h-6 w-6 items-center justify-center rounded-full border border-[#34C759]/70 text-[#34C759] transition-colors hover:bg-[#34C759]/10"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-          </Link>
-          <h2 className="text-4xl font-semibold tracking-tight text-black dark:text-white">
-            {displayRouteName}
-          </h2>
-        </div>
+      <div className="flex items-center gap-3">
         <Link
-          href={`/dashboard/routes/submissions?routeId=${encodeURIComponent(routeId)}&name=${encodeURIComponent(displayRouteName)}`}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[#34C759] hover:underline"
+          href="/dashboard/routes"
+          className="flex h-6 w-6 items-center justify-center rounded-full border border-[#34C759]/70 text-[#34C759] transition-colors hover:bg-[#34C759]/10"
         >
-          Route Submission History
-          <ChevronRight className="h-4 w-4" />
+          <ArrowLeft className="h-3.5 w-3.5" />
         </Link>
+        <h2 className="text-4xl font-semibold tracking-tight text-black dark:text-white">
+          {displayRouteName}
+        </h2>
       </div>
 
-      {/* Service date */}
-      <div className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
-        <span className="text-black dark:text-white">Service Date</span>
-        <button
-          type="button"
-          className="inline-flex items-center gap-2 rounded-md border border-black/20 bg-gray-100 px-2.5 py-1.5 text-sm text-black hover:bg-gray-200 dark:border-white/20 dark:bg-[#1F2328] dark:text-white dark:hover:bg-[#22272E]"
-        >
-          <Calendar className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
-          January 05, 2026
-          <ChevronDown className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
-        </button>
+      <div className="flex items-center gap-1 w-fit rounded-xl border border-black/10 bg-black/5 p-1 dark:border-white/10 dark:bg-[#1a1d23]">
+        {tabs.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setActiveTab(id)}
+            className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+              activeTab === id
+                ? "bg-[#34C759] text-black"
+                : "text-black/50 hover:text-black hover:bg-black/5 dark:text-white/50 dark:hover:text-white dark:hover:bg-white/5"
+            }`}
+          >
+            <Icon className="h-4 w-4" />
+            {label}
+          </button>
+        ))}
       </div>
 
-      {/* Main section */}
-      <section className="rounded-xl border border-black/10 bg-gray-50/75 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-[#1A1C1E]/75">
+      {activeTab === "route" && (
+        <>
+          {/* Service date */}
+          <div className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
+            <span className="text-black dark:text-white">Service Date</span>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 rounded-md border border-black/20 bg-gray-100 px-2.5 py-1.5 text-sm text-black hover:bg-gray-200 dark:border-white/20 dark:bg-[#1F2328] dark:text-white dark:hover:bg-[#22272E]"
+            >
+              <Calendar className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
+              January 05, 2026
+              <ChevronDown className="h-3.5 w-3.5 text-black/70 dark:text-white/70" />
+            </button>
+          </div>
+
+          {/* Main section */}
+          <section className="rounded-xl border border-black/10 bg-gray-50/75 p-4 backdrop-blur-sm dark:border-white/10 dark:bg-[#1A1C1E]/75">
         <div className="grid gap-4 xl:grid-cols-[350px_minmax(0,1fr)]">
           {/* Stop list sidebar */}
           <aside className="rounded-lg border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-[#1A1F25]">
@@ -158,7 +204,7 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
 
             {/* Stops */}
             <ul className="mt-3 space-y-2">
-              {STOPS.map((stop) => {
+              {stops.map((stop) => {
                 const isActive = stop.id === selectedStopId;
                 const isComplete = stop.status === "complete";
                 return (
@@ -301,12 +347,6 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
                   />
                 </div>
 
-                <div className="mt-3 flex justify-center">
-                  <Button className="h-7 bg-[#34C759] px-6 text-xs font-medium text-white hover:bg-[#34C759]/90">
-                    Save Data
-                  </Button>
-                </div>
-
                 <div className="mt-3 flex items-center justify-between text-xs">
                   <button
                     type="button"
@@ -320,7 +360,9 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
                   </button>
                   <button
                     type="button"
-                    className="inline-flex items-center gap-1 text-[#34C759] hover:underline"
+                    onClick={handleGoToNextStop}
+                    disabled={currentStopIndex < 0 || currentStopIndex >= stops.length - 1}
+                    className="inline-flex items-center gap-1 text-[#34C759] hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:no-underline"
                   >
                     Next <ChevronRight className="h-3.5 w-3.5" />
                   </button>
@@ -328,7 +370,11 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
               </div>
             </div>
 
-            <Button className="h-11 w-full bg-[#34C759] text-base font-medium text-white hover:bg-[#34C759]/90">
+            <Button
+              type="button"
+              onClick={handleCompleteStop}
+              className="h-11 w-full bg-[#34C759] text-base font-medium text-white hover:bg-[#34C759]/90"
+            >
               Complete Stop
             </Button>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -348,6 +394,12 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
           </div>
         </div>
       </section>
+        </>
+      )}
+
+      {activeTab === "history" && (
+        <RouteSubmissionsSection routeFilter={displayRouteName} />
+      )}
     </div>
   );
 }
