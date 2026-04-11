@@ -102,14 +102,14 @@ export function RoutesPage() {
           </h1>
           {!isEmpty && (
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="relative">
+              <div className="relative w-64">
                 <Search className="app-search-icon" />
                 <input
                   type="text"
                   placeholder="Search Routes"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="app-search-input w-[177px]"
+                  className="app-search-input w-full"
                 />
               </div>
               <Button
