@@ -4,7 +4,6 @@ export const EXAMPLE_TANK_DETAIL: TankDetailData = {
   name: "Water Tank",
   topGaugeFt: "4' 8\"",
   topGaugeBbls: "180 BBLs",
-  prodBbls: "200 BBLs",
   currentLevel: {
     oil: "4' 3.72\"",
     oilBbls: "200 BBLs",
@@ -16,17 +15,17 @@ export const EXAMPLE_TANK_DETAIL: TankDetailData = {
   labels: [
     {
       id: "1",
-      name: "Overflow Alarm",
-      color: "#ef4444",
+      name: "Pump On",
+      color: "#64748b",
       shape: "circle",
-      level: "9' 5\"",
+      level: "6 FT",
     },
     {
       id: "2",
-      name: "Exit Point",
-      color: "#ffffff",
+      name: "Pump Off",
+      color: "#475569",
       shape: "square",
-      level: "8' 10\"",
+      level: "4.5 FT",
     },
   ],
   tableData: [

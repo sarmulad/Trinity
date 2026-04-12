@@ -1,24 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
+import { useTheme } from "next-themes";
 import { AgCharts } from "ag-charts-react";
 import type { AgChartOptions } from "ag-charts-community";
+import { cn } from "@/lib/utils";
 
 interface SparklineProps {
   color?: string;
   points?: number[];
-  width?: number;
   height?: number;
+  className?: string;
+  tooltipFormatter?: (value: number, index: number) => string;
 }
 
-const DEFAULT_POINTS = [20, 24, 22, 30, 27, 33, 31, 36];
+const DEFAULT_POINTS = [20, 20.2, 20.1, 20.3, 20.25, 20.35, 20.3, 20.4];
 
 export function Sparkline({
   color = "#6B7280",
   points,
-  width = 72,
-  height = 24,
+  height = 32,
+  className,
+  tooltipFormatter,
 }: SparklineProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   const data = useMemo(
     () =>
       (points && points.length > 1 ? points : DEFAULT_POINTS).map(
@@ -33,16 +40,14 @@ export function Sparkline({
   const options = useMemo<AgChartOptions>(
     () => ({
       data,
-      autoSize: false,
-      width,
-      height,
+      autoSize: true,
       background: {
         fill: "transparent",
       },
       padding: {
-        top: 0,
+        top: 2,
         right: 0,
-        bottom: 0,
+        bottom: 2,
         left: 0,
       },
       series: [
@@ -51,12 +56,23 @@ export function Sparkline({
           xKey: "index",
           yKey: "value",
           stroke: color,
-          strokeWidth: 1.6,
+          strokeWidth: 2,
           marker: {
             enabled: false,
           },
+          interpolation: {
+            type: "smooth",
+          },
           tooltip: {
-            enabled: false,
+            renderer: ({
+              datum,
+            }: {
+              datum: { index: number; value: number };
+            }) => ({
+              content:
+                tooltipFormatter?.(datum.value, datum.index) ??
+                datum.value.toString(),
+            }),
           },
         },
       ],
@@ -76,18 +92,26 @@ export function Sparkline({
           label: { enabled: false },
           tick: { enabled: false },
           gridLine: { enabled: false },
+          min: Math.min(...data.map((item) => item.value)) - 0.05,
+          max: Math.max(...data.map((item) => item.value)) + 0.05,
         },
       ],
       legend: {
         enabled: false,
       },
+      tooltip: {
+        class: isDark ? "ag-sparkline-tooltip-dark" : "ag-sparkline-tooltip-light",
+      },
     }),
-    [color, data, height, width],
+    [color, data, isDark, tooltipFormatter],
   );
 
   return (
-    <div className="opacity-70" style={{ width, height }}>
-      <AgCharts options={options} />
+    <div
+      className={cn("h-full w-full overflow-hidden", className)}
+      style={{ height }}
+    >
+      <AgCharts options={options} style={{ width: "100%", height: "100%" }} />
     </div>
   );
 }

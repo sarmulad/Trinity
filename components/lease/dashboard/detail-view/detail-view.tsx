@@ -1,19 +1,20 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   X,
-  Maximize2,
-  Minimize2,
   BarChart2,
   Table2,
   Phone,
   MessageCircle,
   Mail,
+  Bell,
+  ArrowUpRight,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TankVisual } from "./tank-visual";
-import { CurrentLevelPanel } from "./current-level-panel";
 import { LabelsPanel } from "./labels-panel";
 import { DataTable } from "./data-table";
 import { LevelChart } from "./level-chart";
@@ -406,6 +407,10 @@ function buildMockEfmWorkspace(e: EFMChart): EfmWorkspaceData {
 export interface DetailViewData {
   name: string;
   stats: { label: string; value: string }[];
+  alarmNotice?: {
+    title: string;
+    description: string;
+  };
   showTabs?: boolean;
   efmWorkspace?: EfmWorkspaceData;
   teamContact?: {
@@ -423,10 +428,7 @@ export interface DetailViewData {
     exitRatio: number;
     topGaugeFt: string;
     topGaugeBbls: string;
-    prodBbls: string;
   };
-
-  currentLevel?: React.ComponentProps<typeof CurrentLevelPanel>["data"];
   labels?: React.ComponentProps<typeof LabelsPanel>["labels"];
   tableData: React.ComponentProps<typeof DataTable>["rows"];
   totalEntries: number;
@@ -444,15 +446,7 @@ export function oilTankToDetail(t: OilTank): DetailViewData {
       exitRatio: 0.2,
       topGaugeFt: t.levelFt,
       topGaugeBbls: t.levelBbls,
-      prodBbls: t.prod,
     },
-    currentLevel: {
-      levelFt: t.levelFt,
-      levelBbls: t.levelBbls,
-      theftLevelFt: t.theftLevelFt,
-      theftLevelBbls: t.theftLevelBbls,
-      timestamp: t.timestamp,
-    } as any,
     labels: TEST_LABELS,
     tableData: TEST_TABLE_DATA,
     totalEntries: TEST_TOTAL_ENTRIES,
@@ -471,15 +465,7 @@ export function waterTankToDetail(t: WaterTank): DetailViewData {
       exitRatio: 0.15,
       topGaugeFt: t.levelFt,
       topGaugeBbls: t.levelBbls,
-      prodBbls: "-",
     },
-    currentLevel: {
-      levelFt: t.levelFt,
-      levelBbls: t.levelBbls,
-      theftLevelFt: t.theftLevelFt,
-      theftLevelBbls: t.theftLevelBbls,
-      timestamp: t.timestamp,
-    } as any,
     labels: TEST_LABELS,
     tableData: TEST_TABLE_DATA,
     totalEntries: TEST_TOTAL_ENTRIES,
@@ -525,6 +511,12 @@ export function filterPotToDetail(f: FilterPot): DetailViewData {
 export function compressorToDetail(c: Compressor): DetailViewData {
   return {
     name: c.name,
+    alarmNotice: c.oilPressureAlert
+      ? {
+          title: "Active Alarm",
+          description: "Oil pressure is in alarm. Open alarms to review the active condition.",
+        }
+      : undefined,
     stats: [
       { label: "Run Status", value: c.runStatus },
       { label: "Oil Pressure", value: c.oilPressure },
@@ -610,9 +602,10 @@ interface DetailViewProps {
 }
 
 export function DetailView({ data, onClose }: DetailViewProps) {
+  const router = useRouter();
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [activeTab, setActiveTab] = React.useState<Tab>("table");
-  const [expanded, setExpanded] = React.useState(false);
-  const [showCurrentLevel, setShowCurrentLevel] = React.useState(true);
   const showTabs = data.showTabs ?? true;
   const hasEfmWorkspace = !!data.efmWorkspace;
   const hasTeamContact = !!data.teamContact;
@@ -635,7 +628,7 @@ export function DetailView({ data, onClose }: DetailViewProps) {
   const topSection = hasEfmWorkspace ? (
     <EfmWorkspace data={data.efmWorkspace!} />
   ) : hasTeamContact ? (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+    <div className="rounded-xl border border-black/10 bg-black/[0.03] p-5 dark:border-white/10 dark:bg-white/[0.03]">
       <div className="flex items-start gap-4">
         <Avatar className="h-16 w-16 shrink-0 ring-2 ring-white/10">
           <AvatarImage src={data.teamContact!.avatarUrl} />
@@ -656,22 +649,22 @@ export function DetailView({ data, onClose }: DetailViewProps) {
               {data.teamContact!.role}
             </span>
             {data.teamContact!.currentlyOn && (
-              <span className="text-xs text-white/50">
+              <span className="text-xs text-black/50 dark:text-white/50">
                 Assigned: {data.teamContact!.currentlyOn}
               </span>
             )}
           </div>
 
           <div className="mt-4 grid gap-2">
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
-              <span className="text-xs text-white/55">Phone</span>
-              <span className="text-sm font-semibold text-white">
+            <div className="flex items-center justify-between rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]">
+              <span className="text-xs text-black/55 dark:text-white/55">Phone</span>
+              <span className="text-sm font-semibold text-black dark:text-white">
                 {data.teamContact!.phone ?? "Not available"}
               </span>
             </div>
-            <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2">
-              <span className="text-xs text-white/55">Email</span>
-              <span className="text-sm font-semibold text-white">
+            <div className="flex items-center justify-between rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-white/[0.02]">
+              <span className="text-xs text-black/55 dark:text-white/55">Email</span>
+              <span className="text-sm font-semibold text-black dark:text-white">
                 {data.teamContact!.email ?? "Not available"}
               </span>
             </div>
@@ -721,58 +714,76 @@ export function DetailView({ data, onClose }: DetailViewProps) {
           fillRatio={data.visual!.fillRatio}
           alarmRatio={data.visual!.alarmRatio}
           exitRatio={data.visual!.exitRatio}
+          labels={data.labels}
+          levelText={data.visual!.topGaugeFt}
         />
-        <p className="mt-3 text-xs text-white/50">
-          Top Gauge:{" "}
-          <span className="font-semibold text-white">
-            {data.visual!.topGaugeFt}
-          </span>
-          {"  "}Top Gauge{" "}
-          <span className="font-semibold text-white">
-            {data.visual!.topGaugeBbls}
-          </span>
-          {"  "}Prod:{" "}
-          <span className="font-semibold text-white">
-            {data.visual!.prodBbls}
-          </span>
-        </p>
       </div>
 
       <div className="flex-1 space-y-5">
-        {data.currentLevel &&
-          (showCurrentLevel ? (
-            <CurrentLevelPanel
-              data={data.currentLevel}
-              onHide={() => setShowCurrentLevel(false)}
-            />
-          ) : (
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-semibold text-white">Current Level</p>
-              <button
-                onClick={() => setShowCurrentLevel(true)}
-                className="text-xs text-[#34C759] hover:text-[#28a745]"
-              >
-                Show ∨
-              </button>
-            </div>
-          ))}
         {data.labels && <LabelsPanel labels={data.labels} />}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]">
+            <p className="text-[11px] text-black/45 dark:text-white/45">
+              Top Gauge
+            </p>
+            <p className="mt-1 text-sm font-semibold text-black dark:text-white">
+              {data.visual!.topGaugeFt}
+            </p>
+          </div>
+          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]">
+            <p className="text-[11px] text-black/45 dark:text-white/45">
+              Top Gauge BBLs
+            </p>
+            <p className="mt-1 text-sm font-semibold text-black dark:text-white">
+              {data.visual!.topGaugeBbls}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   ) : (
-    <div className="rounded-lg border border-white/10 bg-white/5 p-4 grid grid-cols-2 gap-x-6 gap-y-2">
+    <div className="rounded-lg border border-black/10 bg-black/[0.03] p-4 grid grid-cols-2 gap-x-6 gap-y-2 dark:border-white/10 dark:bg-white/5">
       {data.stats.map((s) => (
         <div key={s.label} className="flex justify-between items-center">
-          <span className="text-xs text-white/50">{s.label}</span>
-          <span className="text-xs font-semibold text-white">{s.value}</span>
+          <span className="text-xs text-black/50 dark:text-white/50">{s.label}</span>
+          <span className="text-xs font-semibold text-black dark:text-white">{s.value}</span>
         </div>
       ))}
     </div>
   );
 
+  const alarmSection = data.alarmNotice ? (
+    <button
+      type="button"
+      onClick={() => {
+        onClose?.();
+        router.push("/dashboard/alarms");
+      }}
+      className="flex w-full items-center justify-between rounded-xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-left transition-colors hover:bg-red-500/15"
+    >
+      <div className="flex items-start gap-3">
+        <span className="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-red-500/15 text-red-400">
+          <Bell className="h-4 w-4" />
+        </span>
+        <div>
+          <p className="text-sm font-semibold text-black dark:text-white">
+            {data.alarmNotice.title}
+          </p>
+          <p className="text-xs text-black/60 dark:text-white/60">
+            {data.alarmNotice.description}
+          </p>
+        </div>
+      </div>
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-300">
+        Open Alarms
+        <ArrowUpRight className="h-3.5 w-3.5" />
+      </span>
+    </button>
+  ) : null;
+
   const tabSection = (
     <div>
-      <div className="flex items-center gap-1 border-b border-white/10 mb-4">
+      <div className="mb-4 flex items-center gap-1 border-b border-black/10 dark:border-white/10">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -780,7 +791,7 @@ export function DetailView({ data, onClose }: DetailViewProps) {
             className={`flex items-center gap-1.5 px-4 py-2 text-xs font-medium border-b-2 -mb-px transition-colors ${
               activeTab === tab.id
                 ? "border-[#34C759] text-[#34C759]"
-                : "border-transparent text-white/40 hover:text-white/70"
+                : "border-transparent text-black/40 hover:text-black/70 dark:text-white/40 dark:hover:text-white/70"
             }`}
           >
             {tab.icon}
@@ -799,19 +810,8 @@ export function DetailView({ data, onClose }: DetailViewProps) {
 
   const header = (
     <div className="flex items-center justify-between">
-      <h1 className="text-lg font-bold text-white">{data.name}</h1>
+      <h1 className="text-lg font-bold text-black dark:text-white">{data.name}</h1>
       <div className="flex items-center gap-3">
-        <button
-          onClick={() => setExpanded((v) => !v)}
-          className="text-white/40 hover:text-white/80 transition-colors"
-          aria-label={expanded ? "Collapse" : "Expand"}
-        >
-          {expanded ? (
-            <Minimize2 className="h-4 w-4" />
-          ) : (
-            <Maximize2 className="h-4 w-4" />
-          )}
-        </button>
         <button
           onClick={onClose}
           className="flex items-center gap-1 text-sm text-[#34C759] hover:text-[#28a745] transition-colors"
@@ -822,28 +822,14 @@ export function DetailView({ data, onClose }: DetailViewProps) {
     </div>
   );
 
-  if (expanded) {
-    return (
-      <>
-        <div
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
-          onClick={() => setExpanded(false)}
-        />
-
-        <div className="fixed z-50 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[76vw] max-w-[1200px] h-[85vh] rounded-xl overflow-auto shadow-2xl border border-white/10 bg-[#16181d]">
-          <div className="space-y-5 p-6">
-            {header}
-            {topSection}
-            {showTabs && tabSection}
-          </div>
-        </div>
-      </>
-    );
-  }
-
   return (
-    <div className="space-y-5 bg-[#16181d] min-h-screen p-6">
+    <div
+      className={`min-h-screen space-y-6 p-6 lg:p-8 ${
+        isDark ? "bg-[#16181d]" : "bg-white"
+      }`}
+    >
       {header}
+      {alarmSection}
       {topSection}
       {showTabs && tabSection}
     </div>

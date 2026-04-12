@@ -27,11 +27,13 @@ ModuleRegistry.registerModules([
 interface ProductionTableProps {
   data: ProductionRecord[];
   isLoading?: boolean;
+  height?: number;
 }
 
 export function ProductionTable({
   data,
   isLoading = false,
+  height = 680,
 }: ProductionTableProps) {
   const gridRef = React.useRef<AgGridReact>(null);
   const { stats: selectionStats, onSelectionChanged } =
@@ -91,7 +93,10 @@ export function ProductionTable({
 
   if (isLoading) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20">
+      <div
+        className="flex items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20"
+        style={{ height }}
+      >
         Loading…
       </div>
     );
@@ -99,7 +104,10 @@ export function ProductionTable({
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-[300px] items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20">
+      <div
+        className="flex items-center justify-center rounded-lg bg-gray-100 text-sm text-black/20 dark:bg-[#252930] dark:text-white/20"
+        style={{ height }}
+      >
         No data available
       </div>
     );
@@ -108,7 +116,7 @@ export function ProductionTable({
   return (
     <div
       className="w-full overflow-hidden rounded-lg border border-black/10 dark:border-white/10"
-      style={{ height: 300 }}
+      style={{ height }}
     >
       <AgGridReact
         ref={gridRef}
@@ -120,6 +128,8 @@ export function ProductionTable({
         rowHeight={40}
         headerHeight={45}
         animateRows
+        pagination
+        paginationPageSize={14}
       />
     </div>
   );

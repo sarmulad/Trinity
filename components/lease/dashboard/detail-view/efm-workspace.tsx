@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes";
 import { AgCharts } from "ag-charts-react";
 import type { AgChartOptions } from "ag-charts-community";
 import { AgGridReact as AgGridReactBase } from "ag-grid-react";
@@ -28,18 +29,6 @@ ModuleRegistry.registerModules([
 const AgGridReact = AgGridReactBase as unknown as React.ComponentType<
   Record<string, unknown>
 >;
-
-const gridTheme = themeQuartz.withParams({
-  backgroundColor: "#16181d",
-  headerBackgroundColor: "#1a1d23",
-  oddRowBackgroundColor: "#1e2025",
-  rowHoverColor: "#2a303a",
-  borderColor: "rgba(255,255,255,0.08)",
-  foregroundColor: "rgba(255,255,255,0.75)",
-  headerTextColor: "rgba(255,255,255,0.55)",
-  selectedRowBackgroundColor: "rgba(52,199,89,0.12)",
-  fontSize: 12,
-});
 
 export type EfmCategory =
   | "daily"
@@ -88,6 +77,8 @@ function titleize(key: string): string {
 }
 
 export function EfmWorkspace({ data }: EfmWorkspaceProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [activeCategory, setActiveCategory] = React.useState<EfmCategory>(
     data.datasets[0]?.key ?? "spot",
   );
@@ -115,10 +106,26 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
     [rowData],
   );
 
+  const gridTheme = React.useMemo(
+    () =>
+      themeQuartz.withParams({
+        backgroundColor: isDark ? "#16181d" : "#ffffff",
+        headerBackgroundColor: isDark ? "#1a1d23" : "#f7f8fa",
+        oddRowBackgroundColor: isDark ? "#1e2025" : "#f8fafc",
+        rowHoverColor: isDark ? "#2a303a" : "rgba(0,0,0,0.04)",
+        borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+        foregroundColor: isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.75)",
+        headerTextColor: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)",
+        selectedRowBackgroundColor: "rgba(52,199,89,0.12)",
+        fontSize: 12,
+      }),
+    [isDark],
+  );
+
   const chartOptions = React.useMemo<AgChartOptions>(
     () => ({
       data: activeDataset?.chartData ?? [],
-      background: { fill: "#16181d" },
+      background: { fill: isDark ? "#16181d" : "#ffffff" },
       padding: { top: 16, right: 20, bottom: 36, left: 16 },
       series: [
         {
@@ -129,7 +136,11 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
           strokeWidth: 2,
           marker: { enabled: false },
           tooltip: {
-            renderer: ({ datum }: { datum: { date: string; value: number } }) => ({
+            renderer: ({
+              datum,
+            }: {
+              datum: { date: string; value: number };
+            }) => ({
               content: `${datum.date}: ${datum.value}`,
             }),
           },
@@ -141,31 +152,47 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
           position: "bottom",
           line: { enabled: false },
           tick: { enabled: false },
-          label: { color: "rgba(255,255,255,0.35)", fontSize: 11 },
+          label: {
+            color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)",
+            fontSize: 11,
+          },
           gridLine: {
             enabled: true,
-            style: [{ stroke: "rgba(255,255,255,0.06)", lineDash: [4, 4] }],
+            style: [
+              {
+                stroke: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                lineDash: [4, 4],
+              },
+            ],
           },
         },
         {
           type: "number",
           position: "left",
           line: { enabled: false },
-          label: { color: "rgba(255,255,255,0.35)", fontSize: 11 },
+          label: {
+            color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)",
+            fontSize: 11,
+          },
           gridLine: {
             enabled: true,
-            style: [{ stroke: "rgba(255,255,255,0.06)", lineDash: [4, 4] }],
+            style: [
+              {
+                stroke: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                lineDash: [4, 4],
+              },
+            ],
           },
           title: {
             text: activeDataset?.chartYLabel ?? "",
-            color: "rgba(255,255,255,0.35)",
+            color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)",
             fontSize: 11,
           },
         },
       ],
       legend: { enabled: false },
     }),
-    [activeDataset],
+    [activeDataset, isDark],
   );
 
   const onGridReady = React.useCallback((event: GridReadyEvent<EfmDataRow>) => {
@@ -191,7 +218,7 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
 
   if (!activeDataset) {
     return (
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5 text-sm text-white/60">
+      <div className="rounded-xl border border-black/10 bg-black/[0.03] p-5 text-sm text-black/60 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/60">
         No EFM data available.
       </div>
     );
@@ -199,27 +226,35 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="rounded-xl border border-black/10 bg-black/[0.03] p-5 dark:border-white/10 dark:bg-white/[0.03]">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-semibold text-white">Current Values</p>
-          <span className="text-xs text-white/45">{activeDataset.updatedAt}</span>
+          <p className="text-sm font-semibold text-black dark:text-white">
+            Current Values
+          </p>
+          {/* <span className="text-xs text-black/45 dark:text-white/45">
+            {activeDataset.updatedAt}
+          </span> */}
         </div>
         <div className="grid grid-cols-2 xl:grid-cols-5 gap-2">
           {data.currentValues.map((item) => (
             <div
               key={item.label}
-              className="rounded-lg border border-white/10 bg-[#1a1d23] px-3 py-2"
+              className="rounded-lg border border-black/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#1a1d23]"
             >
-              <p className="text-[11px] text-white/45">{item.label}</p>
-              <p className="text-sm font-semibold text-white">{item.value}</p>
+              <p className="text-[11px] text-black/45 dark:text-white/45">
+                {item.label}
+              </p>
+              <p className="text-sm font-semibold text-black dark:text-white">
+                {item.value}
+              </p>
             </div>
           ))}
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-[#1a1d23] p-5">
+      <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1a1d23]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center rounded-lg border border-white/10 p-0.5">
+          <div className="flex items-center rounded-lg border border-black/10 p-0.5 dark:border-white/10">
             {(["table", "chart", "both"] as const).map((mode) => (
               <button
                 key={mode}
@@ -227,7 +262,7 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
                 className={`rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
                   viewMode === mode
                     ? "bg-[#34C759] text-black"
-                    : "text-white/65 hover:text-white"
+                    : "text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
                 }`}
               >
                 {mode}
@@ -238,13 +273,13 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={downloadCsv}
-              className="rounded-md border border-white/15 px-2.5 py-1 text-xs text-white/80 hover:bg-white/10"
+              className="rounded-md border border-black/15 px-2.5 py-1 text-xs text-black/80 hover:bg-black/5 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/10"
             >
               Download CSV
             </button>
             <button
               onClick={downloadExcel}
-              className="rounded-md border border-white/15 px-2.5 py-1 text-xs text-white/80 hover:bg-white/10"
+              className="rounded-md border border-black/15 px-2.5 py-1 text-xs text-black/80 hover:bg-black/5 dark:border-white/15 dark:text-white/80 dark:hover:bg-white/10"
             >
               Download Excel
             </button>
@@ -260,7 +295,7 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
                 className={`w-full rounded-md px-2.5 py-2 text-left text-sm transition-colors ${
                   activeCategory === dataset.key
                     ? "bg-[#34C759]/20 text-[#7DFF9F]"
-                    : "text-white/70 hover:bg-white/[0.05]"
+                    : "text-black/70 hover:bg-black/[0.05] dark:text-white/70 dark:hover:bg-white/[0.05]"
                 }`}
               >
                 {dataset.label}
@@ -268,10 +303,12 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
             ))}
           </aside>
 
-          <div className={`${viewMode === "both" ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : ""}`}>
+          <div
+            className={`${viewMode === "both" ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : ""}`}
+          >
             {(viewMode === "chart" || viewMode === "both") && (
-              <div className="rounded-lg border border-white/10 bg-[#16181d] p-3">
-                <p className="mb-2 text-xs text-white/45">
+              <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
+                <p className="mb-2 text-xs text-black/45 dark:text-white/45">
                   {activeDataset.label} Trend
                 </p>
                 <AgCharts options={chartOptions} style={{ height: 320 }} />
@@ -279,8 +316,8 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
             )}
 
             {(viewMode === "table" || viewMode === "both") && (
-              <div className="rounded-lg border border-white/10 bg-[#16181d] p-3">
-                <p className="mb-2 text-xs text-white/45">
+              <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
+                <p className="mb-2 text-xs text-black/45 dark:text-white/45">
                   {activeDataset.label} Records
                 </p>
                 <div style={{ height: 360 }}>
@@ -288,7 +325,11 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
                     theme={gridTheme}
                     rowData={rowData}
                     columnDefs={columnDefs}
-                    defaultColDef={{ resizable: true, sortable: true, filter: true }}
+                    defaultColDef={{
+                      resizable: true,
+                      sortable: true,
+                      filter: true,
+                    }}
                     suppressMovableColumns
                     rowHeight={34}
                     headerHeight={36}
@@ -298,7 +339,7 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
                   />
                 </div>
                 {activeDataset.key === "alarms" && (
-                  <p className="mt-2 text-right text-xs text-white/45">
+                  <p className="mt-2 text-right text-xs text-black/45 dark:text-white/45">
                     {rowData.length} alarms
                   </p>
                 )}

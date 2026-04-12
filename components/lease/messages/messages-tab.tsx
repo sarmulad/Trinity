@@ -15,6 +15,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { EXAMPLE_MESSAGES } from "./example-data";
 import type { Message } from "./types";
+import { useTheme } from "next-themes";
 
 interface MessagesTabProps {
   messages?: Message[];
@@ -24,6 +25,11 @@ interface MessagesTabProps {
   onChooseDataPoint?: () => void;
 }
 
+interface DataPointAttachment {
+  asset: string;
+  dataPoint: string;
+}
+
 export function MessagesTab({
   messages = EXAMPLE_MESSAGES,
   isLoading = false,
@@ -31,11 +37,16 @@ export function MessagesTab({
   onAttachPhoto,
   onChooseDataPoint,
 }: MessagesTabProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [search, setSearch] = React.useState("");
   const [newMessage, setNewMessage] = React.useState("");
   const [items, setItems] = React.useState<Message[]>(messages);
-  const [selectedAsset, setSelectedAsset] = React.useState("Oil Tank #1");
-  const [selectedDataPoint, setSelectedDataPoint] = React.useState("Top Level");
+  const [attachedDataPoint, setAttachedDataPoint] =
+    React.useState<DataPointAttachment | null>(null);
+  const [showDataPointModal, setShowDataPointModal] = React.useState(false);
+  const [draftAsset, setDraftAsset] = React.useState("Oil Tank #1");
+  const [draftDataPoint, setDraftDataPoint] = React.useState("Top Level");
   const [attachedPhotoUrl, setAttachedPhotoUrl] = React.useState("");
   const [previewPhotoUrl, setPreviewPhotoUrl] = React.useState("");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -54,11 +65,11 @@ export function MessagesTab({
   };
 
   React.useEffect(() => {
-    const options = dataPointOptions[selectedAsset] ?? [];
-    if (!options.includes(selectedDataPoint)) {
-      setSelectedDataPoint(options[0] ?? "");
+    const options = dataPointOptions[draftAsset] ?? [];
+    if (!options.includes(draftDataPoint)) {
+      setDraftDataPoint(options[0] ?? "");
     }
-  }, [selectedAsset, selectedDataPoint]);
+  }, [draftAsset, draftDataPoint]);
 
   const filtered =
     search.trim() === ""
@@ -87,15 +98,15 @@ export function MessagesTab({
       hour12: true,
     });
     const mockPointValue =
-      selectedDataPoint === "Top Level"
+      attachedDataPoint?.dataPoint === "Top Level"
         ? `7' 2"`
-        : selectedDataPoint === "Flow Rate"
+        : attachedDataPoint?.dataPoint === "Flow Rate"
           ? "287.89 MCF/Day"
-          : selectedDataPoint === "Static Pressure"
+          : attachedDataPoint?.dataPoint === "Static Pressure"
             ? "15.67 PSIA"
-            : selectedDataPoint === "Diff. Pressure"
+            : attachedDataPoint?.dataPoint === "Diff. Pressure"
               ? "25.89 in. H2O"
-              : selectedDataPoint === "Battery"
+              : attachedDataPoint?.dataPoint === "Battery"
                 ? "13.43 V"
                 : "—";
     setItems((prev) => [
@@ -103,10 +114,10 @@ export function MessagesTab({
         id: String(Date.now()),
         authorName: "You",
         authorInitials: "ME",
-        asset: selectedAsset,
+        asset: attachedDataPoint?.asset ?? "General Note",
         date: timestamp,
-        dataPoint: selectedDataPoint,
-        dataPointValue: mockPointValue,
+        dataPoint: attachedDataPoint?.dataPoint,
+        dataPointValue: attachedDataPoint ? mockPointValue : undefined,
         text: newMessage.trim(),
         photoUrl: attachedPhotoUrl || undefined,
       },
@@ -114,6 +125,7 @@ export function MessagesTab({
     ]);
     setNewMessage("");
     setAttachedPhotoUrl("");
+    setAttachedDataPoint(null);
   }
 
   function handlePickPhoto() {
@@ -129,6 +141,21 @@ export function MessagesTab({
       setAttachedPhotoUrl(url);
     };
     reader.readAsDataURL(file);
+  }
+
+  function handleOpenDataPointPicker() {
+    setDraftAsset(attachedDataPoint?.asset ?? "Oil Tank #1");
+    setDraftDataPoint(attachedDataPoint?.dataPoint ?? "Top Level");
+    setShowDataPointModal(true);
+    onChooseDataPoint?.();
+  }
+
+  function handleAttachDataPoint() {
+    setAttachedDataPoint({
+      asset: draftAsset,
+      dataPoint: draftDataPoint,
+    });
+    setShowDataPointModal(false);
   }
 
   return (
@@ -172,10 +199,12 @@ export function MessagesTab({
                       <p className="text-sm font-semibold text-black leading-none mb-1 dark:text-white">
                         {msg.authorName}
                       </p>
-                      <div className="flex items-center gap-1 text-xs text-black/40 dark:text-white/40">
-                        <Ship className="h-4 w-4" />
-                        {msg.asset}
-                      </div>
+                      {(msg.asset !== "General Note" || msg.dataPoint) && (
+                        <div className="flex items-center gap-1 text-xs text-black/40 dark:text-white/40">
+                          <Ship className="h-4 w-4" />
+                          {msg.asset}
+                        </div>
+                      )}
                       {msg.dataPoint && (
                         <p className="mt-1 text-[11px] text-[#34C759]">
                           {msg.dataPoint}
@@ -222,39 +251,6 @@ export function MessagesTab({
             className="w-full rounded-lg border border-black/10 bg-black/5 px-4 py-3 text-sm text-black placeholder:text-black/25 focus:border-[#34C759]/50 focus:outline-none resize-none dark:border-white/10 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/25"
           />
 
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-            <div className="space-y-1">
-              <p className="text-xs text-black/45 dark:text-white/45">Asset</p>
-              <select
-                value={selectedAsset}
-                onChange={(e) => setSelectedAsset(e.target.value)}
-                className="w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#252930] dark:text-white"
-              >
-                {Object.keys(dataPointOptions).map((asset) => (
-                  <option key={asset} value={asset}>
-                    {asset}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-1">
-              <p className="text-xs text-black/45 dark:text-white/45">
-                Data Point
-              </p>
-              <select
-                value={selectedDataPoint}
-                onChange={(e) => setSelectedDataPoint(e.target.value)}
-                className="w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#252930] dark:text-white"
-              >
-                {(dataPointOptions[selectedAsset] ?? []).map((point) => (
-                  <option key={point} value={point}>
-                    {point}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
           <input
             ref={fileInputRef}
             type="file"
@@ -262,6 +258,21 @@ export function MessagesTab({
             onChange={(e) => handlePhotoChange(e.target.files?.[0] ?? null)}
             className="hidden"
           />
+          {attachedDataPoint && (
+            <div className="inline-flex max-w-full items-center gap-2 rounded-md border border-[#34C759]/40 bg-[#34C759]/10 px-2.5 py-1.5 text-xs text-[#15803d] dark:text-[#7DFF9F]">
+              <Database className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">
+                {attachedDataPoint.asset} • {attachedDataPoint.dataPoint}
+              </span>
+              <button
+                onClick={() => setAttachedDataPoint(null)}
+                className="rounded-sm p-0.5 text-current/80 hover:bg-[#34C759]/15 hover:text-current"
+                aria-label="Remove attached data point"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          )}
           {attachedPhotoUrl && (
             <button
               onClick={() => setPreviewPhotoUrl(attachedPhotoUrl)}
@@ -290,7 +301,7 @@ export function MessagesTab({
             </button>
 
             <button
-              onClick={onChooseDataPoint}
+              onClick={handleOpenDataPointPicker}
               className="flex items-center gap-2 rounded-lg border border-[#34C759] px-5 py-2.5 text-sm font-medium text-[#34C759] hover:bg-[#34C759]/10 transition-colors"
             >
               Choose Data Point
@@ -302,22 +313,102 @@ export function MessagesTab({
 
       {previewPhotoUrl && (
         <div className="fixed inset-0 z-50 bg-black/70 p-4">
-          <div className="mx-auto flex h-full max-w-4xl flex-col rounded-xl border border-white/10 bg-[#16181d] p-4">
+          <div className="mx-auto flex h-full max-w-4xl flex-col rounded-xl border border-black/10 bg-[#f8fafc] p-4 dark:border-white/10 dark:bg-[#16181d]">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold text-white">Photo Preview</p>
+              <p className="text-sm font-semibold text-black dark:text-white">
+                Photo Preview
+              </p>
               <button
                 onClick={() => setPreviewPhotoUrl("")}
-                className="rounded-md p-1 text-white/70 hover:bg-white/10 hover:text-white"
+                className="rounded-md p-1 text-black/70 hover:bg-black/10 hover:text-black dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-auto rounded-lg border border-white/10 bg-black/20 p-2">
+            <div className="flex-1 overflow-auto rounded-lg border border-black/10 bg-black/[0.04] p-2 dark:border-white/10 dark:bg-black/20">
               <img
                 src={previewPhotoUrl}
                 alt="Message attachment preview"
                 className="mx-auto h-auto max-h-full w-auto rounded-md"
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showDataPointModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-4">
+          <div
+            className={`mx-auto mt-12 w-full max-w-md rounded-2xl border p-5 shadow-2xl ${
+              isDark
+                ? "border-white/10 bg-[#16181d]"
+                : "border-black/10 bg-[#f8fafc]"
+            }`}
+          >
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-black dark:text-white">
+                  Attach Data Point
+                </h3>
+                <p className="mt-1 text-xs text-black/50 dark:text-white/45">
+                  Choose an asset and variable to include with this message.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowDataPointModal(false)}
+                className="rounded-md p-1 text-black/60 hover:bg-black/10 hover:text-black dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <p className="text-xs text-black/45 dark:text-white/45">Asset</p>
+                <select
+                  value={draftAsset}
+                  onChange={(e) => setDraftAsset(e.target.value)}
+                  className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#252930] dark:text-white"
+                >
+                  {Object.keys(dataPointOptions).map((asset) => (
+                    <option key={asset} value={asset}>
+                      {asset}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-xs text-black/45 dark:text-white/45">
+                  Data Point
+                </p>
+                <select
+                  value={draftDataPoint}
+                  onChange={(e) => setDraftDataPoint(e.target.value)}
+                  className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-[#252930] dark:text-white"
+                >
+                  {(dataPointOptions[draftAsset] ?? []).map((point) => (
+                    <option key={point} value={point}>
+                      {point}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setShowDataPointModal(false)}
+                className="rounded-lg border border-black/10 px-4 py-2 text-sm text-black/75 hover:bg-black/5 dark:border-white/10 dark:text-white/75 dark:hover:bg-white/10"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAttachDataPoint}
+                className="rounded-lg bg-[#34C759] px-4 py-2 text-sm font-semibold text-black hover:bg-[#28a745]"
+              >
+                Attach
+              </button>
             </div>
           </div>
         </div>

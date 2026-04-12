@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes";
 import { AgGridReact as AgGridReactBase } from "ag-grid-react";
 import {
   ModuleRegistry,
@@ -23,19 +24,6 @@ ModuleRegistry.registerModules([
   CellSelectionModule,
 ]);
 
-const darkTheme = themeQuartz.withParams({
-  backgroundColor: "#1a1d23",
-  headerBackgroundColor: "#1a1d23",
-  oddRowBackgroundColor: "#1e2025",
-  rowHoverColor: "#2d3440",
-  borderColor: "rgba(255,255,255,0.08)",
-  foregroundColor: "rgba(255,255,255,0.6)",
-  headerTextColor: "rgba(255,255,255,0.5)",
-  fontSize: 12,
-  //   rowBorderColor: "rgba(255,255,255,0.05)",
-  selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
-});
-
 interface DataTableProps {
   rows: TankDataRow[];
   totalEntries: number;
@@ -51,8 +39,26 @@ export function DataTable({
   totalEntries,
   lastUpdated = "15 minutes ago",
 }: DataTableProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const { stats: selectionStats, onSelectionChanged } =
     useAgGridSelectionStats<TankDataRow>();
+
+  const gridTheme = React.useMemo(
+    () =>
+      themeQuartz.withParams({
+        backgroundColor: isDark ? "#1a1d23" : "#ffffff",
+        headerBackgroundColor: isDark ? "#1a1d23" : "#f7f8fa",
+        oddRowBackgroundColor: isDark ? "#1e2025" : "#f8fafc",
+        rowHoverColor: isDark ? "#2d3440" : "rgba(0,0,0,0.04)",
+        borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+        foregroundColor: isDark ? "rgba(255,255,255,0.72)" : "rgba(0,0,0,0.72)",
+        headerTextColor: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)",
+        fontSize: 12,
+        selectedRowBackgroundColor: "rgba(52,199,89,0.08)",
+      }),
+    [isDark],
+  );
 
   const columnDefs: ColDef<TankDataRow>[] = React.useMemo(
     () => [
@@ -80,15 +86,19 @@ export function DataTable({
   );
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1a1d23] p-5">
+    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1a1d23]">
       <div className="flex items-center gap-2 mb-4">
-        <p className="text-sm font-semibold text-white">Last 150 Data Table</p>
-        <span className="text-xs text-white/30">– {lastUpdated}</span>
+        <p className="text-sm font-semibold text-black dark:text-white">
+          Last 150 Data Table
+        </p>
+        <span className="text-xs text-black/30 dark:text-white/30">
+          – {lastUpdated}
+        </span>
       </div>
 
-      <div style={{ height: 280 }}>
+      <div style={{ height: 420 }}>
         <AgGridReact
-          theme={darkTheme}
+          theme={gridTheme}
           rowData={rows}
           columnDefs={columnDefs}
           defaultColDef={{ resizable: true, sortable: true }}
@@ -97,7 +107,7 @@ export function DataTable({
           headerHeight={40}
           rowSelection={AG_GRID_MULTI_ROW_SELECTION}
           pagination
-          paginationPageSize={7}
+          paginationPageSize={10}
           suppressPaginationPanel={false}
           onSelectionChanged={onSelectionChanged}
           {...AG_GRID_CLIPBOARD_OPTIONS}
@@ -106,7 +116,7 @@ export function DataTable({
 
       <AgGridSelectionStatsBar stats={selectionStats} />
 
-      <p className="text-xs text-white/30 mt-2 text-right">
+      <p className="text-xs text-black/30 mt-2 text-right dark:text-white/30">
         {totalEntries} daily entries
       </p>
     </div>

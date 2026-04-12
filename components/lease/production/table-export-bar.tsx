@@ -4,6 +4,7 @@ import React from "react";
 
 interface TableExportBarProps {
   title: string;
+  controls?: React.ReactNode;
   onExportCsv: () => void;
   onExportOds: () => Promise<void>;
   onExportPng: () => Promise<void>;
@@ -130,15 +131,19 @@ const PngIcon = () => (
 
 export function TableExportBar({
   title,
+  controls,
   onExportCsv,
   onExportOds,
   onExportPng,
 }: TableExportBarProps) {
   return (
-    <div className="flex items-center justify-between px-1 pb-2">
-      <span className="text-sm font-semibold text-black/70 dark:text-white/70">
-        {title}
-      </span>
+    <div className="flex flex-wrap items-center justify-between gap-3 px-1 pb-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-sm font-semibold text-black/70 dark:text-white/70">
+          {title}
+        </span>
+        {controls}
+      </div>
       <div className="flex items-center gap-2">
         <span className="mr-1 text-xs text-black/30 dark:text-white/30">
           Export:

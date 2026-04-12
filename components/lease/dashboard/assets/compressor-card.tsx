@@ -10,8 +10,20 @@ interface CompressorCardProps {
 
 export function CompressorCard({ compressor, onClick }: CompressorCardProps) {
   return (
-    <Card>
-      <div className="cursor-pointer" onClick={onClick}>
+    <Card
+      interactive={!!onClick}
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={(event) => {
+        if (!onClick) return;
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+    >
+      <div>
         <div className="flex items-start justify-between mb-2">
           <p className="text-sm font-semibold text-black dark:text-white">
             {compressor.name}

@@ -50,12 +50,11 @@ const VAR_MAP = Object.fromEntries(
 const DEFAULT_ACTIVE: VarKey[] = ["h2o", "oil", "gas"];
 
 const PAD = { top: 24, right: 20, bottom: 40, left: 60 };
-const CHART_H = 260;
-
 interface ProductionChartProps {
   data: ProductionRecord[];
   stats: ProductionStats;
   isLoading?: boolean;
+  chartHeight?: number;
 }
 
 interface Annotation {
@@ -143,12 +142,14 @@ export function ProductionChart({
   data,
   stats,
   isLoading = false,
+  chartHeight = 440,
 }: ProductionChartProps) {
   const [activeRange, setActiveRange] = React.useState("Y");
   const [activeVars, setActiveVars] = React.useState<Set<VarKey>>(
     new Set(DEFAULT_ACTIVE),
   );
   const [dropdownOpen, setDropdownOpen] = React.useState(false);
+  const [annotationMode, setAnnotationMode] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { resolvedTheme } = useTheme();
@@ -158,7 +159,7 @@ export function ProductionChart({
   const [snapped, setSnapped] = React.useState<SnappedPoint | null>(null);
   const [draftFor, setDraftFor] = React.useState<SnappedPoint | null>(null);
   const [draftNote, setDraftNote] = React.useState("");
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
   const overlayRef = React.useRef<HTMLDivElement>(null);
 
   const [overlayW, setOverlayW] = React.useState(0);
@@ -180,6 +181,14 @@ export function ProductionChart({
   React.useEffect(() => {
     if (draftFor) setTimeout(() => inputRef.current?.focus(), 40);
   }, [draftFor]);
+
+  React.useEffect(() => {
+    if (!annotationMode) {
+      setSnapped(null);
+      setDraftFor(null);
+      setDraftNote("");
+    }
+  }, [annotationMode]);
 
   React.useEffect(() => {
     const h = (e: MouseEvent) => {
@@ -233,26 +242,67 @@ export function ProductionChart({
 
   const pickNearestPoint = React.useCallback(
     (mx: number, my: number): SnappedPoint | null => {
-      const relX = mx - PAD.left;
-      const col = Math.round(relX / xIndex.xStep);
-      if (col < 0 || col >= xIndex.n) return null;
+      const plotLeft = PAD.left;
+      const plotRight = overlayW - PAD.right;
+      const plotTop = PAD.top;
+      const plotBottom = overlayH - PAD.bottom;
 
-      const colPts = plotPoints.filter((p) => {
-        const ptCol = Math.round((p.px - PAD.left) / xIndex.xStep);
-        return ptCol === col;
-      });
-      if (!colPts.length) return null;
+      if (
+        mx < plotLeft ||
+        mx > plotRight ||
+        my < plotTop ||
+        my > plotBottom
+      ) {
+        return null;
+      }
 
-      let best = colPts[0];
-      let bestDy = Math.abs(best.py - my);
-      for (let i = 1; i < colPts.length; i++) {
-        const dy = Math.abs(colPts[i].py - my);
-        if (dy < bestDy) {
-          bestDy = dy;
-          best = colPts[i];
+      const eligiblePoints = plotPoints.filter(
+        (point) => point.varKey !== "msg" && point.varKey !== "alarm",
+      );
+      if (!eligiblePoints.length) return null;
+
+      let best = eligiblePoints[0];
+      let bestDistance = Number.POSITIVE_INFINITY;
+
+      for (const point of eligiblePoints) {
+        const dx = point.px - mx;
+        const dy = point.py - my;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < bestDistance) {
+          bestDistance = distance;
+          best = point;
         }
       }
-      if (bestDy > 40) return null;
+
+      if (bestDistance > 28) {
+        const relX = mx - PAD.left;
+        const col = Math.round(relX / xIndex.xStep);
+        if (col < 0 || col >= xIndex.n) return null;
+        if (Math.abs(relX - col * xIndex.xStep) > xIndex.xStep * 0.45) {
+          return null;
+        }
+
+        const columnPoints = eligiblePoints.filter((point) => {
+          const pointCol = Math.round((point.px - PAD.left) / xIndex.xStep);
+          return pointCol === col;
+        });
+
+        if (!columnPoints.length) return null;
+
+        let bestColumnPoint = columnPoints[0];
+        let bestColumnDy = Math.abs(bestColumnPoint.py - my);
+
+        for (let index = 1; index < columnPoints.length; index++) {
+          const dy = Math.abs(columnPoints[index].py - my);
+          if (dy < bestColumnDy) {
+            bestColumnDy = dy;
+            bestColumnPoint = columnPoints[index];
+          }
+        }
+
+        if (bestColumnDy > 24) return null;
+        best = bestColumnPoint;
+      }
 
       return {
         varKey: best.varKey,
@@ -262,7 +312,7 @@ export function ProductionChart({
         py: best.py,
       };
     },
-    [plotPoints, xIndex],
+    [plotPoints, xIndex, overlayW, overlayH],
   );
 
   const handleMouseMove = React.useCallback(
@@ -287,6 +337,7 @@ export function ProductionChart({
     ) {
       return;
     }
+    if (!annotationMode) return;
     const rect = overlayRef.current?.getBoundingClientRect();
     const clickSnap =
       rect && !snapped
@@ -319,6 +370,7 @@ export function ProductionChart({
     ]);
     setDraftFor(null);
     setDraftNote("");
+    setAnnotationMode(false);
   };
 
   const deleteAnnotation = (id: string) =>
@@ -337,7 +389,13 @@ export function ProductionChart({
         yName: "H2O",
         stroke: "#3b82f6",
         strokeWidth: 2,
-        marker: { enabled: false },
+        marker: {
+          enabled: annotationMode,
+          size: 7,
+          fill: "#3b82f6",
+          stroke: "#ffffff",
+          strokeWidth: 1.5,
+        },
       } as never);
     if (activeVars.has("oil"))
       series.push({
@@ -347,7 +405,13 @@ export function ProductionChart({
         yName: "Oil",
         stroke: "#9ca3af",
         strokeWidth: 2,
-        marker: { enabled: false },
+        marker: {
+          enabled: annotationMode,
+          size: 7,
+          fill: "#9ca3af",
+          stroke: "#ffffff",
+          strokeWidth: 1.5,
+        },
       } as never);
     if (activeVars.has("gas"))
       series.push({
@@ -357,7 +421,13 @@ export function ProductionChart({
         yName: "Gas",
         stroke: "#6b7280",
         strokeWidth: 2,
-        marker: { enabled: false },
+        marker: {
+          enabled: annotationMode,
+          size: 7,
+          fill: "#6b7280",
+          stroke: "#ffffff",
+          strokeWidth: 1.5,
+        },
       } as never);
     if (activeVars.has("msg"))
       series.push({
@@ -415,7 +485,7 @@ export function ProductionChart({
       ],
       legend: { enabled: false },
     } as AgChartOptions;
-  }, [data, isDark, activeVars]);
+  }, [data, isDark, activeVars, annotationMode]);
 
   const annotationPins = React.useMemo(
     () =>
@@ -621,6 +691,16 @@ export function ProductionChart({
         </div>
 
         <div className="flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setAnnotationMode((value) => !value)}
+            className={`rounded-full border px-3 py-1 text-[10px] font-semibold transition-colors ${
+              annotationMode
+                ? "border-[#34C759]/40 bg-[#34C759]/12 text-[#34C759]"
+                : "border-black/10 text-black/50 hover:border-black/20 dark:border-white/10 dark:text-white/45"
+            }`}
+          >
+            {annotationMode ? "Annotation mode on" : "Annotate chart"}
+          </button>
           {activeList.map(({ key, label, color }) => (
             <span
               key={key}
@@ -650,9 +730,9 @@ export function ProductionChart({
         )}
       </div>
 
-      <div
-        className="relative overflow-visible rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#252930]"
-        style={{ height: CHART_H }}
+        <div
+          className="relative overflow-visible rounded-lg border border-black/5 bg-white dark:border-white/5 dark:bg-[#252930]"
+        style={{ height: chartHeight }}
       >
         {isLoading ? (
           <div className="flex h-full items-center justify-center text-sm text-black/20 dark:text-white/20">
@@ -665,7 +745,7 @@ export function ProductionChart({
                 options={{
                   ...chartOptions,
                   width: overlayW || undefined,
-                  height: CHART_H,
+                  height: chartHeight,
                 }}
               />
             </div>
@@ -674,7 +754,11 @@ export function ProductionChart({
               ref={overlayRef}
               className="absolute inset-0"
               style={{
-                cursor: snapped ? "crosshair" : "default",
+                cursor: annotationMode
+                  ? snapped
+                    ? "crosshair"
+                    : "cell"
+                  : "default",
                 zIndex: 10,
               }}
               onMouseMove={handleMouseMove}
@@ -719,9 +803,11 @@ export function ProductionChart({
                       <MessageSquarePlus className="h-3 w-3" />
                       {VAR_MAP[snapped.varKey].label} · {snapped.date} ·{" "}
                       {snapped.value}
-                      <span className="ml-1 text-white/30">
-                        (click to annotate)
-                      </span>
+                      {annotationMode && (
+                        <span className="ml-1 text-white/30">
+                          (click point to add note)
+                        </span>
+                      )}
                     </div>
                     <div className="mx-auto w-fit">
                       <div className="h-0 w-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-[#1a1d21]" />
@@ -766,17 +852,23 @@ export function ProductionChart({
                         {draftFor.value}
                       </span>
                     </div>
-                    <input
+                    <textarea
                       ref={inputRef}
                       value={draftNote}
                       onChange={(e) => setDraftNote(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter") commitDraft();
+                        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                          commitDraft();
+                        }
                         if (e.key === "Escape") setDraftFor(null);
                       }}
                       placeholder="Type your note…"
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[12px] text-white placeholder-white/20 outline-none focus:border-[#34C759]/60 focus:ring-1 focus:ring-[#34C759]/20"
+                      rows={3}
+                      className="w-full resize-none rounded-lg border border-white/10 bg-white/5 px-2.5 py-1.5 text-[12px] text-white placeholder-white/20 outline-none focus:border-[#34C759]/60 focus:ring-1 focus:ring-[#34C759]/20"
                     />
+                    <p className="mt-1 text-[9px] text-white/30">
+                      Press Ctrl+Enter to save.
+                    </p>
                     <div className="mt-2 flex gap-1.5">
                       <button
                         onClick={commitDraft}
@@ -786,7 +878,10 @@ export function ProductionChart({
                         <Check className="h-3 w-3" /> Save
                       </button>
                       <button
-                        onClick={() => setDraftFor(null)}
+                        onClick={() => {
+                          setDraftFor(null);
+                          setDraftNote("");
+                        }}
                         className="flex items-center justify-center rounded-lg border border-white/10 px-2 py-1 text-white/40 hover:text-white/70"
                       >
                         <X className="h-3.5 w-3.5" />

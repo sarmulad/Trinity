@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useTheme } from "next-themes";
 import { AgCharts } from "ag-charts-react";
 import type { AgChartOptions } from "ag-charts-community";
 
@@ -15,10 +16,12 @@ export function LevelChart({
   lastUpdated = "15 minutes ago",
   xAxisLabel = "Oil Tank (FT)",
 }: LevelChartProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const options: AgChartOptions = useMemo(
     () => ({
       data,
-      background: { fill: "#1a1d23" },
+      background: { fill: isDark ? "#1a1d23" : "#ffffff" },
       padding: { top: 16, right: 24, bottom: 40, left: 16 },
       series: [
         {
@@ -44,14 +47,19 @@ export function LevelChart({
           type: "category",
           position: "bottom",
           label: {
-            color: "rgba(255,255,255,0.35)",
+            color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)",
             fontSize: 11,
           },
           line: { enabled: false },
           tick: { enabled: false },
           gridLine: {
             enabled: true,
-            style: [{ stroke: "rgba(255,255,255,0.06)", lineDash: [4, 4] }],
+            style: [
+              {
+                stroke: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                lineDash: [4, 4],
+              },
+            ],
           },
           title: {
             text: xAxisLabel,
@@ -67,35 +75,42 @@ export function LevelChart({
           max: 15,
           tick: { values: [0, 5, 10, 15] },
           label: {
-            color: "rgba(255,255,255,0.35)",
+            color: isDark ? "rgba(255,255,255,0.35)" : "rgba(0,0,0,0.35)",
             fontSize: 11,
           },
           line: { enabled: false },
           gridLine: {
             enabled: true,
-            style: [{ stroke: "rgba(255,255,255,0.06)", lineDash: [4, 4] }],
+            style: [
+              {
+                stroke: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+                lineDash: [4, 4],
+              },
+            ],
           },
           title: {
             text: "Tank Height",
-            color: "rgba(255,255,255,0.3)",
+            color: isDark ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)",
             fontSize: 11,
           },
         },
       ],
       legend: { enabled: false },
     }),
-    [data, xAxisLabel],
+    [data, xAxisLabel, isDark],
   );
 
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1a1d23] p-5">
+    <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1a1d23]">
       <div className="flex items-center gap-2 mb-4">
-        <p className="text-sm font-semibold text-white">
+        <p className="text-sm font-semibold text-black dark:text-white">
           Tank Level Line Chart
         </p>
-        <span className="text-xs text-white/30">– {lastUpdated}</span>
+        <span className="text-xs text-black/30 dark:text-white/30">
+          – {lastUpdated}
+        </span>
       </div>
-      <AgCharts options={options} style={{ height: 300 }} />
+      <AgCharts options={options} style={{ height: 420 }} />
     </div>
   );
 }

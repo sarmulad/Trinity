@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTheme } from "next-themes";
 import { AssetsSection } from "./sections/assets-section";
 import { WellsSection } from "./sections/wells-section";
 import { TeamsSection } from "./sections/teams-section";
@@ -62,6 +63,8 @@ export function DashboardTab({
   onHistoryClick,
   onManageTeamClick,
 }: DashboardTabProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [detail, setDetail] = React.useState<DetailViewData | null>(null);
 
   return (
@@ -119,7 +122,11 @@ export function DashboardTab({
             className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setDetail(null)}
           />
-          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-2xl overflow-y-auto bg-[#16181d] shadow-2xl">
+          <div
+            className={`fixed inset-y-0 right-0 z-50 w-full overflow-y-auto shadow-2xl lg:w-[62vw] lg:max-w-[1200px] ${
+              isDark ? "bg-[#16181d]" : "bg-white"
+            }`}
+          >
             <DetailView data={detail} onClose={() => setDetail(null)} />
           </div>
         </>

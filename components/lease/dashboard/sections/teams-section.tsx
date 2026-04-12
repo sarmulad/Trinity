@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Mail, MoreVertical, Search } from "lucide-react";
+import { Phone, MessageCircle, Mail } from "lucide-react";
 import * as React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SectionHeader } from "../ui/section-header";
@@ -13,7 +13,6 @@ interface TeamsSectionProps {
 
 export function TeamsSection({
   teamMembers,
-  onManageTeamClick,
   onTeamClick,
 }: TeamsSectionProps) {
   const [searchOpen, setSearchOpen] = React.useState(false);
@@ -35,48 +34,37 @@ export function TeamsSection({
     <div>
       <SectionHeader
         title="Teams"
-        actionLabel="Manage"
-        onAction={onManageTeamClick}
         searchOpen={searchOpen}
+        searchPlaceholder="Search teams"
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchClear={() => {
+          setSearchQuery("");
+          setSearchOpen(false);
+        }}
         onToggleSearch={() => {
           setSearchOpen((v) => !v);
           if (searchOpen) setSearchQuery("");
         }}
       />
-      {searchOpen && (
-        <div className="relative mb-3">
-          <Search className="app-search-icon" />
-          <input
-            autoFocus
-            type="text"
-            placeholder="Search teams..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setSearchQuery("");
-                setSearchOpen(false);
-              }
-            }}
-            className="app-search-input w-full"
-          />
-        </div>
-      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {filteredTeamMembers.map((member) => (
-          <Card key={member.id}>
+          <Card
+            key={member.id}
+            interactive={!!onTeamClick}
+            onClick={() => onTeamClick?.(member.id)}
+            role={onTeamClick ? "button" : undefined}
+            tabIndex={onTeamClick ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (!onTeamClick) return;
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onTeamClick(member.id);
+              }
+            }}
+          >
             <div
-              className="flex items-center gap-4 cursor-pointer"
-              onClick={() => onTeamClick?.(member.id)}
-              role={onTeamClick ? "button" : undefined}
-              tabIndex={onTeamClick ? 0 : undefined}
-              onKeyDown={(e) => {
-                if (!onTeamClick) return;
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onTeamClick(member.id);
-                }
-              }}
+              className="flex items-center gap-4"
             >
               <Avatar className="h-11 w-11 shrink-0">
                 <AvatarImage src={member.avatarUrl} />
@@ -101,15 +89,36 @@ export function TeamsSection({
                 )}
               </div>
               <div className="flex shrink-0 gap-1">
-                {[Phone, MessageCircle, Mail, MoreVertical].map((Icon, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 text-black/60 hover:bg-black/10 hover:text-black dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                {member.phone ? (
+                  <a
+                    href={`tel:${member.phone}`}
+                    onClick={(event) => event.stopPropagation()}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 text-black/60 transition-colors hover:bg-black/10 hover:text-black dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={`Call ${member.name}`}
                   >
-                    <Icon className="h-3.5 w-3.5" />
-                  </button>
-                ))}
+                    <Phone className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+                {member.phone ? (
+                  <a
+                    href={`sms:${member.phone}`}
+                    onClick={(event) => event.stopPropagation()}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 text-black/60 transition-colors hover:bg-black/10 hover:text-black dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={`Message ${member.name}`}
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
+                {member.email ? (
+                  <a
+                    href={`mailto:${member.email}`}
+                    onClick={(event) => event.stopPropagation()}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-black/5 text-black/60 transition-colors hover:bg-black/10 hover:text-black dark:bg-white/5 dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
+                    aria-label={`Email ${member.name}`}
+                  >
+                    <Mail className="h-3.5 w-3.5" />
+                  </a>
+                ) : null}
               </div>
             </div>
           </Card>

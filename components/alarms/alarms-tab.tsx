@@ -13,10 +13,11 @@ import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
 import {
   Check,
   X,
-  MoreVertical,
   PlusCircle,
   Search,
   SlidersHorizontal,
+  Minus,
+  Plus,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { EXAMPLE_ALARMS } from "./example-data";
@@ -83,14 +84,6 @@ function AckCell({ value }: ICellRendererParams) {
   );
 }
 
-function ActionCell() {
-  return (
-    <button className="flex h-7 w-7 items-center justify-center rounded-md text-black/40 hover:bg-black/10 hover:text-black dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white transition-colors">
-      <MoreVertical className="h-4 w-4" />
-    </button>
-  );
-}
-
 interface AlarmsTabProps {
   alarms?: AlarmRow[];
   isLoading?: boolean;
@@ -119,11 +112,28 @@ export function AlarmsTab({
     null,
   );
   const [threshold, setThreshold] = React.useState("");
+  const [alarmType, setAlarmType] = React.useState("Threshold Alarm");
   const [recipients, setRecipients] = React.useState("Operations Team");
   const [alarmState, setAlarmState] = React.useState<"Enabled" | "Disabled">(
     "Enabled",
   );
   const [acknowledged, setAcknowledged] = React.useState(false);
+  const [historySearch, setHistorySearch] = React.useState("");
+
+  const recipientOptions = [
+    "Operations Team",
+    "Field Leads",
+    "Production Engineers",
+    "Lease Supervisors",
+  ];
+
+  const alarmTypeOptions = [
+    "Threshold Alarm",
+    "High Level Alarm",
+    "Low Level Alarm",
+    "Pressure Alarm",
+    "Communication Alarm",
+  ];
 
   const filteredAlarms = React.useMemo(() => {
     return alarms.filter((a) => {
@@ -154,30 +164,25 @@ export function AlarmsTab({
       alarm.sensorRange.split("-")[1]?.trim() ??
       alarm.lastValue;
     setThreshold(parsed);
+    setAlarmType(alarm.alarmType ?? "Threshold Alarm");
     setRecipients(alarm.recipients ?? "Operations Team");
     setAlarmState("Enabled");
     setAcknowledged(alarm.acked);
+    setHistorySearch("");
   }, []);
 
   const columnDefs: ColDef<AlarmRow>[] = React.useMemo(
     () => [
       { field: "date", headerName: "Date", flex: 1, minWidth: 100 },
       { field: "asset", headerName: "Asset", flex: 1.5, minWidth: 130 },
-      {
-        field: "lease",
-        headerName: "Lease",
-        flex: 1.5,
-        minWidth: 130,
-        sort: "asc",
-      },
       { field: "alarmType", headerName: "Alarm Type", flex: 1.2, minWidth: 130 },
       {
         field: "sensorRange",
-        headerName: "Sensor Range",
-        flex: 1.2,
-        minWidth: 120,
+        headerName: "Measurement Range",
+        flex: 1.25,
+        minWidth: 160,
       },
-      { field: "threshold", headerName: "Threshold", flex: 1, minWidth: 110 },
+      { field: "threshold", headerName: "Alarm Limit", flex: 1, minWidth: 120 },
       { field: "lastValue", headerName: "Last Value", flex: 1, minWidth: 100 },
       {
         field: "status",
@@ -194,20 +199,39 @@ export function AlarmsTab({
         cellRenderer: AckCell,
         cellStyle: { display: "flex", alignItems: "center" },
       },
-      {
-        field: "id",
-        headerName: "Action",
-        flex: 0.7,
-        minWidth: 70,
-        cellRenderer: ActionCell,
-        sortable: false,
-        cellStyle: { display: "flex", alignItems: "center" },
-      },
     ],
     [],
   );
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
+  const thresholdNumber = Number.parseFloat(threshold);
+  const canAdjustThreshold = Number.isFinite(thresholdNumber);
+
+  const adjustThreshold = React.useCallback((delta: number) => {
+    setThreshold((current) => {
+      const parsed = Number.parseFloat(current);
+      if (!Number.isFinite(parsed)) return current;
+
+      const nextValue = Math.max(0, Math.round((parsed + delta) * 100) / 100);
+      return nextValue.toString();
+    });
+  }, []);
+
+  const filteredHistory = React.useMemo(() => {
+    const history = selectedAlarm?.history ?? [];
+    const query = historySearch.trim().toLowerCase();
+
+    if (!query) return history;
+
+    return history.filter((entry) => {
+      return (
+        entry.timestamp.toLowerCase().includes(query) ||
+        entry.previousStatus.toLowerCase().includes(query) ||
+        entry.nextStatus.toLowerCase().includes(query) ||
+        (entry.note ?? "").toLowerCase().includes(query)
+      );
+    });
+  }, [selectedAlarm, historySearch]);
 
   return (
     <>
@@ -276,7 +300,11 @@ export function AlarmsTab({
             />
           </div>
         </div>
-        <AgGridSelectionStatsBar stats={selectionStats} />
+        <AgGridSelectionStatsBar
+          stats={selectionStats}
+          showAggregates={false}
+          className="mt-2 flex flex-wrap items-center justify-end gap-3 text-xs text-black/55 dark:text-white/60"
+        />
       </div>
 
       <AddSetpointModal
@@ -296,125 +324,238 @@ export function AlarmsTab({
             className="fixed inset-0 z-40 bg-black/50"
             onClick={() => setSelectedAlarm(null)}
           />
-          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-lg overflow-y-auto bg-[#16181d] shadow-2xl">
+          <div className="fixed inset-y-0 right-0 z-50 w-full max-w-5xl overflow-y-auto border-l border-black/10 bg-[#f8fafc] shadow-2xl dark:border-white/10 dark:bg-[#16181d]">
             <div className="space-y-5 p-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Manage Alarm</h3>
-                  <p className="text-xs text-white/45 mt-1">
+                  <h3 className="text-lg font-bold text-black dark:text-white">
+                    Manage Alarm
+                  </h3>
+                  <p className="mt-1 text-xs text-black/50 dark:text-white/45">
                     {selectedAlarm.asset} • {selectedAlarm.lease}
                   </p>
                 </div>
                 <button
                   onClick={() => setSelectedAlarm(null)}
-                  className="rounded-md p-1 text-white/60 hover:bg-white/10 hover:text-white"
+                  className="rounded-md p-1 text-black/55 hover:bg-black/8 hover:text-black dark:text-white/60 dark:hover:bg-white/10 dark:hover:text-white"
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-xs text-white/45">Sensor Range</p>
-                <p className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white">
-                  {selectedAlarm.sensorRange}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs text-white/45">Alarm Type</p>
-                <p className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white">
-                  {selectedAlarm.alarmType ?? "Threshold Alarm"}
-                </p>
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs text-white/45">Threshold</p>
-                <input
-                  value={threshold}
-                  onChange={(e) => setThreshold(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-[#34C759]/50 focus:outline-none"
-                  placeholder="e.g. 22 PSI"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <p className="text-xs text-white/45">Recipients / Group</p>
-                <input
-                  value={recipients}
-                  onChange={(e) => setRecipients(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-[#34C759]/50 focus:outline-none"
-                  placeholder="Operations Team, Field Leads"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <p className="text-xs text-white/45">Alarm State</p>
-                  <select
-                    value={alarmState}
-                    onChange={(e) =>
-                      setAlarmState(e.target.value as "Enabled" | "Disabled")
-                    }
-                    className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-white focus:border-[#34C759]/50 focus:outline-none"
-                  >
-                    <option value="Enabled">Enabled</option>
-                    <option value="Disabled">Disabled</option>
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-xs text-white/45">Acknowledgement</p>
-                  <button
-                    onClick={() => setAcknowledged((v) => !v)}
-                    className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors ${
-                      acknowledged
-                        ? "border-[#34C759]/50 bg-[#34C759]/20 text-[#7DFF9F]"
-                        : "border-white/10 bg-white/[0.03] text-white/70"
-                    }`}
-                  >
-                    {acknowledged ? "Acknowledged" : "Not Acknowledged"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-xs text-white/45">Latest Reading</p>
-                <p className="text-sm font-semibold text-white mt-1">
-                  {selectedAlarm.lastValue} ({selectedAlarm.date})
-                </p>
-              </div>
-
-              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-                <p className="text-xs text-white/45 mb-2">Alarm History</p>
-                <div className="space-y-2">
-                  {(selectedAlarm.history ?? []).length === 0 ? (
-                    <p className="text-xs text-white/55">
-                      No status changes recorded yet.
+              <div className="grid gap-5 xl:grid-cols-[minmax(0,360px)_minmax(0,1fr)]">
+                <div className="space-y-5">
+                  <div className="space-y-1">
+                    <p className="text-xs text-black/50 dark:text-white/45">
+                      Measurement Range
                     </p>
-                  ) : (
-                    selectedAlarm.history?.map((h, idx) => (
-                      <div
-                        key={`${h.timestamp}-${idx}`}
-                        className="rounded-md border border-white/10 bg-white/[0.02] px-2.5 py-2"
+                    <p className="rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black dark:border-white/10 dark:bg-white/[0.03] dark:text-white">
+                      {selectedAlarm.sensorRange}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-black/50 dark:text-white/45">
+                      Alarm Type
+                    </p>
+                    <select
+                      value={alarmType}
+                      onChange={(e) => setAlarmType(e.target.value)}
+                      className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                    >
+                      {alarmTypeOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-black/50 dark:text-white/45">
+                      Alarm Limit
+                    </p>
+                    <div className="flex items-center rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-white/[0.03]">
+                      <button
+                        type="button"
+                        onClick={() => adjustThreshold(-1)}
+                        disabled={!canAdjustThreshold}
+                        className="flex h-10 w-10 items-center justify-center rounded-l-lg text-black/70 transition-colors hover:bg-black/5 hover:text-black disabled:cursor-not-allowed disabled:text-black/25 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white dark:disabled:text-white/25"
+                        aria-label="Decrease alarm limit"
                       >
-                        <p className="text-[11px] text-white/45">{h.timestamp}</p>
-                        <p className="text-xs text-white/85">
-                          {h.previousStatus} → {h.nextStatus}
-                        </p>
-                        {h.note && (
-                          <p className="mt-0.5 text-[11px] text-white/55">
-                            {h.note}
-                          </p>
-                        )}
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        step="1"
+                        min="0"
+                        value={threshold}
+                        onChange={(e) => setThreshold(e.target.value)}
+                        className="h-10 w-full border-x border-black/10 bg-transparent px-3 text-center text-sm text-black placeholder:text-black/35 focus:outline-none dark:border-white/10 dark:text-white dark:placeholder:text-white/30"
+                        placeholder="22"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => adjustThreshold(1)}
+                        disabled={!canAdjustThreshold}
+                        className="flex h-10 w-10 items-center justify-center rounded-r-lg text-black/70 transition-colors hover:bg-black/5 hover:text-black disabled:cursor-not-allowed disabled:text-black/25 dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white dark:disabled:text-white/25"
+                        aria-label="Increase alarm limit"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs text-black/50 dark:text-white/45">
+                      Recipients / Group
+                    </p>
+                    <select
+                      value={recipients}
+                      onChange={(e) => setRecipients(e.target.value)}
+                      className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                    >
+                      {recipientOptions.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <p className="text-xs text-black/50 dark:text-white/45">
+                        Alarm State
+                      </p>
+                      <select
+                        value={alarmState}
+                        onChange={(e) =>
+                          setAlarmState(e.target.value as "Enabled" | "Disabled")
+                        }
+                        className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black focus:border-[#34C759]/50 focus:outline-none dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                      >
+                        <option value="Enabled">Enabled</option>
+                        <option value="Disabled">Disabled</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-xs text-black/50 dark:text-white/45">
+                        Acknowledgement
+                      </p>
+                      <button
+                        onClick={() => setAcknowledged((v) => !v)}
+                        className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors ${
+                          acknowledged
+                            ? "border-[#34C759]/50 bg-[#34C759]/20 text-[#15803d] dark:text-[#7DFF9F]"
+                            : "border-black/10 bg-white text-black/70 dark:border-white/10 dark:bg-white/[0.03] dark:text-white/70"
+                        }`}
+                      >
+                        {acknowledged ? "Acknowledged" : "Not Acknowledged"}
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-white/[0.03]">
+                    <p className="text-xs text-black/50 dark:text-white/45">
+                      Latest Reading
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-black dark:text-white">
+                      {selectedAlarm.lastValue} ({selectedAlarm.date})
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-white/[0.03]">
+                  <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-black dark:text-white">
+                        Alarm History
+                      </p>
+                      <p className="mt-1 text-xs text-black/50 dark:text-white/45">
+                        Search past state changes and notes for this alarm.
+                      </p>
+                    </div>
+                    <div className="relative w-full sm:max-w-xs">
+                      <Search className="app-search-icon" />
+                      <input
+                        type="text"
+                        value={historySearch}
+                        onChange={(e) => setHistorySearch(e.target.value)}
+                        placeholder="Search history"
+                        className="app-search-input w-full"
+                      />
+                    </div>
+                  </div>
+
+                  {(selectedAlarm.history ?? []).length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-black/10 px-4 py-8 text-center text-sm text-black/55 dark:border-white/10 dark:text-white/55">
+                      No status changes recorded yet.
+                    </div>
+                  ) : (
+                    <div className="overflow-hidden rounded-lg border border-black/10 dark:border-white/10">
+                      <div className="max-h-[420px] overflow-auto">
+                        <table className="min-w-full border-collapse">
+                          <thead className="sticky top-0 bg-[#f4f6f8] dark:bg-[#20242b]">
+                            <tr className="text-left">
+                              <th className="px-3 py-2 text-xs font-medium text-black/55 dark:text-white/50">
+                                Timestamp
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium text-black/55 dark:text-white/50">
+                                Previous
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium text-black/55 dark:text-white/50">
+                                Next
+                              </th>
+                              <th className="px-3 py-2 text-xs font-medium text-black/55 dark:text-white/50">
+                                Note
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {filteredHistory.length === 0 ? (
+                              <tr>
+                                <td
+                                  colSpan={4}
+                                  className="px-3 py-8 text-center text-sm text-black/55 dark:text-white/55"
+                                >
+                                  No history entries match your search.
+                                </td>
+                              </tr>
+                            ) : (
+                              filteredHistory.map((h, idx) => (
+                                <tr
+                                  key={`${h.timestamp}-${idx}`}
+                                  className="border-t border-black/10 bg-white align-top dark:border-white/10 dark:bg-transparent"
+                                >
+                                  <td className="px-3 py-2 text-xs text-black/80 dark:text-white/80">
+                                    {h.timestamp}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-black/70 dark:text-white/70">
+                                    {h.previousStatus}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-black/70 dark:text-white/70">
+                                    {h.nextStatus}
+                                  </td>
+                                  <td className="px-3 py-2 text-xs text-black/60 dark:text-white/60">
+                                    {h.note ?? "—"}
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
                       </div>
-                    ))
+                    </div>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center justify-end gap-2 pt-2">
+              <div className="flex items-center justify-end gap-2 border-t border-black/10 pt-2 dark:border-white/10">
                 <button
                   onClick={() => setSelectedAlarm(null)}
-                  className="rounded-lg border border-white/15 px-4 py-2 text-sm text-white/75 hover:bg-white/10"
+                  className="rounded-lg border border-black/15 px-4 py-2 text-sm text-black/75 hover:bg-black/5 dark:border-white/15 dark:text-white/75 dark:hover:bg-white/10"
                 >
                   Cancel
                 </button>

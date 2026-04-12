@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Search } from "lucide-react";
 import { SectionHeader } from "../ui/section-header";
 import { TankCard } from "../assets/tank-card";
 import { EFMCard } from "../assets/efm-card";
@@ -106,30 +105,18 @@ export function AssetsSection({
       <SectionHeader
         title="Assets"
         searchOpen={searchOpen}
+        searchPlaceholder="Search assets"
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchClear={() => {
+          setSearchQuery("");
+          setSearchOpen(false);
+        }}
         onToggleSearch={() => {
           setSearchOpen((v) => !v);
           if (searchOpen) setSearchQuery("");
         }}
       />
-      {searchOpen && (
-        <div className="relative mb-3">
-          <Search className="app-search-icon" />
-          <input
-            autoFocus
-            type="text"
-            placeholder="Search assets..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setSearchQuery("");
-                setSearchOpen(false);
-              }
-            }}
-            className="app-search-input w-full"
-          />
-        </div>
-      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {filteredOilTanks.map((tank) => (
           <TankCard
@@ -143,6 +130,7 @@ export function AssetsSection({
           <EFMCard
             key={efm.id}
             efm={efm}
+            className="sm:col-span-2"
             onClick={() => onEfmClick?.(efm.id)}
           />
         ))}

@@ -13,6 +13,23 @@ export const EXAMPLE_DEVICE_INFO: DeviceInfoItem[] = [
     lastSeen: "03/24/26 09:12 AM",
     firmware: "v2.18.4",
     historyAvailable: true,
+    history: [
+      {
+        timestamp: "03/24/26 09:12 AM",
+        event: "Heartbeat",
+        detail: "Device checked in with normal voltage and modem signal.",
+      },
+      {
+        timestamp: "03/24/26 06:40 AM",
+        event: "Signal Change",
+        detail: "Carrier signal improved from -83 dBm to -78 dBm.",
+      },
+      {
+        timestamp: "03/23/26 10:05 PM",
+        event: "Config Sync",
+        detail: "Applied updated polling interval from lease control.",
+      },
+    ],
   },
   {
     id: "dev-2",
@@ -39,6 +56,23 @@ export const EXAMPLE_DEVICE_INFO: DeviceInfoItem[] = [
     lastSeen: "03/24/26 09:10 AM",
     firmware: "v5.2.1",
     historyAvailable: true,
+    history: [
+      {
+        timestamp: "03/24/26 09:10 AM",
+        event: "Heartbeat",
+        detail: "RTU reported normal battery, IO, and communications.",
+      },
+      {
+        timestamp: "03/24/26 04:30 AM",
+        event: "Firmware Check",
+        detail: "Firmware version validated with no update required.",
+      },
+      {
+        timestamp: "03/23/26 08:15 PM",
+        event: "Comms Recovery",
+        detail: "Recovered from a short telemetry interruption automatically.",
+      },
+    ],
   },
   {
     id: "dev-4",

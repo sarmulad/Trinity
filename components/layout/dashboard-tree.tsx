@@ -83,7 +83,7 @@ function TreeNode({
         onClick={() => hasChildren && setOpen((v) => !v)}
         style={{ paddingLeft: `${depth * 12}px` }}
         className={cn(
-          "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-xs text-black/60 dark:text-white/60",
+          "flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm text-black/60 dark:text-white/60",
           hasChildren
             ? "hover:bg-black/5 hover:text-black dark:hover:bg-white/5 dark:hover:text-white"
             : "cursor-default",
@@ -91,14 +91,14 @@ function TreeNode({
       >
         {hasChildren ? (
           isOpen ? (
-            <ChevronDown className="h-3 w-3 shrink-0" />
+            <ChevronDown className="h-3.5 w-3.5 shrink-0" />
           ) : (
-            <ChevronRight className="h-3 w-3 shrink-0" />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           )
         ) : (
-          <span className="w-3 shrink-0" />
+          <span className="w-3.5 shrink-0" />
         )}
-        <Icon className={cn("h-3.5 w-3.5 shrink-0", color)} />
+        <Icon className={cn("h-4 w-4 shrink-0", color)} />
         <span className="truncate text-left">{node.name}</span>
       </button>
 

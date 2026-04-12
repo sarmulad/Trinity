@@ -1,5 +1,4 @@
 import * as React from "react";
-import { Search } from "lucide-react";
 import { SectionHeader } from "../ui/section-header";
 import { Card } from "../ui/card";
 import { StatRow } from "../ui/stat-row";
@@ -36,49 +35,42 @@ export function WellsSection({
       <SectionHeader
         title="Wells"
         searchOpen={searchOpen}
+        searchPlaceholder="Search wells"
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        onSearchClear={() => {
+          setSearchQuery("");
+          setSearchOpen(false);
+        }}
         onToggleSearch={() => {
           setSearchOpen((v) => !v);
           if (searchOpen) setSearchQuery("");
         }}
       />
-      {searchOpen && (
-        <div className="relative mb-3">
-          <Search className="app-search-icon" />
-          <input
-            autoFocus
-            type="text"
-            placeholder="Search wells..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setSearchQuery("");
-                setSearchOpen(false);
-              }
-            }}
-            className="app-search-input w-full"
-          />
-        </div>
-      )}
       <div className="grid gap-4 sm:grid-cols-2">
         {filteredWells.map((well) => (
-          <Card key={well.id}>
-            <div
-              className="cursor-pointer"
-              onClick={() => onWellClick?.(well.id)}
-              role={onWellClick ? "button" : undefined}
-              tabIndex={onWellClick ? 0 : undefined}
-              onKeyDown={(e) => {
-                if (!onWellClick) return;
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  onWellClick(well.id);
-                }
-              }}
-            >
+          <Card
+            key={well.id}
+            interactive={!!onWellClick}
+            onClick={() => onWellClick?.(well.id)}
+            role={onWellClick ? "button" : undefined}
+            tabIndex={onWellClick ? 0 : undefined}
+            onKeyDown={(e) => {
+              if (!onWellClick) return;
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onWellClick(well.id);
+              }
+            }}
+          >
+            <div>
               <div className="flex items-start justify-between mb-2">
-              <p className="text-base font-bold text-white">{well.name}</p>
-              <p className="text-xs text-white/40">{well.timestamp}</p>
+                <p className="text-base font-bold text-black dark:text-white">
+                  {well.name}
+                </p>
+                <p className="text-xs text-black/40 dark:text-white/40">
+                  {well.timestamp}
+                </p>
               </div>
 
               <div className="flex justify-between gap-4">

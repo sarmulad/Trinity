@@ -16,7 +16,6 @@ export interface TankDetailData {
   name: string;
   topGaugeFt: string;
   topGaugeBbls: string;
-  prodBbls: string;
   currentLevel: {
     oil: string;
     oilBbls: string;

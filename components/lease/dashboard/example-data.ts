@@ -16,9 +16,9 @@ export const EXAMPLE_OIL_TANKS: OilTank[] = [
     prod: "100 BBLs",
     timestamp: "3/17/24 8:15AM",
     levelFt: "5' 5\"",
-    levelBbls: "100 / 200 BBLs",
+    levelBbls: "100 BBLs",
     theftLevelFt: "1' 0\"",
-    theftLevelBbls: "20 / 200 BBLs",
+    theftLevelBbls: "20 BBLs",
   },
   {
     id: "2",
@@ -26,9 +26,9 @@ export const EXAMPLE_OIL_TANKS: OilTank[] = [
     prod: "100 BBLs",
     timestamp: "3/17/24 8:15AM",
     levelFt: "5' 5\"",
-    levelBbls: "100 / 200 BBLs",
+    levelBbls: "100 BBLs",
     theftLevelFt: "1' 0\"",
-    theftLevelBbls: "20 / 200 BBLs",
+    theftLevelBbls: "20 BBLs",
   },
 ];
 
@@ -68,9 +68,9 @@ export const EXAMPLE_WATER_TANKS: WaterTank[] = [
     name: "Water Tank #1",
     timestamp: "3/17/24 8:15AM",
     levelFt: "5' 5\"",
-    levelBbls: "100 / 200 BBLs",
+    levelBbls: "100 BBLs",
     theftLevelFt: "1' 0\"",
-    theftLevelBbls: "20 / 200 BBLs",
+    theftLevelBbls: "20 BBLs",
   },
 ];
 

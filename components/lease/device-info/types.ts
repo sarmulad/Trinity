@@ -10,4 +10,9 @@ export interface DeviceInfoItem {
   lastSeen: string;
   firmware: string;
   historyAvailable?: boolean;
+  history?: Array<{
+    timestamp: string;
+    event: string;
+    detail: string;
+  }>;
 }

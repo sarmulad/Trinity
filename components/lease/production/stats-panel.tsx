@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronUp } from "lucide-react";
 import { ProductionStats } from "./types";
 
 interface StatsPanelProps {
@@ -26,11 +25,10 @@ export function StatsPanel({ title, stats }: StatsPanelProps) {
 
   return (
     <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1e2025]">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
         <span className="text-sm font-semibold text-black dark:text-white">
           {title}
         </span>
-        <ChevronUp className="h-4 w-4 text-black/30 dark:text-white/30" />
       </div>
 
       <div className="grid grid-cols-3 divide-x divide-black/10 dark:divide-white/10">

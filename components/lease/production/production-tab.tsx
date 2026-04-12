@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ChevronsDown } from "lucide-react";
 
 import { ProductionChart } from "./production-chart";
 import { ProductionTable } from "./production-table";
@@ -45,6 +46,8 @@ export function ProductionTab({
   const [view, setView] = React.useState<View>("chart");
 
   const showProductionExtras = view === "chart" || view === "table";
+  const primaryPanelHeight =
+    view === "chart" ? 700 : view === "table" ? 760 : 780;
 
   return (
     <div className="space-y-4">
@@ -52,7 +55,7 @@ export function ProductionTab({
         Production
       </p>
 
-      <div className="rounded-xl border border-black/10 bg-black/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
+      <div className="relative rounded-xl border border-black/10 bg-black/5 backdrop-blur-md dark:border-white/10 dark:bg-white/5">
         <div className="flex items-center gap-6 border-b border-black/10 px-6 pt-4 dark:border-white/10">
           {VIEWS.map(({ id, label }) => (
             <button
@@ -69,29 +72,51 @@ export function ProductionTab({
           ))}
         </div>
 
-        <div className="p-6">
+        <div className="p-6" style={{ minHeight: primaryPanelHeight }}>
           {view === "chart" && (
             <ProductionChart
               data={productionData}
               stats={stats}
               isLoading={isLoading}
+              chartHeight={560}
             />
           )}
           {view === "table" && (
-            <ProductionTable data={productionData} isLoading={isLoading} />
+            <ProductionTable
+              data={productionData}
+              isLoading={isLoading}
+              height={680}
+            />
           )}
           {view === "oil-tanks" && (
-            <OilTankTable data={EXAMPLE_OILTANKS} isLoading={isLoading} />
+            <OilTankTable
+              data={EXAMPLE_OILTANKS}
+              isLoading={isLoading}
+              height={700}
+            />
           )}
           {view === "gas-meters" && (
-            <GasMeterTable data={EXAMPLE_GASMETER} isLoading={isLoading} />
+            <GasMeterTable
+              data={EXAMPLE_GASMETER}
+              isLoading={isLoading}
+              height={700}
+            />
           )}
         </div>
+
+        {showProductionExtras && (
+          <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/90 px-4 py-1.5 text-[11px] font-medium text-black/45 shadow-sm backdrop-blur dark:border-white/10 dark:bg-[#1e2025]/90 dark:text-white/45">
+              More production detail below
+              <ChevronsDown className="h-3.5 w-3.5 animate-bounce text-[#34C759]" />
+            </div>
+          </div>
+        )}
       </div>
 
       {showProductionExtras && (
         <>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.9fr)]">
             <AllocatedProductionChart wells={allocatedWells} />
             <StatsPanel
               title={

@@ -9,7 +9,9 @@ export function LabelsPanel({ labels, onNewLabel }: LabelsPanelProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm font-semibold text-white">Labels</p>
+        <p className="text-sm font-semibold text-black dark:text-white">
+          Labels
+        </p>
         <button
           onClick={onNewLabel}
           className="text-xs text-[#34C759] hover:text-[#28a745] flex items-center gap-1"
@@ -32,9 +34,13 @@ export function LabelsPanel({ labels, onNewLabel }: LabelsPanelProps) {
                   style={{ backgroundColor: label.color }}
                 />
               )}
-              <span className="text-xs text-white/70">{label.name}</span>
+              <span className="text-xs text-black/70 dark:text-white/70">
+                {label.name}
+              </span>
             </div>
-            <span className="text-xs text-white/50">{label.level}</span>
+            <span className="text-xs text-black/50 dark:text-white/50">
+              {label.level}
+            </span>
           </div>
         ))}
       </div>
