@@ -9,6 +9,7 @@ interface TankVisualProps {
   maxLevel?: number;
   labels?: TankLabel[];
   levelText?: string;
+  showLevelText?: boolean;
 }
 
 function parseLevelToFeet(value: string): number | null {
@@ -35,6 +36,7 @@ export function TankVisual({
   maxLevel = 10,
   labels = [],
   levelText,
+  showLevelText = true,
 }: TankVisualProps) {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
@@ -210,10 +212,14 @@ export function TankVisual({
           );
         })}
       </svg>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-black dark:text-white">
-        {displayedLevelText}
-      </p>
-      <p className="text-sm text-black/45 dark:text-white/45">Tank Level</p>
+      {showLevelText && (
+        <>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-black dark:text-white">
+            {displayedLevelText}
+          </p>
+          <p className="text-sm text-black/45 dark:text-white/45">Tank Level</p>
+        </>
+      )}
     </div>
   );
 }

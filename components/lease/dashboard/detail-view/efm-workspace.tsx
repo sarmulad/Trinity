@@ -254,20 +254,36 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
 
       <div className="rounded-xl border border-black/10 bg-white p-5 dark:border-white/10 dark:bg-[#1a1d23]">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center rounded-lg border border-black/10 p-0.5 dark:border-white/10">
-            {(["table", "chart", "both"] as const).map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setViewMode(mode)}
-                className={`rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
-                  viewMode === mode
-                    ? "bg-[#34C759] text-black"
-                    : "text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
-                }`}
-              >
-                {mode}
-              </button>
-            ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center rounded-lg border border-black/10 p-0.5 dark:border-white/10">
+              {(["table", "chart", "both"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setViewMode(mode)}
+                  className={`rounded-md px-2.5 py-1 text-xs capitalize transition-colors ${
+                    viewMode === mode
+                      ? "bg-[#34C759] text-black"
+                      : "text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+
+            <select
+              value={activeCategory}
+              onChange={(event) =>
+                setActiveCategory(event.target.value as EfmCategory)
+              }
+              className="h-9 min-w-[180px] rounded-lg border border-black/10 bg-white px-3 text-sm text-black outline-none focus:border-[#34C759]/50 dark:border-white/10 dark:bg-[#252930] dark:text-white"
+            >
+              {data.datasets.map((dataset) => (
+                <option key={dataset.key} value={dataset.key}>
+                  {dataset.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="flex items-center gap-2">
@@ -286,66 +302,48 @@ export function EfmWorkspace({ data }: EfmWorkspaceProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[170px_minmax(0,1fr)] gap-4">
-          <aside className="space-y-1">
-            {data.datasets.map((dataset) => (
-              <button
-                key={dataset.key}
-                onClick={() => setActiveCategory(dataset.key)}
-                className={`w-full rounded-md px-2.5 py-2 text-left text-sm transition-colors ${
-                  activeCategory === dataset.key
-                    ? "bg-[#34C759]/20 text-[#7DFF9F]"
-                    : "text-black/70 hover:bg-black/[0.05] dark:text-white/70 dark:hover:bg-white/[0.05]"
-                }`}
-              >
-                {dataset.label}
-              </button>
-            ))}
-          </aside>
+        <div
+          className={`${viewMode === "both" ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : ""}`}
+        >
+          {(viewMode === "chart" || viewMode === "both") && (
+            <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
+              <p className="mb-2 text-xs text-black/45 dark:text-white/45">
+                {activeDataset.label} Trend
+              </p>
+              <AgCharts options={chartOptions} style={{ height: 320 }} />
+            </div>
+          )}
 
-          <div
-            className={`${viewMode === "both" ? "grid grid-cols-1 xl:grid-cols-2 gap-4" : ""}`}
-          >
-            {(viewMode === "chart" || viewMode === "both") && (
-              <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
-                <p className="mb-2 text-xs text-black/45 dark:text-white/45">
-                  {activeDataset.label} Trend
-                </p>
-                <AgCharts options={chartOptions} style={{ height: 320 }} />
+          {(viewMode === "table" || viewMode === "both") && (
+            <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
+              <p className="mb-2 text-xs text-black/45 dark:text-white/45">
+                {activeDataset.label} Records
+              </p>
+              <div style={{ height: 360 }}>
+                <AgGridReact
+                  theme={gridTheme}
+                  rowData={rowData}
+                  columnDefs={columnDefs}
+                  defaultColDef={{
+                    resizable: true,
+                    sortable: true,
+                    filter: true,
+                  }}
+                  suppressMovableColumns
+                  rowHeight={34}
+                  headerHeight={36}
+                  pagination
+                  paginationPageSize={12}
+                  onGridReady={onGridReady}
+                />
               </div>
-            )}
-
-            {(viewMode === "table" || viewMode === "both") && (
-              <div className="rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-[#16181d]">
-                <p className="mb-2 text-xs text-black/45 dark:text-white/45">
-                  {activeDataset.label} Records
+              {activeDataset.key === "alarms" && (
+                <p className="mt-2 text-right text-xs text-black/45 dark:text-white/45">
+                  {rowData.length} alarms
                 </p>
-                <div style={{ height: 360 }}>
-                  <AgGridReact
-                    theme={gridTheme}
-                    rowData={rowData}
-                    columnDefs={columnDefs}
-                    defaultColDef={{
-                      resizable: true,
-                      sortable: true,
-                      filter: true,
-                    }}
-                    suppressMovableColumns
-                    rowHeight={34}
-                    headerHeight={36}
-                    pagination
-                    paginationPageSize={12}
-                    onGridReady={onGridReady}
-                  />
-                </div>
-                {activeDataset.key === "alarms" && (
-                  <p className="mt-2 text-right text-xs text-black/45 dark:text-white/45">
-                    {rowData.length} alarms
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -17,8 +17,8 @@ export const EXAMPLE_OIL_TANKS: OilTank[] = [
     timestamp: "3/17/24 8:15AM",
     levelFt: "5' 5\"",
     levelBbls: "100 BBLs",
-    theftLevelFt: "1' 0\"",
-    theftLevelBbls: "20 BBLs",
+    theftLevelFt: "1' 2\"",
+    theftLevelBbls: "22 BBLs",
   },
   {
     id: "2",
@@ -27,8 +27,8 @@ export const EXAMPLE_OIL_TANKS: OilTank[] = [
     timestamp: "3/17/24 8:15AM",
     levelFt: "5' 5\"",
     levelBbls: "100 BBLs",
-    theftLevelFt: "1' 0\"",
-    theftLevelBbls: "20 BBLs",
+    theftLevelFt: "1' 2\"",
+    theftLevelBbls: "22 BBLs",
   },
 ];
 

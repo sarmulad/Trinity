@@ -428,6 +428,9 @@ export interface DetailViewData {
     exitRatio: number;
     topGaugeFt: string;
     topGaugeBbls: string;
+    interfaceFt: string;
+    interfaceBbls: string;
+    timestamp: string;
   };
   labels?: React.ComponentProps<typeof LabelsPanel>["labels"];
   tableData: React.ComponentProps<typeof DataTable>["rows"];
@@ -446,6 +449,9 @@ export function oilTankToDetail(t: OilTank): DetailViewData {
       exitRatio: 0.2,
       topGaugeFt: t.levelFt,
       topGaugeBbls: t.levelBbls,
+      interfaceFt: t.theftLevelFt,
+      interfaceBbls: t.theftLevelBbls,
+      timestamp: t.timestamp,
     },
     labels: TEST_LABELS,
     tableData: TEST_TABLE_DATA,
@@ -465,6 +471,9 @@ export function waterTankToDetail(t: WaterTank): DetailViewData {
       exitRatio: 0.15,
       topGaugeFt: t.levelFt,
       topGaugeBbls: t.levelBbls,
+      interfaceFt: t.theftLevelFt,
+      interfaceBbls: t.theftLevelBbls,
+      timestamp: t.timestamp,
     },
     labels: TEST_LABELS,
     tableData: TEST_TABLE_DATA,
@@ -716,26 +725,34 @@ export function DetailView({ data, onClose }: DetailViewProps) {
           exitRatio={data.visual!.exitRatio}
           labels={data.labels}
           levelText={data.visual!.topGaugeFt}
+          showLevelText={false}
         />
       </div>
 
       <div className="flex-1 space-y-5">
         {data.labels && <LabelsPanel labels={data.labels} />}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]">
-            <p className="text-[11px] text-black/45 dark:text-white/45">
-              Top Gauge
-            </p>
-            <p className="mt-1 text-sm font-semibold text-black dark:text-white">
-              {data.visual!.topGaugeFt}
-            </p>
+        <div className="rounded-xl border border-black/10 bg-black/[0.02] p-4 dark:border-white/10 dark:bg-white/[0.02]">
+          <p className="text-xs text-black/45 dark:text-white/45">
+            {data.visual!.timestamp}
+          </p>
+          <div className="mt-3 flex items-end gap-4">
+            <div>
+              <p className="text-3xl font-semibold tracking-tight text-black dark:text-white">
+                {data.visual!.topGaugeFt}
+              </p>
+              <p className="text-sm text-black/45 dark:text-white/45">
+                Tank Level
+              </p>
+            </div>
           </div>
-          <div className="rounded-xl border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]">
-            <p className="text-[11px] text-black/45 dark:text-white/45">
-              Top Gauge BBLs
+          <div className="mt-4 space-y-1.5">
+            <p className="text-sm text-black/80 dark:text-white/80">
+              <span className="font-semibold">Top Gauge:</span>{" "}
+              {data.visual!.topGaugeFt} | {data.visual!.topGaugeBbls}
             </p>
-            <p className="mt-1 text-sm font-semibold text-black dark:text-white">
-              {data.visual!.topGaugeBbls}
+            <p className="text-sm text-black/80 dark:text-white/80">
+              <span className="font-semibold">Interface:</span>{" "}
+              {data.visual!.interfaceFt} | {data.visual!.interfaceBbls}
             </p>
           </div>
         </div>
@@ -824,7 +841,7 @@ export function DetailView({ data, onClose }: DetailViewProps) {
 
   return (
     <div
-      className={`min-h-screen space-y-6 p-6 lg:p-8 ${
+      className={`min-h-screen space-y-4 p-6 lg:p-8 ${
         isDark ? "bg-[#16181d]" : "bg-white"
       }`}
     >
