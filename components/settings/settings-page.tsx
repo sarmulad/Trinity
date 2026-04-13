@@ -8,12 +8,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { BusinessInformationTab } from "./business-information-tab";
 import { InvoicesTab } from "./invoices-tab";
+import { PlatformPreferencesTab } from "./platform-preferences-tab";
 import { cn } from "@/lib/utils";
 
-type SettingsTabId = "business" | "invoices";
+type SettingsTabId = "business" | "platform" | "invoices";
 
 const TABS: { id: SettingsTabId; label: string }[] = [
   { id: "business", label: "Business Information" },
+  { id: "platform", label: "Platform Preferences" },
   { id: "invoices", label: "Invoices" },
 ];
 
@@ -56,6 +58,7 @@ export function SettingsPage() {
 
             <div className="p-6">
               {activeTab === "business" && <BusinessInformationTab />}
+              {activeTab === "platform" && <PlatformPreferencesTab />}
               {activeTab === "invoices" && <InvoicesTab />}
             </div>
           </CardContent>

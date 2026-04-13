@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Ticker } from "./ticker";
+import { useDashboardPreferences } from "@/lib/dashboard-preferences";
 
 interface Ticker {
   id: string;
@@ -58,6 +59,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick }: TopBarProps) {
+  const { preferences } = useDashboardPreferences();
   const today = new Date();
   const formattedDate = today.toLocaleDateString("en-US", {
     month: "short",
@@ -198,7 +200,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </DropdownMenu>
         </div>
       </header>
-      <Ticker />
+      {preferences.showPriceTicker && <Ticker />}
     </>
   );
 }

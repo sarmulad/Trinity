@@ -26,6 +26,7 @@ import {
   EXAMPLE_STATS,
 } from "@/components/lease/production/types";
 import { CompareToolModal } from "@/components/compare/compare-tool-modal";
+import { useDashboardPreferences } from "@/lib/dashboard-preferences";
 
 type Benchmark = { label: string; price: number; unit: string };
 
@@ -96,7 +97,24 @@ const summaryCards: CardConfig[] = [
 ];
 
 function SummaryCard({ card }: { card: CardConfig }) {
-  const [selected, setSelected] = useState<Benchmark>(card.benchmarks[0]);
+  const { preferences } = useDashboardPreferences();
+  const preferredLabel =
+    card.title.toLowerCase().includes("gas")
+      ? preferences.defaultGasBenchmark
+      : preferences.defaultOilBenchmark;
+  const [selectedLabel, setSelectedLabel] = useState<string>(preferredLabel);
+
+  React.useEffect(() => {
+    setSelectedLabel(preferredLabel);
+  }, [preferredLabel]);
+
+  const selected = React.useMemo(
+    () =>
+      card.benchmarks.find(
+        (benchmark) => benchmark.label === selectedLabel,
+      ) ?? card.benchmarks[0],
+    [card.benchmarks, selectedLabel],
+  );
 
   return (
     <Card className="border-black/10 bg-white transition-colors hover:border-[#34C759]/50 dark:border-[#464646] dark:bg-[#1A1C1E]">
@@ -126,7 +144,7 @@ function SummaryCard({ card }: { card: CardConfig }) {
                 {card.benchmarks.map((b) => (
                   <DropdownMenuItem
                     key={b.label}
-                    onClick={() => setSelected(b)}
+                    onClick={() => setSelectedLabel(b.label)}
                     className={
                       b.label === selected.label
                         ? "text-[#34C759]"

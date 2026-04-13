@@ -1,5 +1,4 @@
 import * as React from "react";
-
 interface TickerItem {
   code: string;
   label: string;
@@ -111,7 +110,7 @@ export function Ticker() {
         const data = await res.json();
         if (Array.isArray(data) && data.length > 0) {
           setItems(data);
-          setIsLive(true);
+          setIsLive(res.headers.get("x-price-source") === "live");
         }
       } catch (err) {
         console.error("[Ticker] Failed to load prices:", err);
@@ -124,7 +123,6 @@ export function Ticker() {
 
   return (
     <div className="relative h-12 overflow-hidden border-b border-white/10 bg-[#0a0e14]">
-      {/* Live dot */}
       {isLive && (
         <div className="absolute left-3 top-1/2 z-10 -translate-y-1/2">
           <span className="relative flex h-2 w-2">
