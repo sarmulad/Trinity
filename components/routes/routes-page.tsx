@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Plus, Search, MapPin, Cloud } from "lucide-react";
+import { PlusCircle, Search, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { RouteCard } from "./route-card";
@@ -94,12 +93,6 @@ export function RoutesPage() {
     <ErrorBoundary>
       <div className="space-y-6">
         <div className={isEmpty ? "flex justify-center" : "space-y-4"}>
-          <h1 className="flex items-center gap-2 text-3xl font-bold text-black dark:text-white">
-            <span className="flex items-center gap-1 text-xl font-normal text-black/60 dark:text-white/60">
-              <Cloud className="h-5 w-5" />
-              48°
-            </span>
-          </h1>
           {!isEmpty && (
             <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-64">
@@ -112,12 +105,14 @@ export function RoutesPage() {
                   className="app-search-input w-full"
                 />
               </div>
-              <Button
-                className="h-12 rounded-[5px] bg-[#34C759] px-5 text-black hover:bg-[#34C759]/90"
+              <button
+                type="button"
                 onClick={handleCreateRoute}
+                className="flex items-center gap-2 rounded-lg bg-[#34C759] px-4 py-2 text-sm font-medium text-black hover:bg-[#28a745] transition-colors"
               >
-                Add new Route
-              </Button>
+                <PlusCircle className="h-4 w-4 shrink-0" />
+                Add New Route
+              </button>
             </div>
           )}
         </div>
@@ -146,13 +141,14 @@ export function RoutesPage() {
                 <p className="text-lg font-medium text-black dark:text-white">
                   No Routes Exist
                 </p>
-                <Button
-                  className="bg-[#34C759] text-black hover:bg-[#34C759]/90"
+                <button
+                  type="button"
                   onClick={handleCreateRoute}
+                  className="flex items-center gap-2 rounded-lg bg-[#34C759] px-4 py-2 text-sm font-medium text-black hover:bg-[#28a745] transition-colors"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Route
-                </Button>
+                  <PlusCircle className="h-4 w-4 shrink-0" />
+                  Create New Route
+                </button>
               </div>
             </CardContent>
           </Card>

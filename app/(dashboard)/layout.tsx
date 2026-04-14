@@ -1,5 +1,6 @@
 "use client";
 
+import "@/lib/ag-grid-config";
 import React, { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { TopBar } from "@/components/layout/top-bar";

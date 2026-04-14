@@ -10,7 +10,7 @@ import {
   type ICellRendererParams,
 } from "ag-grid-community";
 import { CellSelectionModule, ClipboardModule } from "ag-grid-enterprise";
-import { Search, MoreVertical, Users, ShieldCheck } from "lucide-react";
+import { Search, Users, ShieldCheck, PlusCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TeamInfoModal } from "./team-info-modal";
 import { InviteTeamModal } from "./invite-team-modal";
@@ -85,17 +85,6 @@ function RoleCell({ value }: ICellRendererParams) {
   );
 }
 
-function ActionCell({ data, context }: ICellRendererParams<TeamMember>) {
-  return (
-    <button
-      onClick={() => context?.onMemberClick?.(data)}
-      className="flex h-7 w-7 items-center justify-center rounded-md text-black/40 hover:bg-black/10 hover:text-black dark:text-white/40 dark:hover:bg-white/10 dark:hover:text-white transition-colors"
-    >
-      <MoreVertical className="h-4 w-4" />
-    </button>
-  );
-}
-
 type TabId = "team" | "permissions";
 
 interface TeamsPageProps {
@@ -147,15 +136,6 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
       { field: "routeArea", headerName: "Route/Area", flex: 1, minWidth: 110 },
       { field: "email", headerName: "Email", flex: 1.5, minWidth: 200 },
       { field: "phone", headerName: "Phone Number", flex: 1.2, minWidth: 140 },
-      {
-        field: "id",
-        headerName: "Action",
-        flex: 0.5,
-        minWidth: 80,
-        sortable: false,
-        cellRenderer: ActionCell,
-        cellStyle: { display: "flex", alignItems: "center" },
-      },
     ],
     [],
   );
@@ -188,21 +168,23 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
         {activeTab === "team" && (
           <>
             <div className="flex items-center justify-between gap-3">
-              <div className="relative w-72">
+              <div className="relative w-64">
                 <Search className="app-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search Teams..."
+                  placeholder="Search Teams"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="app-search-input w-full"
                 />
               </div>
               <button
+                type="button"
                 onClick={() => setShowInviteModal(true)}
-                className="rounded-lg bg-[#34C759] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#28a745] transition-colors"
+                className="flex items-center gap-2 rounded-lg bg-[#34C759] px-4 py-2 text-sm font-medium text-black hover:bg-[#28a745] transition-colors"
               >
-                Add Team member
+                <PlusCircle className="h-4 w-4" />
+                Add Team Member
               </button>
             </div>
 
@@ -219,7 +201,10 @@ export function TeamsPage({ members = EXAMPLE_TEAM_MEMBERS }: TeamsPageProps) {
                   rowSelection={AG_GRID_MULTI_ROW_SELECTION}
                   pagination
                   paginationPageSize={14}
-                  context={{ onMemberClick: setSelectedMember }}
+                  getRowStyle={() => ({ cursor: "pointer" })}
+                  onRowClicked={(e) => {
+                    if (e.data) setSelectedMember(e.data);
+                  }}
                   onSelectionChanged={onSelectionChanged}
                   {...AG_GRID_CLIPBOARD_OPTIONS}
                 />
