@@ -13,7 +13,6 @@ import { Search, ChevronDown, CheckSquare, Info } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -135,10 +134,6 @@ export function InvoicesTab() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-black dark:text-white">
-        Invoices
-      </h2>
-
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-end gap-6">
           {/* Bulk Edit */}
@@ -185,13 +180,14 @@ export function InvoicesTab() {
                 <Info className="h-2.5 w-2.5" />
               </span>
             </div>
-            <div className="relative">
-              <Search className="app-search-icon h-4 w-4" />
-              <Input
+            <div className="relative w-64">
+              <Search className="app-search-icon" />
+              <input
+                type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search invoices"
-                className="app-search-input w-64 dark:bg-[#252930]"
+                placeholder="Search invoices..."
+                className="app-search-input w-full"
               />
             </div>
           </div>

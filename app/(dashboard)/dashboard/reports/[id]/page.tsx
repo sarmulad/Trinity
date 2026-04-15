@@ -1,4 +1,4 @@
-import { ReportDetailPage } from "@/components/reports/report-detail-page";
+import { redirect } from "next/navigation";
 
 interface ReportDetailRouteProps {
   params: Promise<{ id: string }>;
@@ -6,5 +6,5 @@ interface ReportDetailRouteProps {
 
 export default async function ReportDetailRoute({ params }: ReportDetailRouteProps) {
   const { id } = await params;
-  return <ReportDetailPage reportId={id} />;
+  redirect(`/dashboard/reports?view=detail&report=${encodeURIComponent(id)}`);
 }

@@ -159,14 +159,6 @@ export interface ProductionReport {
   generatedBy: string;
 }
 
-export interface ReportListItem {
-  id: string;
-  date: string;
-  reportName: string;
-  author: string;
-  status: "Ready" | "Generating" | "Failed";
-}
-
 export interface DashboardMetrics {
   totalProduction: {
     oil: number;
