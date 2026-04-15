@@ -70,12 +70,6 @@ export function PlatformPreferencesTab() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-black dark:text-white">
-          Platform Preferences
-        </h2>
-      </div>
-
       <Card className="border-black/10 bg-white dark:border-white/10 dark:bg-[#1A1C1E]/95">
         <CardContent className="space-y-4 p-4 sm:p-6">
           <SettingRow

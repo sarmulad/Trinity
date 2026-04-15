@@ -1,5 +1,5 @@
-import { NewReportPage } from "@/components/reports/new-report-page";
+import { redirect } from "next/navigation";
 
 export default function NewReportRoute() {
-  return <NewReportPage />;
+  redirect("/dashboard/reports?view=custom");
 }
