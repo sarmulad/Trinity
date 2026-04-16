@@ -17,6 +17,7 @@ import {
 } from "@/lib/ag-grid-clipboard";
 import { useAgGridSelectionStats } from "@/hooks/use-ag-grid-selection-stats";
 import { AgGridSelectionStatsBar } from "@/components/ui/ag-grid-selection-stats-bar";
+import { createSourceColumn } from "@/components/ui/source-indicator";
 
 ModuleRegistry.registerModules([
   AllCommunityModule,
@@ -62,6 +63,7 @@ export function DataTable({
 
   const columnDefs: ColDef<TankDataRow>[] = React.useMemo(
     () => [
+      createSourceColumn<TankDataRow>(),
       {
         field: "level",
         headerName: "Level",

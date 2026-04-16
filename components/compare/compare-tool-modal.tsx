@@ -25,6 +25,7 @@ import {
   ChevronRight,
   X,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import {
   Dialog,
@@ -44,18 +45,6 @@ ModuleRegistry.registerModules([
 const AgGridReact = AgGridReactBase as unknown as React.ComponentType<
   Record<string, unknown>
 >;
-
-const gridTheme = themeQuartz.withParams({
-  backgroundColor: "#16181d",
-  headerBackgroundColor: "#1a1d23",
-  oddRowBackgroundColor: "#1e2025",
-  rowHoverColor: "#2a303a",
-  borderColor: "rgba(255,255,255,0.08)",
-  foregroundColor: "rgba(255,255,255,0.75)",
-  headerTextColor: "rgba(255,255,255,0.55)",
-  selectedRowBackgroundColor: "rgba(52,199,89,0.12)",
-  fontSize: 12,
-});
 
 type Scope = "company" | "lease";
 type Range = "24h" | "7d" | "30d" | "90d" | "ytd";
@@ -304,6 +293,8 @@ export function CompareToolModal({
   leaseId,
   leaseName,
 }: CompareToolModalProps) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
   const [range, setRange] = React.useState<Range>("7d");
   const [viewMode, setViewMode] = React.useState<ViewMode>("table");
   const [panelOpen, setPanelOpen] = React.useState(false);
@@ -415,7 +406,7 @@ export function CompareToolModal({
   const chartOptions = React.useMemo<AgChartOptions>(
     () => ({
       data: rowData,
-      background: { fill: "#16181d" },
+      background: { fill: isDark ? "#16181d" : "#ffffff" },
       series: selectedSeries.map((series, index) => ({
         type: "line",
         xKey: "timestamp",
@@ -429,20 +420,48 @@ export function CompareToolModal({
         {
           type: "category",
           position: "bottom",
-          label: { color: "rgba(255,255,255,0.45)", fontSize: 11 },
-          gridLine: { enabled: true, style: [{ stroke: "rgba(255,255,255,0.08)" }] },
+          label: {
+            color: isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.5)",
+            fontSize: 11,
+          },
+          gridLine: {
+            enabled: true,
+            style: [{ stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }],
+          },
         },
         {
           type: "number",
           position: "left",
-          label: { color: "rgba(255,255,255,0.45)", fontSize: 11 },
-          gridLine: { enabled: true, style: [{ stroke: "rgba(255,255,255,0.08)" }] },
+          label: {
+            color: isDark ? "rgba(255,255,255,0.45)" : "rgba(0,0,0,0.5)",
+            fontSize: 11,
+          },
+          gridLine: {
+            enabled: true,
+            style: [{ stroke: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" }],
+          },
         },
       ],
       legend: { enabled: true, position: "bottom" },
       padding: { top: 10, right: 20, bottom: 24, left: 20 },
     }),
-    [rowData, selectedSeries],
+    [isDark, rowData, selectedSeries],
+  );
+
+  const gridTheme = React.useMemo(
+    () =>
+      themeQuartz.withParams({
+        backgroundColor: isDark ? "#16181d" : "#ffffff",
+        headerBackgroundColor: isDark ? "#1a1d23" : "#f4f6f8",
+        oddRowBackgroundColor: isDark ? "#1e2025" : "#f9fafb",
+        rowHoverColor: isDark ? "#2a303a" : "rgba(0,0,0,0.04)",
+        borderColor: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+        foregroundColor: isDark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.78)",
+        headerTextColor: isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.52)",
+        selectedRowBackgroundColor: "rgba(52,199,89,0.12)",
+        fontSize: 12,
+      }),
+    [isDark],
   );
 
   const onGridReady = React.useCallback(
@@ -519,9 +538,9 @@ export function CompareToolModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[92vh] w-[97vw] max-w-[1500px] overflow-hidden border-white/10 bg-[#16181d] p-0 text-white">
-        <DialogHeader className="border-b border-white/10 bg-[#1a1d23] px-4 py-2.5">
-          <DialogTitle className="flex items-center gap-2 text-sm font-semibold text-white">
+      <DialogContent className="max-h-[92vh] w-[97vw] max-w-[1500px] overflow-hidden border-black/10 bg-white p-0 text-black dark:border-white/10 dark:bg-[#16181d] dark:text-white">
+        <DialogHeader className="border-b border-black/10 bg-white/95 px-4 py-2.5 dark:border-white/10 dark:bg-[#1a1d23]">
+          <DialogTitle className="flex items-center gap-2 text-sm font-semibold text-black dark:text-white">
             <ArrowLeftRight className="h-4 w-4 text-[#34C759]" />
             {scope === "company" ? "Global Tag Widget" : "Lease Tag Widget"}
           </DialogTitle>
@@ -531,7 +550,7 @@ export function CompareToolModal({
         </DialogHeader>
 
         <div className="relative flex h-[calc(92vh-58px)] min-h-0 flex-col">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 bg-[#1a1d23] px-3 py-2">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-black/10 bg-gray-50/90 px-3 py-2 dark:border-white/10 dark:bg-[#1a1d23]">
             <button
               type="button"
               onClick={() => setPanelOpen((v) => !v)}
@@ -541,7 +560,7 @@ export function CompareToolModal({
             </button>
 
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <div className="flex items-center rounded border border-white/10 bg-[#16181d] p-0.5">
+              <div className="flex items-center rounded border border-black/10 bg-white p-0.5 dark:border-white/10 dark:bg-[#16181d]">
                 {(["24h", "7d", "30d", "90d", "ytd"] as const).map((item) => (
                   <button
                     key={item}
@@ -549,7 +568,7 @@ export function CompareToolModal({
                     className={`rounded px-2 py-1 uppercase ${
                       range === item
                         ? "bg-[#34C759] text-black"
-                        : "text-white/60 hover:text-white"
+                        : "text-black/55 hover:text-black dark:text-white/60 dark:hover:text-white"
                     }`}
                   >
                     {item}
@@ -558,26 +577,26 @@ export function CompareToolModal({
               </div>
 
               <label className="flex items-center gap-1">
-                <span className="text-white/60">Start:</span>
+                <span className="text-black/55 dark:text-white/60">Start:</span>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(event) => setStartDate(event.target.value)}
-                  className="rounded border border-white/10 bg-[#16181d] px-2 py-1 text-xs text-white"
+                  className="rounded border border-black/10 bg-white px-2 py-1 text-xs text-black dark:border-white/10 dark:bg-[#16181d] dark:text-white"
                 />
               </label>
 
               <label className="flex items-center gap-1">
-                <span className="text-white/60">End:</span>
+                <span className="text-black/55 dark:text-white/60">End:</span>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(event) => setEndDate(event.target.value)}
-                  className="rounded border border-white/10 bg-[#16181d] px-2 py-1 text-xs text-white"
+                  className="rounded border border-black/10 bg-white px-2 py-1 text-xs text-black dark:border-white/10 dark:bg-[#16181d] dark:text-white"
                 />
               </label>
 
-              <div className="ml-2 flex items-center rounded border border-white/10 bg-[#16181d] p-0.5">
+              <div className="ml-2 flex items-center rounded border border-black/10 bg-white p-0.5 dark:border-white/10 dark:bg-[#16181d]">
                 {(["table", "chart", "both"] as const).map((mode) => (
                   <button
                     key={mode}
@@ -585,7 +604,7 @@ export function CompareToolModal({
                     className={`rounded px-2 py-1 text-xs capitalize ${
                       viewMode === mode
                         ? "bg-[#34C759] text-black"
-                        : "text-white/60 hover:text-white"
+                        : "text-black/55 hover:text-black dark:text-white/60 dark:hover:text-white"
                     }`}
                   >
                     {mode === "both" ? "Both" : mode === "chart" ? "Graph" : "Table"}
@@ -595,14 +614,14 @@ export function CompareToolModal({
 
               <button
                 onClick={downloadCsv}
-                className="inline-flex items-center gap-1 rounded border border-white/15 bg-[#16181d] px-2 py-1 text-white/80 hover:bg-white/10"
+                className="inline-flex items-center gap-1 rounded border border-black/15 bg-white px-2 py-1 text-black/75 hover:bg-black/5 dark:border-white/15 dark:bg-[#16181d] dark:text-white/80 dark:hover:bg-white/10"
               >
                 <Download className="h-3.5 w-3.5" />
                 CSV
               </button>
               <button
                 onClick={downloadExcel}
-                className="inline-flex items-center gap-1 rounded border border-white/15 bg-[#16181d] px-2 py-1 text-white/80 hover:bg-white/10"
+                className="inline-flex items-center gap-1 rounded border border-black/15 bg-white px-2 py-1 text-black/75 hover:bg-black/5 dark:border-white/15 dark:bg-[#16181d] dark:text-white/80 dark:hover:bg-white/10"
               >
                 <FileSpreadsheet className="h-3.5 w-3.5" />
                 Excel
@@ -611,13 +630,13 @@ export function CompareToolModal({
           </div>
 
           {panelOpen && (
-            <div className="absolute left-3 top-[52px] z-20 w-[300px] rounded border border-white/10 bg-[#1a1d23] shadow-lg">
-              <div className="flex items-center justify-between border-b border-white/10 px-3 py-2">
-                <p className="text-xs font-medium text-white/80">Select Devices & Variables</p>
+            <div className="absolute left-3 top-[52px] z-20 w-[300px] rounded border border-black/10 bg-white shadow-lg dark:border-white/10 dark:bg-[#1a1d23]">
+              <div className="flex items-center justify-between border-b border-black/10 px-3 py-2 dark:border-white/10">
+                <p className="text-xs font-medium text-black/80 dark:text-white/80">Select Devices & Variables</p>
                 <button
                   type="button"
                   onClick={() => setPanelOpen(false)}
-                  className="rounded p-1 text-white/50 hover:bg-white/10 hover:text-white"
+                  className="rounded p-1 text-black/45 hover:bg-black/5 hover:text-black dark:text-white/50 dark:hover:bg-white/10 dark:hover:text-white"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -628,7 +647,7 @@ export function CompareToolModal({
                   {scopedCatalog.map((lease) => {
                     const leaseOpen = expandedLeases.includes(lease.leaseId);
                     return (
-                      <div key={lease.leaseId} className="overflow-hidden rounded border border-white/10">
+                      <div key={lease.leaseId} className="overflow-hidden rounded border border-black/10 dark:border-white/10">
                         <button
                           type="button"
                           onClick={() => toggleLease(lease.leaseId)}
@@ -646,14 +665,14 @@ export function CompareToolModal({
                         </button>
 
                         {leaseOpen && (
-                          <div className="space-y-1 bg-[#16181d] p-2">
+                          <div className="space-y-1 bg-gray-50 p-2 dark:bg-[#16181d]">
                             {lease.devices.map((device) => {
                               const deviceKey = `${lease.leaseId}::${device.id}`;
                               const deviceChecked = selectedDeviceIds.includes(deviceKey);
                               const deviceOpen = expandedDevices.includes(deviceKey);
 
                               return (
-                                <div key={device.id} className="rounded border border-white/10 bg-[#1e2025] p-1.5">
+                                <div key={device.id} className="rounded border border-black/10 bg-white p-1.5 dark:border-white/10 dark:bg-[#1e2025]">
                                   <div className="flex items-center gap-1.5">
                                     <input
                                       type="checkbox"
@@ -664,12 +683,12 @@ export function CompareToolModal({
                                     <button
                                       type="button"
                                       onClick={() => toggleDeviceExpand(deviceKey)}
-                                      className="flex flex-1 items-center gap-1 text-left text-xs text-white/80"
+                                      className="flex flex-1 items-center gap-1 text-left text-xs text-black/80 dark:text-white/80"
                                     >
                                       {deviceOpen ? (
-                                        <ChevronDown className="h-3.5 w-3.5 text-white/50" />
+                                        <ChevronDown className="h-3.5 w-3.5 text-black/45 dark:text-white/50" />
                                       ) : (
-                                        <ChevronRight className="h-3.5 w-3.5 text-white/50" />
+                                        <ChevronRight className="h-3.5 w-3.5 text-black/45 dark:text-white/50" />
                                       )}
                                       <span className="truncate">{device.name}</span>
                                     </button>
@@ -683,7 +702,7 @@ export function CompareToolModal({
                                         return (
                                           <label
                                             key={id}
-                                            className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-white/10"
+                                            className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-xs hover:bg-black/5 dark:hover:bg-white/10"
                                           >
                                             <input
                                               type="checkbox"
@@ -691,8 +710,8 @@ export function CompareToolModal({
                                               onChange={() => toggleVariable(id)}
                                               className="h-3.5 w-3.5 rounded border-white/20 accent-[#34C759]"
                                             />
-                                            <span className="flex-1 text-white/80">{variable.label}</span>
-                                            <ChevronRight className="h-3 w-3 text-white/45" />
+                                            <span className="flex-1 text-black/80 dark:text-white/80">{variable.label}</span>
+                                            <ChevronRight className="h-3 w-3 text-black/40 dark:text-white/45" />
                                           </label>
                                         );
                                       })}
@@ -713,7 +732,7 @@ export function CompareToolModal({
 
           <div className="min-h-0 flex-1 p-3">
             {selectedSeries.length === 0 ? (
-              <div className="flex h-full items-center justify-center rounded border border-white/10 bg-[#1a1d23] text-sm text-white/55">
+              <div className="flex h-full items-center justify-center rounded border border-black/10 bg-gray-50 text-sm text-black/50 dark:border-white/10 dark:bg-[#1a1d23] dark:text-white/55">
                 No Rows To Show
               </div>
             ) : (
@@ -723,13 +742,13 @@ export function CompareToolModal({
                 }`}
               >
                 {(viewMode === "chart" || viewMode === "both") && (
-                  <div className="overflow-hidden rounded border border-white/10 bg-[#1a1d23] p-2">
+                  <div className="overflow-hidden rounded border border-black/10 bg-white p-2 dark:border-white/10 dark:bg-[#1a1d23]">
                     <AgCharts options={chartOptions} style={{ height: "100%", width: "100%" }} />
                   </div>
                 )}
 
                 {(viewMode === "table" || viewMode === "both") && (
-                  <div className="min-h-0 overflow-hidden rounded border border-white/10 bg-[#1a1d23] p-1">
+                  <div className="min-h-0 overflow-hidden rounded border border-black/10 bg-white p-1 dark:border-white/10 dark:bg-[#1a1d23]">
                     <div className="h-full">
                       <AgGridReact
                         theme={gridTheme}

@@ -15,6 +15,7 @@ import { useTheme } from "next-themes";
 import { useTableExport } from "./use-table-export";
 import { TableExportBar } from "./table-export-bar";
 import { OilTankRecord } from "./types";
+import { createSourceColumn } from "@/components/ui/source-indicator";
 
 ModuleRegistry.registerModules([
   AllCommunityModule,
@@ -69,6 +70,7 @@ export function OilTankTable({
 
   const columnDefs = React.useMemo<(ColDef<OilTankRecord> | ColGroupDef<OilTankRecord>)[]>(
     () => [
+      createSourceColumn<OilTankRecord>(),
       ...tankNames.map((tankName) => ({
         headerName: tankName,
         marryChildren: true,

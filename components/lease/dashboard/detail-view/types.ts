@@ -1,7 +1,10 @@
+import type { SourceFlag } from "@/components/ui/source-indicator";
+
 export interface TankDataRow {
   level: string;
   volume: string;
   dateTime: string;
+  source: SourceFlag;
 }
 
 export interface TankLabel {

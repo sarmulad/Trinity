@@ -15,6 +15,7 @@ import { useTheme } from "next-themes";
 import { useTableExport } from "./use-table-export";
 import { TableExportBar } from "./table-export-bar";
 import { GasMeterRecord } from "./types";
+import { createSourceColumn } from "@/components/ui/source-indicator";
 
 ModuleRegistry.registerModules([
   AllCommunityModule,
@@ -83,6 +84,7 @@ export function GasMeterTable({
 
   const columnDefs: ColDef<GasMeterRecord>[] = React.useMemo(
     () => [
+      createSourceColumn<GasMeterRecord>(),
       {
         field: "dp",
         headerName: "DP",

@@ -1,8 +1,11 @@
+import type { SourceFlag } from "@/components/ui/source-indicator";
+
 export interface ProductionRecord {
   date: string;
   h2o: number;
   oil: number;
   gas: number;
+  source: SourceFlag;
   hasMessage?: boolean;
   hasAlarm?: boolean;
   alarmText?: string;
@@ -73,6 +76,7 @@ export interface ProductionTabProps {
 export interface GasMeterRecord {
   meterName: string;
   dateAndTime: string;
+  source: SourceFlag;
   dp: string;
   sp: string;
   temp: string;
@@ -98,6 +102,7 @@ function formatFeetAndInches(totalInches: number) {
 
 export interface OilTankRecord {
   timestamp: string;
+  source: SourceFlag;
   tanks: Record<string, OilTankMetrics>;
 }
 
@@ -116,6 +121,7 @@ export const EXAMPLE_PRODUCTION: ProductionRecord[] = Array.from(
       h2o,
       oil,
       gas,
+      source: index % 6 === 0 ? "manual" : "sensor",
       hasMessage,
       hasAlarm,
       alarmText: hasAlarm
@@ -221,6 +227,7 @@ export const EXAMPLE_GASMETER: GasMeterRecord[] = EXAMPLE_GAS_METERS.flatMap(
       return {
         meterName,
         dateAndTime: `03/${String(18 + Math.floor(i / 24)).padStart(2, "0")}/2026 ${hour}:00:00 am`,
+        source: (i + meterIndex) % 7 === 0 ? "manual" : "sensor",
         dp: (7 + meterIndex + Math.random() * 1.2).toFixed(2) + " In. H2O",
         sp: (16 + meterIndex + Math.random() * 2).toFixed(2) + " PSIA",
         temp: (60 + Math.random() * 3).toFixed(2) + " °F",
@@ -245,6 +252,7 @@ export const EXAMPLE_OILTANKS: OilTankRecord[] = Array.from(
 
     return {
       timestamp: `03/${day}/2026 ${hour}:00:00 am`,
+      source: i % 5 === 0 ? "manual" : "sensor",
       tanks: Object.fromEntries(
         EXAMPLE_TANKS.map((tankName, tankIndex) => {
           const gauge = 68 + tankIndex * 3 + Math.random() * 6;

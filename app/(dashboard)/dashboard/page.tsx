@@ -98,10 +98,9 @@ const summaryCards: CardConfig[] = [
 
 function SummaryCard({ card }: { card: CardConfig }) {
   const { preferences } = useDashboardPreferences();
-  const preferredLabel =
-    card.title.toLowerCase().includes("gas")
-      ? preferences.defaultGasBenchmark
-      : preferences.defaultOilBenchmark;
+  const preferredLabel = card.title.toLowerCase().includes("gas")
+    ? preferences.defaultGasBenchmark
+    : preferences.defaultOilBenchmark;
   const [selectedLabel, setSelectedLabel] = useState<string>(preferredLabel);
 
   React.useEffect(() => {
@@ -110,9 +109,8 @@ function SummaryCard({ card }: { card: CardConfig }) {
 
   const selected = React.useMemo(
     () =>
-      card.benchmarks.find(
-        (benchmark) => benchmark.label === selectedLabel,
-      ) ?? card.benchmarks[0],
+      card.benchmarks.find((benchmark) => benchmark.label === selectedLabel) ??
+      card.benchmarks[0],
     [card.benchmarks, selectedLabel],
   );
 
@@ -190,13 +188,13 @@ export default function DailySummaryPage() {
   return (
     <ErrorBoundary>
       <div className="space-y-4 lg:space-y-6">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3  px-4 py-4  lg:px-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
+              <h1 className="text-2xl font-bold tracking-tight text-black dark:text-white lg:text-3xl">
                 Trinity Energy
               </h1>
-              <p className="text-sm text-black/40 dark:text-white/40">
+              <p className="text-sm text-black/45 dark:text-white/40">
                 {formattedDate}
               </p>
             </div>
@@ -219,7 +217,7 @@ export default function DailySummaryPage() {
                 className={`px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
                   activeTab === tab.id
                     ? "border-[#34C759] text-[#34C759]"
-                    : "border-transparent text-black/50 hover:text-black dark:text-white/50 dark:hover:text-white"
+                    : "border-transparent text-black/45 hover:text-black/70 dark:text-white/50 dark:hover:text-white"
                 }`}
               >
                 {tab.label}

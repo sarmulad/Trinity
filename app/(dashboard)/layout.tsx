@@ -16,7 +16,7 @@ export default function DashboardLayout({
   return (
     <div className="relative min-h-screen bg-gray-100 dark:bg-[#0f1419]">
       <div
-        className="fixed inset-0 z-0 hidden dark:block"
+        className="fixed inset-0 z-0"
         style={{
           backgroundImage: "url('/images/dashboard-bg.png')",
           backgroundSize: "cover",
@@ -24,9 +24,8 @@ export default function DashboardLayout({
           backgroundRepeat: "no-repeat",
         }}
       >
-        <div className="absolute inset-0 bg-[#1B1E20]/90 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-white/68 backdrop-blur-[1px] bg-[#f3f3f3]/80 dark:bg-[#1B1E20]/90 dark:backdrop-blur-sm" />
       </div>
-      <div className="fixed inset-0 z-0 block dark:hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-100" />
 
       <div className="relative z-10 flex min-h-screen">
         <div className="hidden lg:flex lg:flex-shrink-0">

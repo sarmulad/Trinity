@@ -164,7 +164,7 @@ export function MessagesTab({
         Messages
       </h2>
 
-      <div className="rounded-xl border border-black/10 bg-black/5 backdrop-blur-md p-5 space-y-3 dark:border-white/10 dark:bg-white/5">
+      <div className="rounded-xl border bg-[#ffff]/70 border-black/10 backdrop-blur-md p-5 space-y-3 dark:border-white/10 dark:bg-white/5">
         <div className="relative w-72">
           <Search className="app-search-icon" />
           <input
@@ -364,7 +364,9 @@ export function MessagesTab({
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <p className="text-xs text-black/45 dark:text-white/45">Asset</p>
+                <p className="text-xs text-black/45 dark:text-white/45">
+                  Asset
+                </p>
                 <select
                   value={draftAsset}
                   onChange={(e) => setDraftAsset(e.target.value)}
