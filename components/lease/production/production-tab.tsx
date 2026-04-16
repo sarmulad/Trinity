@@ -55,7 +55,7 @@ export function ProductionTab({
         Production
       </p>
 
-      <div className="relative bg-[#ffff]/70 rounded-xl border border-black/10 bg-black/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+      <div className="relative bg-[#ffff]/80 rounded-xl border border-black/10 bg-black/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
         <div className="flex items-center gap-6 border-b border-black/10 px-6 pt-4 dark:border-white/10">
           {VIEWS.map(({ id, label }) => (
             <button

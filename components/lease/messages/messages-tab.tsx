@@ -164,7 +164,7 @@ export function MessagesTab({
         Messages
       </h2>
 
-      <div className="rounded-xl border bg-[#ffff]/70 border-black/10 backdrop-blur-md p-5 space-y-3 dark:border-white/10 dark:bg-white/5">
+      <div className="rounded-xl border bg-[#ffff]/80 border-black/10 backdrop-blur-md p-5 space-y-3 dark:border-white/10 dark:bg-white/5">
         <div className="relative w-72">
           <Search className="app-search-icon" />
           <input
