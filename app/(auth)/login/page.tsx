@@ -65,7 +65,11 @@ export default function LoginPage() {
         />
 
         <div className=" z-10 ">
-          <Logo width={"200px"} height={"50px"} />
+          <img
+            src="/images/logo.png"
+            alt="Trinity Logo"
+            className=" w-[200px] h-full"
+          />
         </div>
         <MarketingSlider />
       </div>
