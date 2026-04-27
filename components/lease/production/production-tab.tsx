@@ -42,6 +42,9 @@ export function ProductionTab({
   allocatedWells = EXAMPLE_ALLOCATED,
   moreInfo = EXAMPLE_MORE_INFO,
   isLoading = false,
+  comments,
+  onCommentsChange,
+  onAddComment,
 }: ProductionTabProps) {
   const [view, setView] = React.useState<View>("chart");
 
@@ -55,7 +58,7 @@ export function ProductionTab({
         Production
       </p>
 
-      <div className="relative bg-[#ffff]/80 rounded-xl border border-black/10 bg-black/5 backdrop-blur-sm dark:border-white/10 dark:bg-white/5">
+      <div className="relative rounded-xl border border-black/10 bg-white/95 shadow-sm backdrop-blur-sm dark:border-white/10 dark:bg-[#1A1C1E]/95">
         <div className="flex items-center gap-6 border-b border-black/10 px-6 pt-4 dark:border-white/10">
           {VIEWS.map(({ id, label }) => (
             <button
@@ -79,6 +82,9 @@ export function ProductionTab({
               stats={stats}
               isLoading={isLoading}
               chartHeight={560}
+              comments={comments}
+              onCommentsChange={onCommentsChange}
+              onAddComment={onAddComment}
             />
           )}
           {view === "table" && (

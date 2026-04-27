@@ -17,6 +17,8 @@ export interface TeamMember {
   company: string;
   status: "Active" | "Inactive";
   assignment: string;
+  alarmGroups: string[];
+  reportGroups: string[];
   avatarUrl?: string;
   initials: string;
 }

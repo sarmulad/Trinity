@@ -145,6 +145,7 @@ export function GasMeterTable({
         field: "dateAndTime",
         headerName: "Timestamp",
         sortable: true,
+        sort: "desc",
         flex: 1.4,
         minWidth: 185,
       },

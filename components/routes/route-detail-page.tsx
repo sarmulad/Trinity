@@ -4,16 +4,22 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
+  Beaker,
   Calendar,
   ChevronDown,
   ChevronRight,
   Check,
+  ClipboardList,
   CircleHelp,
   FileText,
   History,
   ListChecks,
   RefreshCcw,
+  Save,
   Square,
+  Ticket,
+  Minus,
+  Plus,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -81,17 +87,102 @@ interface RouteDetailPageProps {
 }
 
 type TabId = "route" | "history";
+type WorkTabId = "forms" | "tickets" | "tests";
+
+interface NumberStepperProps {
+  label: string;
+  help?: string;
+  value: number;
+  step?: number;
+  min?: number;
+  max?: number;
+  decimals?: number;
+  onChange: (value: number) => void;
+}
+
+function NumberStepper({
+  label,
+  help,
+  value,
+  step = 1,
+  min = 0,
+  max,
+  decimals = 0,
+  onChange,
+}: NumberStepperProps) {
+  const formatValue = (next: number) =>
+    decimals > 0 ? Number(next.toFixed(decimals)) : Math.round(next);
+
+  const clampValue = (next: number) => {
+    const normalized = formatValue(next);
+    const withMin = Math.max(min, normalized);
+    return max != null ? Math.min(max, withMin) : withMin;
+  };
+
+  const update = (next: number) => onChange(clampValue(next));
+
+  return (
+    <div className="space-y-1">
+      <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
+        {label}
+        {help ? <CircleHelp className="h-3 w-3" title={help} /> : null}
+      </label>
+      <div className="flex items-center overflow-hidden rounded-md border border-black/20 bg-white dark:border-white/20 dark:bg-[#151A21]">
+        <button
+          type="button"
+          onClick={() => update(value - step)}
+          className="flex h-8 w-9 items-center justify-center text-black/60 transition-colors hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
+        >
+          <Minus className="h-3.5 w-3.5" />
+        </button>
+        <Input
+          type="number"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => update(Number(e.target.value))}
+          className="h-8 rounded-none border-0 border-x border-black/10 bg-transparent px-2 text-center text-sm text-black shadow-none focus-visible:ring-0 dark:border-white/10 dark:text-white"
+        />
+        <button
+          type="button"
+          onClick={() => update(value + step)}
+          className="flex h-8 w-9 items-center justify-center text-black/60 transition-colors hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white"
+        >
+          <Plus className="h-3.5 w-3.5" />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
   const displayRouteName = routeName?.trim() || prettifyRouteId(routeId);
 
   const [activeTab, setActiveTab] = React.useState<TabId>("route");
+  const [workTab, setWorkTab] = React.useState<WorkTabId>("forms");
   const [stops, setStops] = React.useState<StopItem[]>(() =>
     STOPS.map((s) => ({ ...s })),
   );
   const [selectedStopId, setSelectedStopId] = React.useState(
     STOPS.find((s) => s.status === "active")?.id ?? STOPS[0]?.id ?? "",
   );
+  const [topGaugeFeet, setTopGaugeFeet] = React.useState(21);
+  const [topGaugeInches, setTopGaugeInches] = React.useState(2);
+  const [waterFeet, setWaterFeet] = React.useState(11);
+  const [waterInches, setWaterInches] = React.useState(6);
+  const [flowRate, setFlowRate] = React.useState(287.9);
+  const [pressure, setPressure] = React.useState(15.67);
+  const [notes, setNotes] = React.useState("");
+  const [ticketPriority, setTicketPriority] = React.useState(2);
+  const [ticketVolume, setTicketVolume] = React.useState(45);
+  const [testOil, setTestOil] = React.useState(118);
+  const [testWater, setTestWater] = React.useState(24);
+  const [testGas, setTestGas] = React.useState(312);
+  const [testHours, setTestHours] = React.useState(24);
+  const [formSaved, setFormSaved] = React.useState(false);
+  const [ticketSaved, setTicketSaved] = React.useState(false);
+  const [testSaved, setTestSaved] = React.useState(false);
 
   const selectedStop =
     stops.find((s) => s.id === selectedStopId) ?? stops[0] ?? null;
@@ -126,6 +217,47 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
     { id: "route" as TabId, label: "Route", icon: ListChecks },
     { id: "history" as TabId, label: "Submission history", icon: History },
   ];
+  const workTabs = [
+    { id: "forms" as WorkTabId, label: "Forms", icon: ClipboardList },
+    { id: "tickets" as WorkTabId, label: "Tickets", icon: Ticket },
+    { id: "tests" as WorkTabId, label: "Tests", icon: Beaker },
+  ];
+
+  const recentTickets = [
+    {
+      id: "TK-2041",
+      type: "Gauge Ticket",
+      submitted: "04/24/26 06:15 AM",
+      status: "Submitted",
+      detail: "Tank gauge variance submitted for supervisor review.",
+    },
+    {
+      id: "TK-2037",
+      type: "Maintenance Ticket",
+      submitted: "04/20/26 01:02 PM",
+      status: "Reviewed",
+      detail: "High pressure trend documented and routed to field service.",
+    },
+  ];
+
+  const recentTests = [
+    {
+      id: "WT-901",
+      period: "24 hr test",
+      submitted: "04/19/26 05:40 PM",
+      oil: "116 BBL",
+      water: "22 BBL",
+      gas: "305 MCF",
+    },
+    {
+      id: "WT-887",
+      period: "12 hr test",
+      submitted: "04/10/26 03:12 PM",
+      oil: "59 BBL",
+      water: "12 BBL",
+      gas: "154 MCF",
+    },
+  ];
 
   return (
     <div className="space-y-4">
@@ -137,7 +269,7 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
         >
           <ArrowLeft className="h-3.5 w-3.5" />
         </Link>
-        <h2 className="text-4xl font-semibold tracking-tight text-black dark:text-white">
+        <h2 className="text-2xl font-bold text-black dark:text-white lg:text-3xl">
           {displayRouteName}
         </h2>
       </div>
@@ -299,75 +431,373 @@ export function RouteDetailPage({ routeId, routeName }: RouteDetailPageProps) {
                 </button>
               </div>
 
-              {/* Gauge form */}
-              <div className="mt-3 rounded-md border border-black/10 bg-gray-50 p-3 dark:border-white/10 dark:bg-black/85">
-                <p className="text-sm font-medium text-black dark:text-white">
-                  Oil Tank #1
-                </p>
-
-                <div className="mt-2 flex flex-col gap-1 text-xs text-black/70 dark:text-white/70 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="inline-flex items-center gap-1">
-                    Last Gauge <CircleHelp className="h-3 w-3" />
-                  </span>
-                  <span>12/9/24 @ 6am -21FT 1.5 IN</span>
-                </div>
-
-                <p className="mt-3 text-sm font-medium text-black dark:text-white">
-                  New Gauge
-                </p>
-
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  <div className="space-y-1">
-                    <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
-                      Feet <CircleHelp className="h-3 w-3" />
-                    </label>
-                    <Input
-                      defaultValue="21"
-                      className="h-8 border-black/20 bg-white text-sm text-black dark:border-white/20 dark:bg-[#151A21] dark:text-white"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
-                      Inches <CircleHelp className="h-3 w-3" />
-                    </label>
-                    <Input
-                      defaultValue="2.00"
-                      className="h-8 border-black/20 bg-white text-sm text-black dark:border-white/20 dark:bg-[#151A21] dark:text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-3 space-y-1">
-                  <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
-                    Notes <CircleHelp className="h-3 w-3" />
-                  </label>
-                  <Textarea
-                    placeholder="Enter Note"
-                    className="min-h-[56px] border-black/20 bg-white text-sm text-black placeholder:text-black/35 dark:border-white/20 dark:bg-[#151A21] dark:text-white dark:placeholder:text-white/35"
-                  />
-                </div>
-
-                <div className="mt-3 flex items-center justify-between text-xs">
+              <div className="mt-3 flex w-fit items-center gap-1 rounded-xl border border-black/10 bg-black/[0.03] p-1 dark:border-white/10 dark:bg-white/[0.03]">
+                {workTabs.map(({ id, label, icon: Icon }) => (
                   <button
+                    key={id}
                     type="button"
-                    className="inline-flex items-center gap-1 text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
+                    onClick={() => setWorkTab(id)}
+                    className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                      workTab === id
+                        ? "bg-[#34C759] text-black"
+                        : "text-black/55 hover:bg-black/5 hover:text-black dark:text-white/55 dark:hover:bg-white/5 dark:hover:text-white"
+                    }`}
                   >
-                    <FileText className="h-3 w-3" />
-                    Optional:
-                    <span className="text-[#34C759] hover:underline">
-                      Submit Ticket
-                    </span>
+                    <Icon className="h-4 w-4" />
+                    {label}
                   </button>
-                  <button
-                    type="button"
-                    onClick={handleGoToNextStop}
-                    disabled={currentStopIndex < 0 || currentStopIndex >= stops.length - 1}
-                    className="inline-flex items-center gap-1 text-[#34C759] hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:no-underline"
-                  >
-                    Next <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                ))}
               </div>
+
+              {workTab === "forms" && (
+                <div className="mt-3 rounded-md border border-black/10 bg-gray-50 p-3 dark:border-white/10 dark:bg-black/85">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-medium text-black dark:text-white">
+                      Oil Tank #1 Route Form
+                    </p>
+                    <span className="text-xs text-black/50 dark:text-white/50">
+                      Last Gauge: 12/9/24 @ 6am - 21 FT 1.5 IN
+                    </span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <NumberStepper
+                      label="Top Gauge Feet"
+                      help="Whole feet from the field gauge."
+                      value={topGaugeFeet}
+                      step={1}
+                      onChange={(value) => {
+                        setTopGaugeFeet(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                    <NumberStepper
+                      label="Top Gauge Inches"
+                      help="Gauge inches."
+                      value={topGaugeInches}
+                      step={0.25}
+                      max={11.75}
+                      decimals={2}
+                      onChange={(value) => {
+                        setTopGaugeInches(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                    <NumberStepper
+                      label="Water Feet"
+                      help="Measured water level."
+                      value={waterFeet}
+                      step={1}
+                      onChange={(value) => {
+                        setWaterFeet(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                    <NumberStepper
+                      label="Water Inches"
+                      help="Measured water inches."
+                      value={waterInches}
+                      step={0.25}
+                      max={11.75}
+                      decimals={2}
+                      onChange={(value) => {
+                        setWaterInches(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                    <NumberStepper
+                      label="Flow Rate"
+                      help="MCF/day"
+                      value={flowRate}
+                      step={0.1}
+                      decimals={1}
+                      onChange={(value) => {
+                        setFlowRate(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                    <NumberStepper
+                      label="Static Pressure"
+                      help="PSIA"
+                      value={pressure}
+                      step={0.01}
+                      decimals={2}
+                      onChange={(value) => {
+                        setPressure(value);
+                        setFormSaved(false);
+                      }}
+                    />
+                  </div>
+
+                  <div className="mt-3 space-y-1">
+                    <label className="inline-flex items-center gap-1 text-xs text-black/70 dark:text-white/70">
+                      Notes <CircleHelp className="h-3 w-3" />
+                    </label>
+                    <Textarea
+                      value={notes}
+                      onChange={(e) => {
+                        setNotes(e.target.value);
+                        setFormSaved(false);
+                      }}
+                      placeholder="Enter route notes"
+                      className="min-h-[72px] border-black/20 bg-white text-sm text-black placeholder:text-black/35 dark:border-white/20 dark:bg-[#151A21] dark:text-white dark:placeholder:text-white/35"
+                    />
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setWorkTab("tickets")}
+                      className="inline-flex items-center gap-1 text-black/65 hover:text-black dark:text-white/65 dark:hover:text-white"
+                    >
+                      <FileText className="h-3 w-3" />
+                      Optional:
+                      <span className="text-[#34C759] hover:underline">
+                        Create Ticket
+                      </span>
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormSaved(true)}
+                        disabled={formSaved}
+                        className={`inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          formSaved
+                            ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/35"
+                            : "bg-[#34C759] text-black hover:bg-[#34C759]/90"
+                        }`}
+                      >
+                        <Save className="h-4 w-4" />
+                        {formSaved ? "Saved" : "Save Form"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleGoToNextStop}
+                        disabled={currentStopIndex < 0 || currentStopIndex >= stops.length - 1}
+                        className="inline-flex items-center gap-1 text-[#34C759] hover:underline disabled:cursor-not-allowed disabled:opacity-40 disabled:no-underline"
+                      >
+                        Next <ChevronRight className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {workTab === "tickets" && (
+                <div className="mt-3 rounded-md border border-black/10 bg-gray-50 p-3 dark:border-white/10 dark:bg-black/85">
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-black dark:text-white">
+                          New Ticket
+                        </p>
+                        <p className="text-xs text-black/50 dark:text-white/50">
+                          Route-side ticket capture for issues found at this stop.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="space-y-1">
+                          <label className="text-xs text-black/70 dark:text-white/70">
+                            Ticket Type
+                          </label>
+                          <select className="h-9 w-full rounded-md border border-black/20 bg-white px-3 text-sm text-black dark:border-white/20 dark:bg-[#151A21] dark:text-white">
+                            <option>Gauge Ticket</option>
+                            <option>Maintenance Ticket</option>
+                            <option>Safety Ticket</option>
+                          </select>
+                        </div>
+                        <NumberStepper
+                          label="Priority"
+                          help="1 is highest priority."
+                          value={ticketPriority}
+                          step={1}
+                          min={1}
+                          max={5}
+                          onChange={(value) => {
+                            setTicketPriority(value);
+                            setTicketSaved(false);
+                          }}
+                        />
+                        <NumberStepper
+                          label="Estimated Volume Impact"
+                          help="BBLs"
+                          value={ticketVolume}
+                          step={1}
+                          onChange={(value) => {
+                            setTicketVolume(value);
+                            setTicketSaved(false);
+                          }}
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs text-black/70 dark:text-white/70">
+                          Ticket Details
+                        </label>
+                        <Textarea
+                          placeholder="Describe the issue found during this route stop"
+                          className="min-h-[96px] border-black/20 bg-white text-sm text-black placeholder:text-black/35 dark:border-white/20 dark:bg-[#151A21] dark:text-white dark:placeholder:text-white/35"
+                          onChange={() => setTicketSaved(false)}
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setTicketSaved(true)}
+                        disabled={ticketSaved}
+                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          ticketSaved
+                            ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/35"
+                            : "bg-[#34C759] text-black hover:bg-[#34C759]/90"
+                        }`}
+                      >
+                        <Save className="h-4 w-4" />
+                        {ticketSaved ? "Saved" : "Save Ticket"}
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 rounded-lg border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-[#151A21]">
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        Recent Tickets
+                      </p>
+                      {recentTickets.map((ticket) => (
+                        <div
+                          key={ticket.id}
+                          className="rounded-lg border border-black/10 bg-black/[0.02] p-3 dark:border-white/10 dark:bg-white/[0.03]"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-black dark:text-white">
+                              {ticket.id}
+                            </span>
+                            <span className="text-xs text-[#34C759]">
+                              {ticket.status}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                            {ticket.type} · {ticket.submitted}
+                          </p>
+                          <p className="mt-2 text-sm text-black/70 dark:text-white/70">
+                            {ticket.detail}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {workTab === "tests" && (
+                <div className="mt-3 rounded-md border border-black/10 bg-gray-50 p-3 dark:border-white/10 dark:bg-black/85">
+                  <div className="grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]">
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-sm font-medium text-black dark:text-white">
+                          Well Test Entry
+                        </p>
+                        <p className="text-xs text-black/50 dark:text-white/50">
+                          Capture route-side test values with constrained numeric input.
+                        </p>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <NumberStepper
+                          label="Oil"
+                          help="BBL"
+                          value={testOil}
+                          step={1}
+                          onChange={(value) => {
+                            setTestOil(value);
+                            setTestSaved(false);
+                          }}
+                        />
+                        <NumberStepper
+                          label="Water"
+                          help="BBL"
+                          value={testWater}
+                          step={1}
+                          onChange={(value) => {
+                            setTestWater(value);
+                            setTestSaved(false);
+                          }}
+                        />
+                        <NumberStepper
+                          label="Gas"
+                          help="MCF"
+                          value={testGas}
+                          step={1}
+                          onChange={(value) => {
+                            setTestGas(value);
+                            setTestSaved(false);
+                          }}
+                        />
+                        <NumberStepper
+                          label="Test Hours"
+                          help="Hours on test"
+                          value={testHours}
+                          step={1}
+                          min={1}
+                          max={24}
+                          onChange={(value) => {
+                            setTestHours(value);
+                            setTestSaved(false);
+                          }}
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setTestSaved(true)}
+                        disabled={testSaved}
+                        className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                          testSaved
+                            ? "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/35"
+                            : "bg-[#34C759] text-black hover:bg-[#34C759]/90"
+                        }`}
+                      >
+                        <Save className="h-4 w-4" />
+                        {testSaved ? "Saved" : "Save Test"}
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 rounded-lg border border-black/10 bg-white p-3 dark:border-white/10 dark:bg-[#151A21]">
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        Recent Tests
+                      </p>
+                      {recentTests.map((test) => (
+                        <div
+                          key={test.id}
+                          className="rounded-lg border border-black/10 bg-black/[0.02] p-3 dark:border-white/10 dark:bg-white/[0.03]"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-semibold text-black dark:text-white">
+                              {test.id}
+                            </span>
+                            <span className="text-xs text-black/50 dark:text-white/50">
+                              {test.period}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-xs text-black/50 dark:text-white/50">
+                            {test.submitted}
+                          </p>
+                          <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
+                            <span className="rounded bg-black/[0.04] px-2 py-1 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
+                              Oil: {test.oil}
+                            </span>
+                            <span className="rounded bg-black/[0.04] px-2 py-1 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
+                              Water: {test.water}
+                            </span>
+                            <span className="rounded bg-black/[0.04] px-2 py-1 text-black/70 dark:bg-white/[0.04] dark:text-white/70">
+                              Gas: {test.gas}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button

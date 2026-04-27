@@ -114,6 +114,7 @@ export function OilTankTable({
         width: 180,
         minWidth: 180,
         sortable: true,
+        sort: "desc",
         pinned: undefined,
         suppressMovable: false,
         cellStyle: { textAlign: "right" },

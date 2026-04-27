@@ -9,6 +9,8 @@ import {
   MessageCircleMore,
   Bell,
   MonitorSpeaker,
+  FileText,
+  SlidersHorizontal,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -17,16 +19,23 @@ import { ProductionTab } from "@/components/lease/production/production-tab";
 import { DashboardTab } from "@/components/lease/dashboard/dashboard-tab";
 import { AlarmsTab } from "@/components/alarms/alarms-tab";
 import { MessagesTab } from "@/components/lease/messages/messages-tab";
+import { EXAMPLE_MESSAGES } from "@/components/lease/messages/example-data";
 import { DeviceInfoTab } from "@/components/lease/device-info/device-info-tab";
+import { TicketsTestsTab } from "@/components/lease/tickets-tests/tickets-tests-tab";
+import { ConfigurationTab } from "@/components/lease/configuration/configuration-tab";
 import { CompareToolModal } from "@/components/compare/compare-tool-modal";
 import { DASHBOARD_TREE } from "@/data/dashboard-tree";
+import type { Message } from "@/components/lease/messages/types";
+import type { ProductionComment } from "@/components/lease/production/types";
 
 const TABS = [
   { id: "production", label: "Production", icon: BarChart3 },
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { id: "messages", label: "Messages", icon: MessageCircleMore },
+  { id: "comments", label: "Comments", icon: MessageCircleMore },
   { id: "alarms", label: "Alarms", icon: Bell },
+  { id: "tickets-tests", label: "Tickets & Tests", icon: FileText },
   { id: "device-info", label: "Device Info", icon: MonitorSpeaker },
+  { id: "configuration", label: "Configuration", icon: SlidersHorizontal },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -59,6 +68,8 @@ export default function LeasePage({ params }: LeasePageProps) {
   const router = useRouter();
   const { id } = use(params);
   const [leaseCompareOpen, setLeaseCompareOpen] = useState(false);
+  const [commentFeed, setCommentFeed] = useState<Message[]>(EXAMPLE_MESSAGES);
+  const [chartComments, setChartComments] = useState<ProductionComment[]>([]);
 
   const [activeTab, setActiveTab] = useState<TabId>("production");
   const [visitedTabs, setVisitedTabs] = useState<Set<TabId>>(
@@ -82,6 +93,27 @@ export default function LeasePage({ params }: LeasePageProps) {
     .flatMap((route) => route.leases ?? [])
     .find((lease) => lease.id === id);
   const displayLeaseName = leaseMeta?.name ?? "Johnson Lease";
+
+  const handleChartComment = (comment: ProductionComment) => {
+    setCommentFeed((prev) => [
+      {
+        id: `chart-${comment.id}`,
+        authorName: "Chart Comment",
+        authorInitials: "CC",
+        asset: "Production Chart",
+        date: comment.date,
+        dataPoint:
+          comment.varKey === "h2o"
+            ? "H2O"
+            : comment.varKey === "oil"
+              ? "Oil"
+              : "Gas",
+        dataPointValue: String(comment.value),
+        text: comment.note,
+      },
+      ...prev,
+    ]);
+  };
 
   return (
     <ErrorBoundary>
@@ -140,6 +172,9 @@ export default function LeasePage({ params }: LeasePageProps) {
               allocatedWells={prodData?.allocatedWells}
               moreInfo={prodData?.moreInfo}
               isLoading={prodLoading}
+              comments={chartComments}
+              onCommentsChange={setChartComments}
+              onAddComment={handleChartComment}
             />
           )}
           {activeTab === "dashboard" && (
@@ -150,9 +185,18 @@ export default function LeasePage({ params }: LeasePageProps) {
               teamMembers={dashData?.teamMembers}
             />
           )}
-          {activeTab === "messages" && <MessagesTab />}
+          {activeTab === "comments" && (
+            <MessagesTab
+              messages={commentFeed}
+              onMessagesChange={setCommentFeed}
+            />
+          )}
           {activeTab === "alarms" && <AlarmsTab title="Alarm" />}
+          {activeTab === "tickets-tests" && <TicketsTestsTab />}
           {activeTab === "device-info" && <DeviceInfoTab />}
+          {activeTab === "configuration" && (
+            <ConfigurationTab leaseName={displayLeaseName} />
+          )}
         </div>
       </div>
       <CompareToolModal

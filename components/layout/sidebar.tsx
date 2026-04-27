@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   { title: "Routes", href: "/dashboard/routes", icon: GitBranch },
   { title: "Alarms", href: "/dashboard/alarms", icon: Bell },
   { title: "Reports", href: "/dashboard/reports", icon: FileText },
-  { title: "Teams", href: "/dashboard/teams", icon: Users },
+  { title: "Users", href: "/dashboard/teams", icon: Users },
 ];
 
 interface SidebarProps {

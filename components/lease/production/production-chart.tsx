@@ -12,7 +12,12 @@ import {
   ChevronDown,
   SlidersHorizontal,
 } from "lucide-react";
-import { ProductionRecord, ProductionStats, TIME_RANGES } from "./types";
+import {
+  ProductionComment,
+  ProductionRecord,
+  ProductionStats,
+  TIME_RANGES,
+} from "./types";
 
 const VARIABLE_GROUPS = [
   {
@@ -28,7 +33,7 @@ const VARIABLE_GROUPS = [
     items: [
       {
         key: "msg",
-        label: "Messages",
+        label: "Comments",
         color: "#10b981",
         seriesType: "scatter",
       },
@@ -55,15 +60,12 @@ interface ProductionChartProps {
   stats: ProductionStats;
   isLoading?: boolean;
   chartHeight?: number;
+  comments?: ProductionComment[];
+  onCommentsChange?: (comments: ProductionComment[]) => void;
+  onAddComment?: (comment: ProductionComment) => void;
 }
 
-interface Annotation {
-  id: string;
-  varKey: VarKey;
-  date: string;
-  value: number;
-  note: string;
-}
+type Annotation = ProductionComment;
 
 interface SnappedPoint {
   varKey: VarKey;
@@ -86,39 +88,23 @@ function buildPlotPoints(
   activeVars: Set<VarKey>,
   totalW: number,
   totalH: number,
+  yMin: number,
+  yMax: number,
 ): PlotPoint[] {
   if (!totalW || !totalH || data.length < 2) return [];
 
   const plotW = totalW - PAD.left - PAD.right;
   const plotH = totalH - PAD.top - PAD.bottom;
   const n = data.length;
-  const xStep = plotW / (n - 1);
-
-  let yMin = Infinity,
-    yMax = -Infinity;
-  data.forEach((row) => {
-    (["h2o", "oil", "gas"] as VarKey[]).forEach((k) => {
-      if (!activeVars.has(k)) return;
-      const v = (row as Record<string, number>)[k];
-      if (v != null) {
-        yMin = Math.min(yMin, v);
-        yMax = Math.max(yMax, v);
-      }
-    });
-  });
-  if (!isFinite(yMin)) {
-    yMin = 0;
-    yMax = 100;
-  }
-  const yPad = (yMax - yMin) * 0.1 || 10;
-  yMin -= yPad;
-  yMax += yPad;
+  // AG Charts category axis places N points at band-centers:
+  // center of band i = PAD.left + (i + 0.5) * plotW / n
+  const bandW = plotW / n;
   const yRange = yMax - yMin;
 
   const points: PlotPoint[] = [];
 
   data.forEach((row, xi) => {
-    const px = PAD.left + xi * xStep;
+    const px = PAD.left + (xi + 0.5) * bandW;
 
     activeVars.forEach((varKey) => {
       const raw = (row as Record<string, number>)[varKey];
@@ -143,6 +129,9 @@ export function ProductionChart({
   stats,
   isLoading = false,
   chartHeight = 440,
+  comments,
+  onCommentsChange,
+  onAddComment,
 }: ProductionChartProps) {
   const [activeRange, setActiveRange] = React.useState("Y");
   const [activeVars, setActiveVars] = React.useState<Set<VarKey>>(
@@ -155,7 +144,9 @@ export function ProductionChart({
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
-  const [annotations, setAnnotations] = React.useState<Annotation[]>([]);
+  const [internalComments, setInternalComments] = React.useState<Annotation[]>(
+    [],
+  );
   const [snapped, setSnapped] = React.useState<SnappedPoint | null>(null);
   const [draftFor, setDraftFor] = React.useState<SnappedPoint | null>(null);
   const [draftNote, setDraftNote] = React.useState("");
@@ -164,6 +155,22 @@ export function ProductionChart({
 
   const [overlayW, setOverlayW] = React.useState(0);
   const [overlayH, setOverlayH] = React.useState(0);
+  const annotations = comments ?? internalComments;
+
+  const setAnnotations = React.useCallback(
+    (
+      updater: Annotation[] | ((previous: Annotation[]) => Annotation[]),
+    ) => {
+      const next =
+        typeof updater === "function" ? updater(annotations) : updater;
+      if (comments) {
+        onCommentsChange?.(next);
+      } else {
+        setInternalComments(next);
+      }
+    },
+    [annotations, comments, onCommentsChange],
+  );
 
   React.useEffect(() => {
     const el = overlayRef.current;
@@ -228,16 +235,63 @@ export function ProductionChart({
     });
   };
 
+  const commitDraft = () => {
+    if (!draftFor || !draftNote.trim()) {
+      setDraftFor(null);
+      return;
+    }
+    const newComment: Annotation = {
+      id: crypto.randomUUID(),
+      varKey: draftFor.varKey as "h2o" | "oil" | "gas",
+      date: draftFor.date,
+      value: draftFor.value,
+      note: draftNote.trim(),
+    };
+    setAnnotations((prev) => [...prev, newComment]);
+    onAddComment?.(newComment);
+    setDraftFor(null);
+    setDraftNote("");
+    setAnnotationMode(false);
+  };
+
+  const deleteAnnotation = (id: string) =>
+    setAnnotations((prev) => prev.filter((a) => a.id !== id));
+
+  const axisLabelColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)";
+  const gridStroke = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
+
+  // Compute y-scale explicitly so buildPlotPoints and the AG Charts axis use identical bounds.
+  const { chartYMin, chartYMax } = React.useMemo(() => {
+    let lo = Infinity,
+      hi = -Infinity;
+    for (const row of data) {
+      for (const k of ["h2o", "oil", "gas"] as VarKey[]) {
+        if (!activeVars.has(k)) continue;
+        const v = (row as Record<string, number>)[k];
+        if (v != null) {
+          lo = Math.min(lo, v);
+          hi = Math.max(hi, v);
+        }
+      }
+    }
+    if (!isFinite(lo)) {
+      lo = 0;
+      hi = 100;
+    }
+    const yp = (hi - lo) * 0.1 || 10;
+    return { chartYMin: lo - yp, chartYMax: hi + yp };
+  }, [data, activeVars]);
+
   const plotPoints = React.useMemo(
-    () => buildPlotPoints(data, activeVars, overlayW, overlayH),
-    [data, activeVars, overlayW, overlayH],
+    () => buildPlotPoints(data, activeVars, overlayW, overlayH, chartYMin, chartYMax),
+    [data, activeVars, overlayW, overlayH, chartYMin, chartYMax],
   );
 
   const xIndex = React.useMemo(() => {
     const n = data.length;
     const plotW = overlayW - PAD.left - PAD.right;
-    const xStep = n > 1 ? plotW / (n - 1) : 1;
-    return { xStep, n };
+    const bandW = n > 0 ? plotW / n : 1;
+    return { bandW, n };
   }, [data.length, overlayW]);
 
   const pickNearestPoint = React.useCallback(
@@ -247,12 +301,7 @@ export function ProductionChart({
       const plotTop = PAD.top;
       const plotBottom = overlayH - PAD.bottom;
 
-      if (
-        mx < plotLeft ||
-        mx > plotRight ||
-        my < plotTop ||
-        my > plotBottom
-      ) {
+      if (mx < plotLeft || mx > plotRight || my < plotTop || my > plotBottom) {
         return null;
       }
 
@@ -276,14 +325,11 @@ export function ProductionChart({
 
       if (bestDistance > 28) {
         const relX = mx - PAD.left;
-        const col = Math.round(relX / xIndex.xStep);
+        const col = Math.floor(relX / xIndex.bandW);
         if (col < 0 || col >= xIndex.n) return null;
-        if (Math.abs(relX - col * xIndex.xStep) > xIndex.xStep * 0.45) {
-          return null;
-        }
 
         const columnPoints = eligiblePoints.filter((point) => {
-          const pointCol = Math.round((point.px - PAD.left) / xIndex.xStep);
+          const pointCol = Math.floor((point.px - PAD.left) / xIndex.bandW);
           return pointCol === col;
         });
 
@@ -321,7 +367,6 @@ export function ProductionChart({
       const rect = overlayRef.current!.getBoundingClientRect();
       const mx = e.clientX - rect.left;
       const my = e.clientY - rect.top;
-
       setSnapped(pickNearestPoint(mx, my));
     },
     [draftFor, pickNearestPoint],
@@ -329,8 +374,6 @@ export function ProductionChart({
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    // Ignore clicks inside existing annotation popovers/editors,
-    // but allow clicks on the snapped hint ("click to annotate").
     if (
       target.closest('[data-popover="draft"]') ||
       target.closest('[data-popover="pin"]')
@@ -352,32 +395,6 @@ export function ProductionChart({
       setDraftFor(null);
     }
   };
-
-  const commitDraft = () => {
-    if (!draftFor || !draftNote.trim()) {
-      setDraftFor(null);
-      return;
-    }
-    setAnnotations((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        varKey: draftFor.varKey,
-        date: draftFor.date,
-        value: draftFor.value,
-        note: draftNote.trim(),
-      },
-    ]);
-    setDraftFor(null);
-    setDraftNote("");
-    setAnnotationMode(false);
-  };
-
-  const deleteAnnotation = (id: string) =>
-    setAnnotations((prev) => prev.filter((a) => a.id !== id));
-
-  const axisLabelColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)";
-  const gridStroke = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)";
 
   const chartOptions: AgChartOptions = React.useMemo(() => {
     const series: AgChartOptions["series"] = [];
@@ -434,7 +451,7 @@ export function ProductionChart({
         type: "scatter",
         xKey: "date",
         yKey: "msg",
-        yName: "Messages",
+        yName: "Comments",
         fill: "#10b981",
         stroke: "#10b981",
         size: 7,
@@ -470,6 +487,8 @@ export function ProductionChart({
         {
           type: "number",
           position: "left",
+          min: chartYMin,
+          max: chartYMax,
           label: { color: axisLabelColor, fontSize: 11 },
           title: {
             text: "BBLs",
@@ -485,7 +504,7 @@ export function ProductionChart({
       ],
       legend: { enabled: false },
     } as AgChartOptions;
-  }, [data, isDark, activeVars, annotationMode]);
+  }, [data, isDark, activeVars, annotationMode, chartYMin, chartYMax]);
 
   const annotationPins = React.useMemo(
     () =>
@@ -699,7 +718,7 @@ export function ProductionChart({
                 : "border-black/10 text-black/50 hover:border-black/20 dark:border-white/10 dark:text-white/45"
             }`}
           >
-            {annotationMode ? "Annotation mode on" : "Annotate chart"}
+            {annotationMode ? "Chart Comments ON" : "Chart Comments OFF"}
           </button>
           {activeList.map(({ key, label, color }) => (
             <span

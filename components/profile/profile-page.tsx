@@ -161,34 +161,44 @@ function ProfileHeader() {
   );
 }
 
-interface BioSectionProps {
+interface GeneralInformationSectionProps {
   firstName: string;
   lastName: string;
   companyPhone: string;
+  email: string;
   setFirstName: (value: string) => void;
   setLastName: (value: string) => void;
   setCompanyPhone: (value: string) => void;
+  setEmail: (value: string) => void;
   onTestPhone: () => void;
+  onTestEmail: () => void;
   phoneVerification: VerificationState;
+  emailVerification: VerificationState;
 }
 
-function BioSection({
+function GeneralInformationSection({
   firstName,
   lastName,
   companyPhone,
+  email,
   setFirstName,
   setLastName,
   setCompanyPhone,
+  setEmail,
   onTestPhone,
+  onTestEmail,
   phoneVerification,
-}: BioSectionProps) {
+  emailVerification,
+}: GeneralInformationSectionProps) {
   const inputClass =
     "border-black/20 bg-black/5 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40";
   const e164Valid = E164_REGEX.test(companyPhone);
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-black dark:text-white">Bio</h2>
+      <h2 className="text-lg font-semibold text-black dark:text-white">
+        General Information
+      </h2>
       <div className="grid gap-4 sm:grid-cols-2">
         <LabelWithInfo label="First Name">
           <Input
@@ -206,65 +216,41 @@ function BioSection({
         </LabelWithInfo>
       </div>
 
-      <LabelWithInfo label="Company Phone Number">
-        <div className="space-y-2">
-          <div className="relative">
-            <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
-            <Input
-              value={companyPhone}
-              onChange={(e) => setCompanyPhone(e.target.value)}
-              className={`${inputClass} pl-10 pr-24`}
-              placeholder="+14696008888"
-            />
-            <Button
-              size="sm"
-              type="button"
-              onClick={onTestPhone}
-              className="absolute right-1.5 top-1/2 h-7 -translate-y-1/2 bg-[#34C759] px-3 text-xs text-black hover:bg-[#34C759]/90"
-            >
-              Test
-            </Button>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <LabelWithInfo label="Phone Number">
+          <div className="space-y-2">
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40 dark:text-white/40" />
+              <Input
+                value={companyPhone}
+                onChange={(e) => setCompanyPhone(e.target.value)}
+                className={`${inputClass} pl-10 pr-24`}
+                placeholder="+14696008888"
+              />
+              <Button
+                size="sm"
+                type="button"
+                onClick={onTestPhone}
+                className="absolute right-1.5 top-1/2 h-7 -translate-y-1/2 bg-[#34C759] px-3 text-xs text-black hover:bg-[#34C759]/90"
+              >
+                Test
+              </Button>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <VerificationBadge
+                label="phone"
+                state={phoneVerification}
+                forAlarms
+              />
+              {!e164Valid && companyPhone.length > 0 && (
+                <span className="text-xs text-red-400">
+                  Enter phone number with country code, no spaces or dashes.
+                </span>
+              )}
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <VerificationBadge
-              label="phone"
-              state={phoneVerification}
-              forAlarms
-            />
-            {!e164Valid && companyPhone.length > 0 && (
-              <span className="text-xs text-red-400">
-                Enter phone number with country code, no spaces or dashes.
-              </span>
-            )}
-          </div>
-        </div>
-      </LabelWithInfo>
-    </section>
-  );
-}
+        </LabelWithInfo>
 
-interface AccountSectionProps {
-  email: string;
-  setEmail: (value: string) => void;
-  onTestEmail: () => void;
-  emailVerification: VerificationState;
-}
-
-function AccountSection({
-  email,
-  setEmail,
-  onTestEmail,
-  emailVerification,
-}: AccountSectionProps) {
-  const inputClass =
-    "border-black/20 bg-black/5 text-black placeholder:text-black/40 dark:border-white/20 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/40";
-
-  return (
-    <section className="space-y-4">
-      <h2 className="text-lg font-semibold text-black dark:text-white">
-        Account
-      </h2>
-      <div className="space-y-4">
         <LabelWithInfo label="Email">
           <div className="space-y-2">
             <div className="relative">
@@ -293,17 +279,18 @@ function AccountSection({
             </div>
           </div>
         </LabelWithInfo>
-        <div className="flex flex-wrap gap-3">
-          <Button className="bg-[#34C759] text-black hover:bg-[#34C759]/90">
-            Reset Password
-          </Button>
-          <Button
-            variant="outline"
-            className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-400"
-          >
-            Delete Account
-          </Button>
-        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <Button className="bg-[#34C759] text-black hover:bg-[#34C759]/90">
+          Reset Password
+        </Button>
+        <Button
+          variant="outline"
+          className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-400"
+        >
+          Delete Account
+        </Button>
       </div>
     </section>
   );
@@ -472,21 +459,18 @@ export function ProfilePage() {
         <Card className="border-black/10 bg-white dark:border-white/10 dark:bg-[#1A1C1E]/95">
           <CardContent className="space-y-8 p-6">
             <ProfileHeader />
-            <BioSection
+            <GeneralInformationSection
               firstName={firstName}
               lastName={lastName}
               companyPhone={companyPhone}
+              email={email}
               setFirstName={setFirstName}
               setLastName={setLastName}
               setCompanyPhone={setCompanyPhone}
-              onTestPhone={handleTestPhone}
-              phoneVerification={phoneVerification}
-            />
-            <hr className="border-black/10 dark:border-white/10" />
-            <AccountSection
-              email={email}
               setEmail={setEmail}
+              onTestPhone={handleTestPhone}
               onTestEmail={handleTestEmail}
+              phoneVerification={phoneVerification}
               emailVerification={emailVerification}
             />
             <hr className="border-black/10 dark:border-white/10" />

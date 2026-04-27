@@ -27,6 +27,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team"],
+    reportGroups: ["Daily Production"],
     initials: "LM",
   },
   {
@@ -41,6 +43,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team", "Field Response"],
+    reportGroups: ["Well Tests"],
     initials: "JJ",
   },
   {
@@ -55,6 +59,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Lease Supervisors"],
+    reportGroups: ["Daily Production", "Executive Summary"],
     initials: "WW",
   },
   {
@@ -69,6 +75,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Field Response"],
+    reportGroups: ["Maintenance"],
     initials: "DR",
   },
   {
@@ -83,6 +91,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team", "Lease Supervisors"],
+    reportGroups: ["Executive Summary"],
     initials: "KW",
   },
   {
@@ -97,6 +107,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Field Response"],
+    reportGroups: ["Maintenance"],
     initials: "CW",
   },
   {
@@ -111,6 +123,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Lease Supervisors"],
+    reportGroups: ["Executive Summary"],
     initials: "RR",
   },
   {
@@ -125,6 +139,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team"],
+    reportGroups: ["Daily Production", "Well Tests"],
     initials: "KM",
   },
   {
@@ -139,6 +155,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Field Response"],
+    reportGroups: ["Maintenance"],
     initials: "BS",
   },
   {
@@ -153,6 +171,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team"],
+    reportGroups: ["Daily Production"],
     initials: "EP",
   },
   {
@@ -167,6 +187,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Field Response"],
+    reportGroups: ["Well Tests"],
     initials: "SN",
   },
   {
@@ -181,6 +203,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team", "Lease Supervisors"],
+    reportGroups: ["Executive Summary"],
     initials: "MM",
   },
   {
@@ -195,6 +219,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Lease Supervisors"],
+    reportGroups: ["Executive Summary"],
     initials: "JB",
   },
   {
@@ -209,6 +235,8 @@ export const EXAMPLE_TEAM_MEMBERS: TeamMember[] = [
     company: "Trinity Energy",
     status: "Active",
     assignment: "Johnson Route",
+    alarmGroups: ["Operations Team"],
+    reportGroups: ["Daily Production"],
     initials: "JC",
   },
 ];

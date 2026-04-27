@@ -8,6 +8,7 @@ import {
   MapPinned,
   Package,
   Receipt,
+  ShieldCheck,
   SlidersHorizontal,
   Truck,
   Waypoints,
@@ -26,7 +27,8 @@ export type SettingsSectionId =
   | "transport"
   | "breadcrumbs"
   | "platform"
-  | "invoices";
+  | "invoices"
+  | "permissions";
 
 export type SettingsViewState =
   | { type: "section"; id: SettingsSectionId }
@@ -100,6 +102,12 @@ export const SETTINGS_NAV: SettingsNavEntry[] = [
     id: "invoices",
     label: "Invoices",
     icon: Receipt,
+    group: "app",
+  },
+  {
+    id: "permissions",
+    label: "Permissions",
+    icon: ShieldCheck,
     group: "app",
   },
 ];

@@ -65,6 +65,7 @@ export function ProductionTable({
         field: "date",
         headerName: "Date",
         sortable: true,
+        sort: "desc",
         flex: 1,
         minWidth: 100,
       },

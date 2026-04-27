@@ -11,13 +11,15 @@ ModuleRegistry.registerModules([
   CellSelectionModule,
 ]);
 
-const licenseKey = process.env.AG_GRID_LICENSE_KEY;
+const licenseKey =
+  process.env.NEXT_PUBLIC_AG_GRID_LICENSE_KEY ??
+  process.env.AG_GRID_LICENSE_KEY;
 
 if (licenseKey) {
   LicenseManager.setLicenseKey(licenseKey);
 } else {
   console.warn(
-    "AG Grid license key not found. Enterprise features may be limited.",
+    "AG Grid license key not found. Set NEXT_PUBLIC_AG_GRID_LICENSE_KEY to enable enterprise features.",
   );
 }
 

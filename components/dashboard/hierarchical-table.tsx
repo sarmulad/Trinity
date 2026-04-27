@@ -197,21 +197,23 @@ export function HierarchicalTable() {
     [isDark],
   );
 
+  const autoGroupColumnDef = React.useMemo<ColDef<RowData>>(
+    () => ({
+      headerName: "Group",
+      cellRendererParams: {
+        innerRenderer: NameCellRenderer,
+        suppressCount: true,
+      },
+      flex: 2,
+      minWidth: 180,
+      pinned: "left",
+      lockPinned: true,
+    }),
+    [],
+  );
+
   const colDefs = React.useMemo<ColDef<RowData>[]>(
     () => [
-      {
-        field: "name",
-        headerName: "Name",
-        cellRenderer: "agGroupCellRenderer",
-        cellRendererParams: {
-          innerRenderer: NameCellRenderer,
-          suppressCount: true,
-        },
-        flex: 2,
-        minWidth: 180,
-        pinned: "left",
-        lockPinned: true,
-      },
       {
         field: "location",
         headerName: "Location",
@@ -220,7 +222,7 @@ export function HierarchicalTable() {
       },
       {
         field: "oilProd",
-        headerName: "Oil Prod",
+        headerName: "Oil Production",
         flex: 1,
         minWidth: 110,
       },
@@ -280,6 +282,7 @@ export function HierarchicalTable() {
           rowData={rowData}
           columnDefs={colDefs}
           defaultColDef={defaultColDef}
+          autoGroupColumnDef={autoGroupColumnDef}
           treeData
           getDataPath={getDataPath}
           groupDefaultExpanded={1}

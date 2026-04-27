@@ -41,7 +41,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard/routes/submissions": "Route",
   "/dashboard/routes": "Routes",
   "/dashboard/alarms": "Alarms",
-  "/dashboard/teams": "Teams",
+  "/dashboard/teams": "Users",
   "/dashboard/settings": "Settings",
   "/dashboard/profile": "Profile",
 };
@@ -119,16 +119,12 @@ export function TopBar({ onMenuClick }: TopBarProps) {
             </span>
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            className="hidden gap-2 border-transparent bg-transparent text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white sm:flex"
-          >
+          <div className="hidden items-center gap-2 rounded-md border border-transparent bg-transparent px-3 py-2 text-black/60 dark:text-white/60 sm:flex">
             <Calendar className="h-4 w-4" />
             <span className="text-sm text-black dark:text-white">
               {formattedDate}
             </span>
-          </Button>
+          </div>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

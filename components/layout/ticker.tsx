@@ -101,6 +101,10 @@ function TickerCell({ item }: { item: TickerItem }) {
 export function Ticker() {
   const [items, setItems] = React.useState<TickerItem[]>(FALLBACK);
   const [isLive, setIsLive] = React.useState(false);
+  const repeatedItems = React.useMemo(
+    () => [...items, ...items, ...items, ...items],
+    [items],
+  );
 
   React.useEffect(() => {
     async function load() {
@@ -133,16 +137,13 @@ export function Ticker() {
       )}
 
       <div
-        className="flex h-full w-max items-center"
+        className="flex h-full min-w-[200%] items-center"
         style={{
           animation: "ticker 30s linear infinite",
         }}
       >
-        {items.map((item, idx) => (
-          <TickerCell key={`first-${item.code}-${idx}`} item={item} />
-        ))}
-        {items.map((item, idx) => (
-          <TickerCell key={`second-${item.code}-${idx}`} item={item} />
+        {repeatedItems.map((item, idx) => (
+          <TickerCell key={`${item.code}-${idx}`} item={item} />
         ))}
       </div>
 
@@ -152,7 +153,7 @@ export function Ticker() {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-25%);
           }
         }
       `}</style>

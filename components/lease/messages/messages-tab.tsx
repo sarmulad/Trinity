@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
   Search,
-  Send,
   Paperclip,
   Database,
   HelpCircle,
@@ -21,6 +20,7 @@ interface MessagesTabProps {
   messages?: Message[];
   isLoading?: boolean;
   onSend?: (text: string) => void;
+  onMessagesChange?: (messages: Message[]) => void;
   onAttachPhoto?: () => void;
   onChooseDataPoint?: () => void;
 }
@@ -34,6 +34,7 @@ export function MessagesTab({
   messages = EXAMPLE_MESSAGES,
   isLoading = false,
   onSend,
+  onMessagesChange,
   onAttachPhoto,
   onChooseDataPoint,
 }: MessagesTabProps) {
@@ -49,6 +50,9 @@ export function MessagesTab({
   const [draftDataPoint, setDraftDataPoint] = React.useState("Top Level");
   const [attachedPhotoUrl, setAttachedPhotoUrl] = React.useState("");
   const [previewPhotoUrl, setPreviewPhotoUrl] = React.useState("");
+  const [commentSaveState, setCommentSaveState] = React.useState<
+    "draft" | "saved"
+  >("saved");
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const dataPointOptions: Record<string, string[]> = {
@@ -71,6 +75,10 @@ export function MessagesTab({
     }
   }, [draftAsset, draftDataPoint]);
 
+  React.useEffect(() => {
+    setItems(messages);
+  }, [messages]);
+
   const filtered =
     search.trim() === ""
       ? items
@@ -84,6 +92,7 @@ export function MessagesTab({
             (m.dataPointValue ?? "").toLowerCase().includes(q)
           );
         });
+  const hasCommentDraft = newMessage.trim().length > 0;
 
   function handleSend() {
     if (!newMessage.trim()) return;
@@ -109,7 +118,7 @@ export function MessagesTab({
               : attachedDataPoint?.dataPoint === "Battery"
                 ? "13.43 V"
                 : "—";
-    setItems((prev) => [
+    const nextItems = [
       {
         id: String(Date.now()),
         authorName: "You",
@@ -121,11 +130,14 @@ export function MessagesTab({
         text: newMessage.trim(),
         photoUrl: attachedPhotoUrl || undefined,
       },
-      ...prev,
-    ]);
+      ...items,
+    ];
+    setItems(nextItems);
+    onMessagesChange?.(nextItems);
     setNewMessage("");
     setAttachedPhotoUrl("");
     setAttachedDataPoint(null);
+    setCommentSaveState("saved");
   }
 
   function handlePickPhoto() {
@@ -139,6 +151,7 @@ export function MessagesTab({
     reader.onload = () => {
       const url = String(reader.result ?? "");
       setAttachedPhotoUrl(url);
+      setCommentSaveState("draft");
     };
     reader.readAsDataURL(file);
   }
@@ -156,12 +169,13 @@ export function MessagesTab({
       dataPoint: draftDataPoint,
     });
     setShowDataPointModal(false);
+    setCommentSaveState("draft");
   }
 
   return (
     <div className="space-y-4">
       <h2 className="text-base font-bold text-black dark:text-white">
-        Messages
+        Comments
       </h2>
 
       <div className="rounded-xl border bg-[#ffff]/80 border-black/10 backdrop-blur-md p-5 space-y-3 dark:border-white/10 dark:bg-white/5">
@@ -178,7 +192,7 @@ export function MessagesTab({
 
         {filtered.length === 0 ? (
           <p className="text-sm text-black/30 py-4 text-center dark:text-white/30">
-            No messages match your search.
+            No comments match your search.
           </p>
         ) : (
           <div className="space-y-2">
@@ -239,14 +253,17 @@ export function MessagesTab({
         {/* ── Compose ── */}
         <div className="space-y-3 pt-2">
           <label className="flex items-center gap-1.5 text-sm font-medium text-black dark:text-white">
-            Write your message
+            Write your comment
             <HelpCircle className="h-4 w-4 text-[#34C759]" />
           </label>
 
           <textarea
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Your message"
+            onChange={(e) => {
+              setNewMessage(e.target.value);
+              setCommentSaveState("draft");
+            }}
+            placeholder="Your comment"
             rows={4}
             className="w-full rounded-lg border border-black/10 bg-black/5 px-4 py-3 text-sm text-black placeholder:text-black/25 focus:border-[#34C759]/50 focus:outline-none resize-none dark:border-white/10 dark:bg-[#252930] dark:text-white dark:placeholder:text-white/25"
           />
@@ -265,7 +282,10 @@ export function MessagesTab({
                 {attachedDataPoint.asset} • {attachedDataPoint.dataPoint}
               </span>
               <button
-                onClick={() => setAttachedDataPoint(null)}
+                onClick={() => {
+                  setAttachedDataPoint(null);
+                  setCommentSaveState("draft");
+                }}
                 className="rounded-sm p-0.5 text-current/80 hover:bg-[#34C759]/15 hover:text-current"
                 aria-label="Remove attached data point"
               >
@@ -286,9 +306,18 @@ export function MessagesTab({
           <div className="flex items-center gap-3 flex-wrap">
             <button
               onClick={handleSend}
-              className="flex items-center gap-2 rounded-lg bg-[#34C759] px-5 py-2.5 text-sm font-semibold text-black hover:bg-[#28a745] transition-colors"
+              disabled={!hasCommentDraft}
+              className={`flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors ${
+                hasCommentDraft
+                  ? "bg-[#34C759] text-black hover:bg-[#28a745]"
+                  : "bg-black/10 text-black/40 dark:bg-white/10 dark:text-white/35"
+              }`}
             >
-              Send
+              {hasCommentDraft
+                ? "Send"
+                : commentSaveState === "saved"
+                  ? "Saved"
+                  : "Send"}
               <CheckCircle2 className="h-4 w-4" />
             </button>
 
@@ -351,7 +380,7 @@ export function MessagesTab({
                   Attach Data Point
                 </h3>
                 <p className="mt-1 text-xs text-black/50 dark:text-white/45">
-                  Choose an asset and variable to include with this message.
+                  Choose an asset and variable to include with this comment.
                 </p>
               </div>
               <button

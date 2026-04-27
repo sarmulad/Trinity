@@ -629,7 +629,7 @@ export function DetailView({ data, onClose }: DetailViewProps) {
     },
     {
       id: "chart",
-      label: "Level Chart",
+      label: "Line Chart",
       icon: <BarChart2 className="h-3.5 w-3.5" />,
     },
   ];

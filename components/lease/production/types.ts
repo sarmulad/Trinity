@@ -11,6 +11,14 @@ export interface ProductionRecord {
   alarmText?: string;
 }
 
+export interface ProductionComment {
+  id: string;
+  varKey: "h2o" | "oil" | "gas";
+  date: string;
+  value: number;
+  note: string;
+}
+
 export interface ProductionStats {
   oilStock: string;
   avgRunsDay: number;
@@ -71,6 +79,9 @@ export interface ProductionTabProps {
   allocatedWells?: AllocationSection[];
   moreInfo?: MoreInfo;
   isLoading?: boolean;
+  comments?: ProductionComment[];
+  onCommentsChange?: (comments: ProductionComment[]) => void;
+  onAddComment?: (comment: ProductionComment) => void;
 }
 
 export interface GasMeterRecord {

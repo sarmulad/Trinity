@@ -24,20 +24,25 @@ const SLIDES = [
 export default function MarketingSlider() {
   const [current, setCurrent] = React.useState(0);
   const [animating, setAnimating] = React.useState(false);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     const id = setInterval(() => {
       goTo((prev) => (prev + 1) % SLIDES.length);
     }, 4000);
-    return () => clearInterval(id);
+    return () => {
+      clearInterval(id);
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, []);
 
   function goTo(indexOrUpdater: number | ((prev: number) => number)) {
     setAnimating(true);
-    setTimeout(() => {
-      setCurrent(
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setCurrent((prev) =>
         typeof indexOrUpdater === "function"
-          ? indexOrUpdater(current)
+          ? indexOrUpdater(prev)
           : indexOrUpdater,
       );
       setAnimating(false);

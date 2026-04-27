@@ -20,6 +20,7 @@ import { TransportSection } from "./application-setup/transport-section";
 import type { BatteryRow } from "./application-setup/mock-data";
 import { InvoicesTab } from "./invoices-tab";
 import { PlatformPreferencesTab } from "./platform-preferences-tab";
+import { PermissionsTab } from "@/components/teams/permissions/permissions-tab";
 import {
   SETTINGS_NAV,
   getActiveNavId,
@@ -97,6 +98,8 @@ export function SettingsPage() {
         return <PlatformPreferencesTab />;
       case "invoices":
         return <InvoicesTab />;
+      case "permissions":
+        return <PermissionsTab />;
       default:
         return null;
     }

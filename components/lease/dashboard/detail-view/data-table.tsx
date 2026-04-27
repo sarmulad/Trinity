@@ -69,7 +69,6 @@ export function DataTable({
         headerName: "Level",
         flex: 1,
         minWidth: 120,
-        sort: "asc",
       },
       {
         field: "volume",
@@ -82,6 +81,7 @@ export function DataTable({
         headerName: "Date and Time",
         flex: 2,
         minWidth: 200,
+        sort: "desc",
       },
     ],
     [],
